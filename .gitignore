@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+.vite/
+
+# Working copy of the Claude Design export, kept out of the repo.
+_import/

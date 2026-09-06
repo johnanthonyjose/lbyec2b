@@ -1,0 +1,16 @@
+/* DLSU Design System — token layer.
+   Import this once per page entry. Every component and page style below
+   consumes these custom properties and never hard-codes a hex or a px scale.
+
+   Type note: the Institutional Identification Manual specifies ITC Galliard
+   (logotype) and Futura Bold (seal lettering). Both are licensed foundry
+   faces and are not bundled. EB Garamond and Jost stand in for them and are
+   loaded from Google Fonts in each page's <head> (with preconnect) rather
+   than via @import, so the request starts before CSS is parsed. Swap in the
+   licensed files here when they are available. */
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/elevation.css";
+@import "./tokens/motion.css";
+@import "./tokens/base.css";

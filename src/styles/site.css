@@ -1,0 +1,59 @@
+@import "./dlsu/index.css";
+
+html { scroll-behavior: smooth; }
+body { margin: 0; }
+a { color: var(--text-link); }
+a:hover { color: var(--text-link-hover); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* Hover affordances that the design file expressed as inline `style-hover`.
+   Inline styles cannot carry pseudo-classes, so they live here as utilities. */
+.dls-navlink { text-decoration: none; color: var(--text-secondary); padding-bottom: 3px; border-bottom: 2px solid transparent; transition: var(--transition-control); }
+.dls-navlink:hover { color: var(--text-accent); }
+.dls-navlink[aria-current="true"] { color: var(--text-accent); border-bottom-color: var(--gold-500); }
+
+.dls-row-hover { transition: background-color var(--duration-fast) var(--ease-standard); }
+.dls-row-hover:hover { background: var(--surface-subtle); }
+
+.dls-card-hover { transition: box-shadow var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard); }
+.dls-card-hover:hover { box-shadow: var(--shadow-md); border-color: var(--border-default); }
+
+.dls-link-quiet { color: var(--text-secondary); text-decoration: none; }
+.dls-link-quiet:hover { color: var(--text-accent); text-decoration: underline; }
+
+.dls-totop { transition: opacity var(--duration-base) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
+.dls-totop:hover { background: var(--green-900) !important; }
+
+/* Narrow screens. The page is built on a 1120px measure with multi-column
+   grids; below roughly a tablet each of those collapses to a single column
+   and the gutters tighten. Grouped under one class-driven block so the same
+   rules can be exercised in a test by forcing .dls-force-narrow on <html>. */
+@media (max-width: 860px) {
+  .dls-hero-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 40px !important; padding: 56px 20px 48px !important; }
+  .dls-hero-mark { display: none !important; }
+  .dls-split { grid-template-columns: minmax(0, 1fr) !important; gap: 28px !important; }
+  .dls-split > p + p,
+  .dls-split > div + div[style*="border-left"] { padding-left: 0 !important; border-left: 0 !important; }
+  .dls-section { padding-left: 20px !important; padding-right: 20px !important; }
+
+  /* Learning plan: drop the activities column into the topic block and let
+     the week number sit alongside it. */
+  .dls-plan-head { display: none !important; }
+  .dls-plan-row { grid-template-columns: 46px minmax(0, 1fr) 24px !important; gap: 12px !important; }
+  .dls-plan-row > .dls-plan-activities { grid-column: 2 !important; font-size: var(--text-2xs) !important; color: var(--text-muted) !important; }
+  .dls-plan-detail { grid-template-columns: minmax(0, 1fr) !important; }
+  .dls-plan-detail > :first-child { display: none !important; }
+
+  /* Rubric table becomes stacked criterion / descriptor pairs. */
+  .dls-rubric-row, .dls-rubric-head { grid-template-columns: minmax(0, 1fr) !important; gap: 10px !important; padding-left: 20px !important; padding-right: 20px !important; }
+
+  /* Outcome tablist reads better full width above the detail panel. */
+  .dls-outcome-panel { padding: 24px 20px !important; }
+}

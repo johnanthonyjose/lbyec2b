@@ -1,0 +1,18 @@
+/* Minimal resets consumers can rely on. No component classes live here. */
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--type-body-family);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-leading);
+  -webkit-font-smoothing: antialiased;
+  text-wrap: pretty;
+}
+h1, h2, h3, h4 { margin: 0; font-family: var(--font-display); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
+h3, h4 { font-family: var(--font-sans); }
+a { color: var(--text-link); text-decoration: underline; text-underline-offset: 2px; }
+a:hover { color: var(--text-link-hover); }
+*:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+::selection { background: var(--green-100); }

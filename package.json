@@ -1,0 +1,20 @@
+{
+  "name": "lbyec2b-website",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Course website for LBYEC2B, Computer Fundamentals and Programming 2, De La Salle University.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.2.2"
+  }
+}

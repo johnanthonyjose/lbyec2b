@@ -1,0 +1,87 @@
+:root {
+  /* ---- Brand core (Institutional Identification Manual: Green Pantone 355U, Gold, Black 100%) ---- */
+  --dlsu-green: #009639;        /* Pantone 355 - the brand green */
+  --dlsu-green-deep: #00703c;   /* digital-safe deep green: AA with white text */
+  --dlsu-gold: #b08d57;         /* Gold - metallic ink approximated for screen */
+  --dlsu-black: #000000;        /* Black 100% */
+  --dlsu-white: #ffffff;
+
+  /* ---- Green scale ---- */
+  --green-50: #e8f4ec;
+  --green-100: #c9e7d5;
+  --green-200: #97d3b0;
+  --green-300: #56b87a;
+  --green-400: #1ea256;
+  --green-500: #009639;
+  --green-600: #00843a;
+  --green-700: #00703c;
+  --green-800: #005229;
+  --green-900: #00341a;
+
+  /* ---- Gold scale ---- */
+  --gold-100: #f4ecdd;
+  --gold-200: #e6d5b4;
+  --gold-300: #d3ba8c;
+  --gold-500: #b08d57;
+  --gold-600: #96743f;
+  --gold-700: #6f552c;
+
+  /* ---- Neutrals ---- */
+  --neutral-0: #ffffff;
+  --neutral-50: #f7f8f7;
+  --neutral-100: #eff1ef;
+  --neutral-200: #e1e4e2;
+  --neutral-300: #c7ccc8;
+  --neutral-400: #9ba29d;
+  --neutral-500: #6e756f;
+  --neutral-600: #4c524e;
+  --neutral-700: #343833;
+  --neutral-800: #1e211f;
+  --neutral-900: #000000;
+
+  /* ---- Support / status ---- */
+  --status-success: #00703c;
+  --status-warning: #a8681c;
+  --status-danger: #9b2226;
+  --status-info: #1f5c8b;
+  --status-success-bg: #e8f4ec;
+  --status-warning-bg: #fbf1e3;
+  --status-danger-bg: #fbeceb;
+  --status-info-bg: #eaf1f7;
+
+  /* ---- Semantic: text ---- */
+  --text-primary: var(--neutral-800);
+  --text-secondary: var(--neutral-500);
+  --text-muted: var(--neutral-400);
+  --text-accent: var(--green-700);
+  --text-gold: var(--gold-700);
+  --text-inverse: var(--neutral-0);
+  --text-on-brand: var(--neutral-0);
+  --text-link: var(--green-700);
+  --text-link-hover: var(--green-800);
+
+  /* ---- Semantic: surface ---- */
+  --surface-page: var(--neutral-0);
+  --surface-subtle: var(--neutral-50);
+  --surface-sunken: var(--neutral-100);
+  --surface-card: var(--neutral-0);
+  --surface-brand: var(--green-700);
+  --surface-brand-strong: var(--green-900);
+  --surface-brand-tint: var(--green-50);
+  --surface-gold-tint: var(--gold-100);
+  --surface-ink: var(--neutral-900);
+
+  /* ---- Semantic: border ---- */
+  --border-subtle: var(--neutral-200);
+  --border-default: var(--neutral-300);
+  --border-strong: var(--neutral-500);
+  --border-brand: var(--green-700);
+  --border-gold: var(--gold-500);
+  --rule-brand: var(--gold-500);   /* the gold hairline used under headers */
+
+  /* ---- Interaction ---- */
+  --focus-ring: var(--gold-500);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --overlay-scrim: rgba(0, 52, 26, 0.56);
+}
