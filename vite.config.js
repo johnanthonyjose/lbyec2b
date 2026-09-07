@@ -21,7 +21,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: page("index"),
-        "course-overview": page("course-overview")
+        "course-overview": page("course-overview"),
+        "github-account": page("github-account")
       }
     }
   }

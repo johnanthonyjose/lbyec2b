@@ -31,6 +31,20 @@ a:hover { color: var(--text-link-hover); }
 .dls-totop { transition: opacity var(--duration-base) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
 .dls-totop:hover { background: var(--green-900) !important; }
 
+/* GitHub handout. The pin is positioned as a percentage of its figure, so it
+   tracks the screenshot as the image scales. The hover rules are here rather
+   than inline because inline styles cannot carry a pseudo-class. */
+.gh-pin {
+  position: absolute; width: 26px; height: 26px; border-radius: 999px;
+  background: var(--gold-500); color: #fff; font-family: var(--font-sans);
+  font-size: 13px; font-weight: 600; display: grid; place-items: center;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .85), 0 1px 4px rgba(0, 52, 26, .4);
+}
+.gh-ans:hover { border-color: var(--green-700); background: var(--green-50); }
+.gh-warn:hover { background: var(--gold-200); border-color: var(--gold-500); }
+@media (max-width: 780px) { .gh-two { grid-template-columns: minmax(0, 1fr) !important; } }
+
 /* Narrow screens. The page is built on a 1120px measure with multi-column
    grids; below roughly a tablet each of those collapses to a single column
    and the gutters tighten. Grouped under one class-driven block so the same

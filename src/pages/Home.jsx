@@ -17,6 +17,13 @@ const pages = [
     ready: true
   },
   {
+    href: "github-account.html",
+    eyebrow: "Laboratory preliminary",
+    title: "Registering a GitHub account",
+    body: "Handout 01. A seven-step walkthrough for registering the account, confirming the DLSU mail address and joining the course organisation, with a resolution for each anticipated difficulty.",
+    ready: true
+  },
+  {
     href: null,
     eyebrow: "Schedule",
     title: "Weekly schedule",
@@ -38,7 +45,10 @@ export default function Home() {
       background: "var(--surface-page)", color: "var(--text-primary)",
       fontFamily: "var(--font-sans)", minHeight: "100%"
     }}>
-      <SiteHeader pages={[{ href: "course-overview.html", label: "Course overview" }]} />
+      <SiteHeader pages={[
+          { href: "course-overview.html", label: "Course overview" },
+          { href: "github-account.html", label: "GitHub account" }
+        ]} />
 
       <main>
         <section style={{ background: "var(--green-900)", color: "var(--text-inverse)" }}>

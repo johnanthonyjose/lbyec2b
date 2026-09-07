@@ -32,7 +32,12 @@ export default function CourseOverview() {
       background: "var(--surface-page)", color: "var(--text-primary)",
       fontFamily: "var(--font-sans)", minHeight: "100%"
     }}>
-      <SiteHeader sections={navSections} active={active} progressRef={progressRef} />
+      <SiteHeader
+        pages={[
+          { href: "index.html", label: "Home" },
+          { href: "github-account.html", label: "GitHub account" }
+        ]}
+        sections={navSections} active={active} progressRef={progressRef} />
 
       <main>
         <Hero />

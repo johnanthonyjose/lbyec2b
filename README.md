@@ -19,6 +19,7 @@ npm run preview    # serve the production build locally
 ```
 index.html               hub page          -> src/main-index.jsx           -> src/pages/Home.jsx
 course-overview.html     the syllabus page -> src/main-course-overview.jsx -> src/pages/CourseOverview.jsx
+github-account.html      handout 01        -> src/main-github-account.jsx  -> src/pages/GitHubAccount.jsx
 
 src/
   data/course.js         ALL course content: weeks, outcomes, rubrics, policies, references
@@ -32,6 +33,7 @@ src/
     Brand.jsx            the wordmark and course mark
   pages/
     course-overview/     one file per section of the course page
+    github-account/      the handout's step and resolution content
   hooks/                 scroll progress, scroll spy, persistent state
 
 public/                  copied verbatim into the build
@@ -45,9 +47,28 @@ public/                  copied verbatim into the build
    `<script>` at a new entry in `src/`.
 2. Add it to the `input` map in `vite.config.js`.
 3. Add a card for it in the `pages` array in `src/pages/Home.jsx`.
+4. Add it to the `pages` prop of `SiteHeader` on the other pages, so the nav
+   stays consistent across the site.
 
 Every page gets the design system by importing `src/styles/site.css` and pulling
 components from `src/components/ds/`. Nothing is page-specific except the content.
+
+### Editing the GitHub handout
+
+`src/pages/github-account/steps.jsx` holds the seven steps and
+`resolutions.jsx` holds the panels behind each "Anticipated difficulty"
+banner. Both carry markup rather than plain strings because the prose is
+threaded with emphasis and links.
+
+Note that a step's `fix` is not always its own number. Step 6 raises the
+membership form's difficulty and step 7 raises the missing invitation's, and
+those two panels are numbered the other way round; each resolution records a
+`returnTo` so its "Return to step N" button sends the reader to the right
+place. There is a check on this in the browser, not in code, so keep the two
+files in step if you renumber anything.
+
+A student's progress is held in `localStorage` under `lbyec2b-gh-guide`. It is
+explicitly not submitted or graded, and the page says so.
 
 ### Editing course content
 
@@ -72,7 +93,7 @@ without any repo-name configuration.
 
 ## Known gaps
 
-- **The two photographs are missing.** `src/pages/course-overview/Gallery.jsx`
+- **The two photographs on the course page are missing.** `src/pages/course-overview/Gallery.jsx`
   expects `public/assets/img/lab-session.jpeg` and
   `public/assets/img/project-team.jpeg`. They could not be exported from the
   Claude Design project because a single design-system file read is capped at
