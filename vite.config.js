@@ -22,7 +22,8 @@ export default defineConfig({
       input: {
         index: page("index"),
         "course-overview": page("course-overview"),
-        "github-account": page("github-account")
+        "github-account": page("github-account"),
+        "assignment-workflow": page("assignment-workflow")
       }
     }
   }

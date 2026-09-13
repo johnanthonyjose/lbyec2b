@@ -35,7 +35,8 @@ export default function CourseOverview() {
       <SiteHeader
         pages={[
           { href: "index.html", label: "Home" },
-          { href: "github-account.html", label: "GitHub account" }
+          { href: "github-account.html", label: "GitHub account" },
+          { href: "assignment-workflow.html", label: "Assignment workflow" }
         ]}
         sections={navSections} active={active} progressRef={progressRef} />
 

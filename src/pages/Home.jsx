@@ -24,6 +24,13 @@ const pages = [
     ready: true
   },
   {
+    href: "assignment-workflow.html",
+    eyebrow: "Laboratory preliminary",
+    title: "Submitting an assignment",
+    body: "Handout 02. How every assignment this term is collected — GitHub Classroom issues your repository, you write the answer on your own machine, and the link goes back to Canvas. Five stages, about twenty-five minutes, with a checkpoint at every step.",
+    ready: true
+  },
+  {
     href: null,
     eyebrow: "Schedule",
     title: "Weekly schedule",
@@ -47,7 +54,8 @@ export default function Home() {
     }}>
       <SiteHeader pages={[
           { href: "course-overview.html", label: "Course overview" },
-          { href: "github-account.html", label: "GitHub account" }
+          { href: "github-account.html", label: "GitHub account" },
+          { href: "assignment-workflow.html", label: "Assignment workflow" }
         ]} />
 
       <main>

@@ -6,3 +6,10 @@ dist/
 
 # Working copy of the Claude Design export, kept out of the repo.
 _import/
+
+# The Craft exports the handouts were ported from. Kept on disk because
+# tools/build-aw-assets.sh regenerates the figures from them, but not committed:
+# it is 36 MB across 249 files, about half of which are Craft's own
+# *_png_preview.png sidecars, and large binaries are far easier to add to git
+# history than to take back out. Delete this line if the sources should ship.
+original/

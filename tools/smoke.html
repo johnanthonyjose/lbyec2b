@@ -1,0 +1,204 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>LBYEC2B smoke test</title></head>
+<body style="font:13px/1.5 ui-monospace,monospace;padding:20px">
+<pre id="out">running…</pre>
+<script>
+/* Behavioural smoke test for the two handouts.
+
+   The repo carries no test runner, and both handouts are stateful enough that
+   "it builds" proves very little — the assignment workflow alone has thirty
+   steps, five completion panels and a persistence model. This drives the real
+   pages in an iframe and asserts on what a reader would actually see.
+
+   It caught two genuine bugs on the way in: a completion panel that mounted at
+   opacity 0 and never became visible, and an unreadable code span on the deep
+   green ground. Run it with tools/smoke.sh. */
+
+const results = [];
+const ok = (n, c, d) => results.push(`${c ? "PASS" : "FAIL"}  ${n}${c ? "" : "  <-- " + d}`);
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const frame = document.createElement("iframe");
+frame.style.cssText = "width:1100px;height:1400px;border:0";
+document.body.appendChild(frame);
+const load = (p) => new Promise(r => { frame.onload = () => setTimeout(r, 350); frame.src = p; });
+const D = () => frame.contentDocument;
+const txt = () => D().body.innerText;
+const all = (s) => [...D().querySelectorAll(s)];
+const byText = (s, re) => all(s).find(e => re.test(e.textContent));
+const opacity = (el) => el ? +D().defaultView.getComputedStyle(el).opacity : -1;
+
+async function assignmentWorkflow() {
+  results.push("── assignment workflow ──");
+  localStorage.removeItem("lbyec2b-aw");
+  await load("/assignment-workflow.html");
+
+  ok("starts on the prerequisites", !D().getElementById("walk"), "walk rendered early");
+  ok("publishes minutes, never a step count",
+     /about 25 minutes/i.test(txt()) && !/\b30\b/.test(txt()), "a 30 appeared");
+  byText("button", /Show me the steps anyway/).click(); await wait(400);
+  ok("the soft gate opens Stage 1 without ticking", !!D().getElementById("walk"), "walk missing");
+
+  const SIZES = [7, 7, 6, 6, 4];
+  let sawTotal = false, maxDen = 0, rowCounts = new Set();
+
+  for (let stage = 1; stage <= 5; stage++) {
+    for (let step = 1; step <= SIZES[stage - 1]; step++) {
+      const body = txt();
+      if (/\b30\b/.test(body)) sawTotal = true;
+      // "of 5" is the stage count and legitimate; anything else is a step
+      // denominator and must stay small.
+      [...body.matchAll(/of (\d+)/gi)].forEach(m => { if (+m[1] !== 5) maxDen = Math.max(maxDen, +m[1]); });
+      rowCounts.add(all(".aw-row").length);
+
+      if (stage === 4 && step === 5) {
+        all(".gh-ans")[1].click(); await wait(120);
+        ok("the alternative branch explains itself and leaves the affirmative reachable",
+           /VS Code's doing, not yours/.test(txt()) &&
+           all(".gh-ans")[0].getAttribute("aria-pressed") === "false", "no recovery path");
+      }
+      all(".gh-ans")[0].click(); await wait(110);
+      const n = byText("button", /^Next step$/);
+      if (n && !n.disabled) { n.click(); await wait(150); }
+    }
+
+    await wait(700);   // let the entrance animation settle before reading opacity
+    const dlg = D().querySelector('.aw-done-scrim[role="dialog"]');
+    ok(`stage ${stage} completion panel appears`, !!dlg, "no panel");
+    ok(`stage ${stage} completion panel is visible, not just present`,
+       opacity(D().querySelector(".aw-done")) === 1, `opacity ${opacity(D().querySelector(".aw-done"))}`);
+    if (!dlg) return;
+    ok(`stage ${stage} panel is a modal dialog`, dlg.getAttribute("aria-modal") === "true", "no aria-modal");
+
+    if (stage < 5) {
+      ok(`stage ${stage} panel names the next stage and its cost`,
+         /about \d+ minutes/i.test(dlg.innerText), "no minutes for the next stage");
+      byText("button", new RegExp(`Begin Stage ${stage + 1}`)).click(); await wait(400);
+    } else {
+      ok("the final panel shows all five outcomes",
+         dlg.querySelectorAll(".aw-done-marks li").length === 5, "not five marks");
+      byText("button", /^Close$/).click(); await wait(300);
+    }
+  }
+
+  ok("no step total is ever rendered", !sawTotal, "the string 30 reached the screen");
+  ok("the largest denominator shown is 7", maxDen <= 7, `saw 'of ${maxDen}'`);
+  ok("the stage map always shows exactly five rows",
+     rowCounts.size === 1 && rowCounts.has(5), `row counts seen: ${[...rowCounts]}`);
+
+  const before = JSON.parse(localStorage.getItem("lbyec2b-aw"));
+  await load("/assignment-workflow.html");
+  const after = JSON.parse(localStorage.getItem("lbyec2b-aw"));
+  ok("progress survives a reload",
+     after.stage === before.stage && Object.keys(after.answers).length === 30,
+     `stage ${after.stage}, ${Object.keys(after.answers).length} answers`);
+  ok("a dismissed completion panel does not return", !D().querySelector(".aw-done-scrim"), "reappeared");
+  ok("prerequisites collapse once inside the stages", !!D().querySelector(".aw-prereq-bar"), "still expanded");
+  ok("the header exposes a progressbar", !!D().querySelector('[role="progressbar"][aria-valuenow]'), "none");
+  ok("sealed stages are disabled, not merely styled",
+     all(".aw-row.is-sealed .aw-row-head").every(b => b.disabled), "a sealed row was clickable");
+
+  localStorage.setItem("lbyec2b-aw", JSON.stringify(
+    { v:1, os:"win", skipped:true, prereq:{}, answers:{}, stage:1, step:4, acknowledged:[] }));
+  await load("/assignment-workflow.html");
+  D().querySelector(".aw-warn").click(); await wait(250);
+  const m = D().querySelector('[role="dialog"][aria-modal="true"]');
+  ok("a branching failure opens a resolution", !!m, "no modal");
+  ok("the resolution takes focus on open", D().activeElement === m, "focus not moved");
+  D().defaultView.dispatchEvent(new (D().defaultView.KeyboardEvent)("keydown", { key:"Escape", bubbles:true }));
+  await wait(200);
+  ok("Escape closes the resolution", !D().querySelector('[role="dialog"][aria-modal="true"]'), "still open");
+
+  // Figures must stay subordinate to the instruction: this is the whole point
+  // of the sizing, and it is the kind of thing a stylesheet edit quietly undoes.
+  localStorage.setItem("lbyec2b-aw", JSON.stringify(
+    { v:1, os:"win", skipped:true, prereq:{}, answers:{}, stage:1, step:3, acknowledged:[] }));
+  await load("/assignment-workflow.html");
+  const shot = D().querySelector(".aw-figure .fig-shot");
+  const action = D().querySelector(".aw-action");
+  ok("the figure is held well inside the text column",
+     shot && shot.getBoundingClientRect().width <= 530,
+     `figure is ${shot ? Math.round(shot.getBoundingClientRect().width) : "?"}px wide`);
+  ok("the instruction is set larger than the figure's caption",
+     parseFloat(D().defaultView.getComputedStyle(D().querySelector(".aw-action-text")).fontSize) >= 18,
+     "instruction is not the dominant text");
+  ok("the figure sits below the instruction, not above it",
+     action.compareDocumentPosition(shot) & Node.DOCUMENT_POSITION_FOLLOWING, "figure precedes the instruction");
+
+  // Clips: play on their own, and keep repeating.
+  //
+  // What is asserted here is the set of attributes that produce that, not the
+  // playing itself. Chrome holds muted autoplay video until it is actually in
+  // the viewport and starts it then — which is the behaviour we want, and is
+  // why no observer is involved — but every clip on this page sits around two
+  // thousand pixels down, and neither scrolling the frame nor enlarging it
+  // makes Chrome treat it as visible under a virtual clock. Verified by hand
+  // instead: a clip plays when you scroll to it and loops until you leave.
+  localStorage.setItem("lbyec2b-aw", JSON.stringify(
+    { v:1, os:"win", skipped:true, prereq:{}, answers:{}, stage:2, step:2, acknowledged:[] }));
+  await load("/assignment-workflow.html");
+  const clip = D().querySelector("video");
+  ok("the recording is a video, not a looping gif", !!clip, "no video element");
+  ok("it repeats automatically", clip.loop === true, "loop not set");
+  ok("it is muted, which is what lets it autoplay at all", clip.muted === true, "not muted");
+  ok("it plays inline rather than going fullscreen on a phone", clip.playsInline === true, "playsInline not set");
+  ok("it is set to start on its own", clip.autoplay === true, "autoplay attribute missing");
+  ok("nothing is left needing a click to start it",
+     !D().querySelector(".aw-clip-play"), "a play button is still being rendered");
+
+  localStorage.setItem("lbyec2b-aw", JSON.stringify(
+    { v:1, os:"win", skipped:true, prereq:{}, answers:{}, stage:1, step:3, acknowledged:[] }));
+  await load("/assignment-workflow.html");
+  ok("figures offer to enlarge", !!D().querySelector(".fig-zoom"), "no zoom affordance");
+  D().querySelector(".fig-zoom").click(); await wait(250);
+  const lb = D().querySelector('.aw-lightbox [role="dialog"][aria-modal="true"]');
+  ok("selecting a figure opens it full size", !!lb, "no lightbox");
+  ok("the enlarged figure takes focus", D().activeElement === lb, "focus not moved");
+  D().defaultView.dispatchEvent(new (D().defaultView.KeyboardEvent)("keydown", { key:"Escape", bubbles:true }));
+  await wait(200);
+  ok("Escape closes the enlarged figure", !D().querySelector(".aw-lightbox"), "still open");
+
+  frame.style.width = "360px"; await wait(250);
+  ok("no horizontal overflow at 360px",
+     D().documentElement.scrollWidth <= 361, `scrollWidth ${D().documentElement.scrollWidth}`);
+  frame.style.width = "1100px";
+}
+
+async function githubAccount() {
+  results.push("", "── github account (regression) ──");
+  localStorage.removeItem("lbyec2b-gh-guide");
+  await load("/github-account.html");
+  ok("handout renders", /registering a github account/i.test(txt()), "title missing");
+  ok("still counts its own seven steps", /step 1 of 7/i.test(txt()), "step 1 of 7 not shown");
+  ok("keeps its original 'Self-check' heading", /self-check/i.test(txt()), "heading changed");
+  ok("did not inherit the new page's wording", !/checkpoint/i.test(txt()), "says Checkpoint");
+  const ans = all(".gh-ans");
+  ok("two answers render", ans.length === 2, `found ${ans.length}`);
+  ans[1].click(); await wait(150);
+  ok("the alternative answer still persists as 'stuck'",
+     JSON.parse(localStorage.getItem("lbyec2b-gh-guide")).answers["1"] === "stuck", "storage value changed");
+  all(".gh-ans")[0].click(); await wait(150);
+  ok("the affirmative answer still counts",
+     JSON.parse(localStorage.getItem("lbyec2b-gh-guide")).answers["1"] === "ok", "not stored as ok");
+  D().querySelector(".gh-warn").click(); await wait(250);
+  ok("the resolution modal still opens", !!D().querySelector('[role="dialog"][aria-modal="true"]'), "no modal");
+  ok("its return button keeps the original wording", !!byText("button", /Return to step \d/), "wording changed");
+  ok("figures still render through the re-export shim", all("figure").length > 0, "no figures");
+  // Handout 01 was not part of this change and must not have inherited it.
+  ok("handout 01's figures are not shrunk or made zoomable",
+     !D().querySelector(".fig-zoom") && !D().querySelector(".aw-figure"),
+     "the workflow page's figure treatment leaked into handout 01");
+}
+
+(async () => {
+  await assignmentWorkflow();
+  await githubAccount();
+  const pass = results.filter(r => r.startsWith("PASS")).length;
+  const fail = results.filter(r => r.startsWith("FAIL")).length;
+  document.getElementById("out").textContent =
+    results.join("\n") + `\n\n${pass}/${pass + fail} passed` + (fail ? `  (${fail} FAILED)` : "");
+  document.title = fail ? "FAIL" : "PASS";
+})().catch(e => {
+  document.getElementById("out").textContent = "ERROR " + e.message + "\n" + e.stack;
+  document.title = "FAIL";
+});
+</script></body></html>

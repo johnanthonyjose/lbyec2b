@@ -3,6 +3,8 @@ import { SiteHeader } from "../components/SiteHeader.jsx";
 import { SiteFooter } from "../components/SiteFooter.jsx";
 import { Button } from "../components/ds/index.js";
 import { usePersistentState } from "../hooks/index.js";
+import { Resolution } from "../components/Resolution.jsx";
+import { SelfCheck } from "../components/SelfCheck.jsx";
 import { steps } from "./github-account/steps.jsx";
 import { resolutionById } from "./github-account/resolutions.jsx";
 
@@ -32,15 +34,6 @@ export default function GitHubAccount() {
   const answer = (n, value) => save({ ...saved, answers: { ...answers, [n]: value } });
   const restart = () => save({ step: 1, answers: {} });
 
-  // Escape closes the resolution dialog, which is the behaviour a reader
-  // expects of anything modal.
-  React.useEffect(() => {
-    if (!fix) return;
-    const onKey = (e) => { if (e.key === "Escape") setFix(0); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [fix]);
-
   const gotoFromFix = (n) => {
     setFix(0);
     goto(n);
@@ -57,7 +50,8 @@ export default function GitHubAccount() {
         pages={[
           { href: "index.html", label: "Home" },
           { href: "course-overview.html", label: "Course overview" },
-          { href: "github-account.html", label: "GitHub account", current: true }
+          { href: "github-account.html", label: "GitHub account", current: true },
+          { href: "assignment-workflow.html", label: "Assignment workflow" }
         ]}
         progress={pct}
         progressLabel={allDone ? "Seven of seven steps confirmed" : `${doneCount} of ${TOTAL} steps confirmed`}
@@ -141,7 +135,12 @@ export default function GitHubAccount() {
       <SiteFooter note="Department of Electronics and Computer Engineering" />
 
       {fix > 0 && (
-        <Resolution fix={resolutionById[fix]} onClose={() => setFix(0)} onGoto={gotoFromFix} />
+        <Resolution
+          fix={resolutionById[fix]}
+          onClose={() => setFix(0)}
+          onReturn={() => gotoFromFix(resolutionById[fix].returnTo)}
+          returnLabel={`Return to step ${resolutionById[fix].returnTo}`}
+        />
       )}
     </div>
   );
@@ -345,125 +344,16 @@ function Step({ step, answer, onAnswer, onOpenFix }) {
         }}>View resolution</span>
       </button>
 
-      <div style={{
-        margin: "24px 0 0", border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-md)", padding: "22px 24px"
-      }}>
-        <div style={eyebrow}>Self-check</div>
-        <p style={{ margin: "10px 0 16px", fontSize: "var(--text-md)", color: "var(--text-primary)" }}>
-          {step.question}
-        </p>
-        <div style={{ display: "grid", gap: 10, maxWidth: 560 }}>
-          <AnswerButton selected={answer === "ok"} onClick={() => onAnswer("ok")}>{step.okLabel}</AnswerButton>
-          <AnswerButton dashed selected={answer === "stuck"} onClick={() => onAnswer("stuck")}>{step.stuckLabel}</AnswerButton>
-        </div>
-        {answer === "ok" && (
-          <p style={{ margin: "16px 0 0", fontSize: "var(--text-base)", color: "var(--green-800)", fontWeight: 600 }}>
-            {step.okNote}
-          </p>
-        )}
-        {answer === "stuck" && (
-          <p style={{ margin: "16px 0 0", fontSize: "var(--text-base)", color: "var(--text-secondary)", maxWidth: "70ch" }}>
-            {step.stuckNote}
-          </p>
-        )}
-      </div>
+      <SelfCheck
+        question={step.question}
+        ok={{ label: step.okLabel, note: step.okNote }}
+        alt={{ label: step.stuckLabel, note: step.stuckNote }}
+        value={answer}
+        onAnswer={onAnswer}
+        altValue="stuck"
+      />
     </article>
   );
 }
 
-function AnswerButton({ children, dashed, selected, onClick }) {
-  return (
-    <button type="button" className="gh-ans" onClick={onClick} aria-pressed={selected}
-      style={{
-        textAlign: "left", cursor: "pointer", fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-base)",
-        color: selected ? "var(--text-primary)" : dashed ? "var(--text-secondary)" : "var(--text-primary)",
-        background: selected ? "var(--green-50)" : "#fff",
-        border: `1px ${dashed && !selected ? "dashed" : "solid"} ${selected ? "var(--green-700)" : "var(--border-default)"}`,
-        borderRadius: "var(--radius-md)", padding: "14px 18px", minHeight: 48,
-        transition: "background 140ms, border-color 140ms"
-      }}>{children}</button>
-  );
-}
 
-function Resolution({ fix, onClose, onGoto }) {
-  const panelRef = React.useRef(null);
-
-  // Move focus into the dialog on open so keyboard and screen-reader users
-  // land on it rather than being left behind on the page.
-  React.useEffect(() => {
-    panelRef.current?.focus();
-  }, []);
-
-  return (
-    <div onClick={onClose} style={{
-      position: "fixed", inset: 0, zIndex: 60, background: "var(--overlay-scrim)",
-      display: "grid", placeItems: "center", padding: 24
-    }}>
-      <div ref={panelRef} tabIndex={-1} onClick={(e) => e.stopPropagation()}
-        role="dialog" aria-modal="true" aria-label={`Resolution: ${fix.title}`}
-        style={{
-          background: "var(--surface-page)", width: "100%", maxWidth: 620, maxHeight: "84vh",
-          overflowY: "auto", borderRadius: "var(--radius-md)",
-          borderTop: "4px solid var(--gold-500)", boxShadow: "var(--shadow-lg)", outline: "none"
-        }}>
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          gap: 16, padding: "22px 34px 0"
-        }}>
-          <span style={{ ...eyebrow, color: "var(--gold-700)" }}>Resolution</span>
-          <button type="button" onClick={onClose} aria-label="Close" style={{
-            cursor: "pointer", background: "transparent", border: "1px solid var(--border-default)",
-            borderRadius: "var(--radius-md)", width: 36, height: 36, display: "grid",
-            placeItems: "center", color: "var(--text-secondary)", flex: "none"
-          }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div style={{ padding: "24px 34px 34px" }}>
-          <h3 style={{
-            fontFamily: "var(--font-display)", fontSize: "var(--text-xl)",
-            fontWeight: "var(--weight-semibold)", margin: "0 0 18px", maxWidth: "36ch"
-          }}>{fix.title}</h3>
-
-          <div style={eyebrow}>Probable cause</div>
-          <p style={{
-            margin: "8px 0 22px", fontSize: "var(--text-base)",
-            lineHeight: "var(--leading-relaxed)", color: "var(--text-secondary)"
-          }}>{fix.cause}</p>
-
-          <div style={eyebrow}>Procedure</div>
-          <ol style={{
-            margin: "12px 0 24px", paddingLeft: 22, display: "grid", gap: 10,
-            fontSize: "var(--text-base)", lineHeight: "var(--leading-relaxed)", color: "var(--text-secondary)"
-          }}>
-            {fix.steps.map((s, i) => <li key={i}>{s}</li>)}
-          </ol>
-
-          <div style={{
-            display: "flex", gap: 12, flexWrap: "wrap", paddingTop: 20,
-            borderTop: "1px solid var(--border-subtle)"
-          }}>
-            <button type="button" onClick={() => onGoto(fix.returnTo)} style={{
-              cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)",
-              fontWeight: 600, letterSpacing: "var(--tracking-wide)", background: "var(--green-700)",
-              border: "1px solid var(--green-700)", borderRadius: "var(--radius-md)",
-              color: "#fff", padding: "0 22px", minHeight: 44
-            }}>Return to step {fix.returnTo}</button>
-            <button type="button" onClick={onClose} style={{
-              cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)",
-              fontWeight: 600, letterSpacing: "var(--tracking-wide)", background: "transparent",
-              border: "1px solid var(--border-default)", borderRadius: "var(--radius-md)",
-              color: "var(--text-secondary)", padding: "0 22px", minHeight: 44
-            }}>Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}

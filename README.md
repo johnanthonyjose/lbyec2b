@@ -20,6 +20,7 @@ npm run preview    # serve the production build locally
 index.html               hub page          -> src/main-index.jsx           -> src/pages/Home.jsx
 course-overview.html     the syllabus page -> src/main-course-overview.jsx -> src/pages/CourseOverview.jsx
 github-account.html      handout 01        -> src/main-github-account.jsx  -> src/pages/GitHubAccount.jsx
+assignment-workflow.html handout 02        -> src/main-assignment-workflow.jsx -> src/pages/AssignmentWorkflow.jsx
 
 src/
   data/course.js         ALL course content: weeks, outcomes, rubrics, policies, references
@@ -28,17 +29,28 @@ src/
     site.css             site-wide utilities and the responsive rules
   components/
     ds/                  design-system components (Button, Card, Tabs, Tag, Badge)
+    figures/             figure primitives shared by the handouts
     SiteHeader/Footer    chrome shared by every page
+    Resolution.jsx       the "anticipated difficulty" modal, shared
+    SelfCheck.jsx        the two-answer checkpoint, shared
     Section.jsx          the section shell and heading
     Brand.jsx            the wordmark and course mark
   pages/
     course-overview/     one file per section of the course page
-    github-account/      the handout's step and resolution content
+    github-account/      handout 01's step and resolution content
+    assignment-workflow/ handout 02's stages, steps, resolutions and UI
   hooks/                 scroll progress, scroll spy, persistent state
 
 public/                  copied verbatim into the build
   .nojekyll              stops GitHub Pages running the files through Jekyll
   assets/img/            photographs
+  assets/img/aw/         handout 02's figures, built by tools/build-aw-assets.sh
+
+tools/
+  build-aw-assets.sh     rebuilds handout 02's figures from original/
+  smoke.sh, smoke.html   behavioural test for both handouts
+
+original/                the Craft exports the handouts were ported from
 ```
 
 ### Adding a page
@@ -70,6 +82,110 @@ files in step if you renumber anything.
 A student's progress is held in `localStorage` under `lbyec2b-gh-guide`. It is
 explicitly not submitted or graded, and the page says so.
 
+### Editing the assignment workflow
+
+Handout 02 is the largest thing on the site and the one with the most rules
+attached, so they are worth stating plainly.
+
+**The step total is never rendered.** The procedure is thirty steps. A reader
+told that decides it is too long and closes the tab, so the page publishes
+minutes instead and shows only stage-local counts — "3 of 7 in this stage". The
+largest number it can display is 7, and `stages.jsx` exports `TOTAL_MINUTES`
+with deliberately no `TOTAL_STEPS` beside it. The smoke test asserts this. If a
+change makes a total appear anywhere, that is a bug, not a detail.
+
+**Content lives in `src/pages/assignment-workflow/`:**
+
+| File | What it holds |
+|---|---|
+| `stages.jsx` | the five stages, their minutes and their outcomes |
+| `steps.jsx` | all thirty steps — action, body, figure, `why`, `check` |
+| `resolutions.jsx` | the six modals, for failures that genuinely branch |
+| `prereqs.jsx` | the four prerequisite rows |
+| `os.jsx` | `<Os>` and `<Key>`, the Windows/Mac forks |
+
+A step's `id` (`"S3.4"`) is its storage key and its `n` is what the reader sees.
+They are separate so a stage can be reordered without orphaning anyone's saved
+answers — change an `id` only if you mean to discard progress for that step.
+
+Most things that go wrong belong inline in `check.alt`, where the reader already
+is. Reserve `difficulty` + `fix` for failures where the right action depends on
+which of several things happened; there are six of those out of thirty.
+
+Progress is held in `localStorage` under `lbyec2b-aw`, on the device only, and
+the page says so. Clearing it keeps the platform choice, which is a preference
+rather than progress.
+
+**Figures are deliberately small, and that is load-bearing.** They first shipped
+at the full 1120px measure — wider than the text column and several times the
+height of the instruction — and students read the pictures and skipped the
+words. That is not inattention; it is an accurate reading of what the page was
+emphasising, and the effect is sharper for readers who find dense text
+expensive. So a figure is capped at 520px wide and 320px tall, framed with a
+hairline instead of a gold band, and given a quiet caption, while the "Do this"
+instruction is set at `--text-lg` and is the largest thing in the step. The
+detail is still there — selecting any figure opens it full size — but a reader
+has to ask, and by then they have passed the instruction. `tools/smoke.sh`
+asserts the figure stays under 530px and sits below the instruction, because
+this is exactly the kind of intent a later stylesheet edit undoes silently.
+
+Enlarging is wired through `ZoomContext` in `src/components/figures/zoom.jsx`:
+the workflow page supplies a handler and every `PinnedShot` on it becomes
+enlargeable without its step data mentioning it. Handout 01 supplies nothing and
+renders the plain image it always did.
+
+**The recordings play on their own.** The four GIFs became muted, looping MP4s
+with `autoplay`. Chrome and Safari hold muted autoplay video until it is
+actually in the viewport and start it there, so a clip begins when the reader
+reaches it and repeats until they move on — no observer, no play button, and
+nothing running in a part of the page nobody is looking at. An
+IntersectionObserver was tried first and removed: it duplicated what the browser
+already does, and a false reading could only ever pause a clip the reader was
+watching.
+
+Readers with `prefers-reduced-motion: reduce` still get the still frame and a
+play button. That setting belongs to people for whom movement genuinely
+interferes with reading, and it is not a preference to trade against
+convenience. `tools/smoke.sh` asserts the autoplay attributes rather than
+playback itself — see the note in `tools/smoke.html` for why headless Chrome
+cannot observe the latter.
+
+**Rebuilding them.** `tools/build-aw-assets.sh` rebuilds every image from `original/`.
+The crop rectangles live in that script, so a re-export can be reprocessed
+identically; the table it prints at the end gives the post-crop dimensions that
+`steps.jsx` must pass to `<PinnedShot width height>`. Cropping is not cosmetic —
+the sources are full-desktop captures up to 3104px wide, and uncropped their
+pins land on three-pixel targets on a phone. The pass takes 21 MB of PNG, TIFF
+and looping GIF down to 1.1 MB of WebP and click-to-play video.
+
+Some sources already carry the author's own red `[1] [2] [3]` annotations burnt
+into the pixels. Those are cropped and left alone rather than double-annotated
+with gold pins; the prose refers to the same numbers either way.
+
+**One hard rule about the completion panel.** It is modal — it holds focus and
+swallows clicks — so it must never be able to render invisibly. Its entrance
+animates `transform` only and never `opacity`, because anything fading in from
+zero can rest at zero: a frame callback that does not fire, a paused animation
+in a non-rendered frame, a fill-mode holding the first keyframe. Two of those
+happened during the build. Do not reintroduce a fade here.
+
+## Testing
+
+```bash
+./tools/smoke.sh          # build, serve, drive both handouts, tear down
+./tools/smoke.sh --dev    # against an already-running `npm run dev`
+```
+
+`tools/smoke.html` loads the real pages in an iframe and asserts on what a
+reader would see: it walks all thirty steps of handout 02, checks every stage
+completion panel is visible rather than merely present, exercises an
+alternative-answer branch and its recovery, reloads to confirm persistence,
+opens and escapes a resolution modal, and re-checks handout 01 for regressions
+from the shared components. It found two real bugs on the way in, so it is
+worth running after touching either handout.
+
+It needs Google Chrome; override the path with `CHROME=…` if yours is elsewhere.
+
 ### Editing course content
 
 Almost everything on the course page is data, not markup. To change a week, a
@@ -100,10 +216,23 @@ without any repo-name configuration.
   256 KiB and both images exceed it. Until the files are added, each frame
   shows a labelled placeholder naming the path it wants; drop the JPEGs in and
   they appear automatically, no code change needed.
-- **The mobile layout has not been verified on a real narrow viewport.** The
-  responsive rules in `src/styles/site.css` were written and their selectors
-  confirmed to match, but the browser used for checking was pinned at 1920px
-  wide. Worth a look on a phone before sharing the link with students.
+- **The mobile layout has been measured, not handled.** `tools/smoke.sh` checks
+  that handout 02 does not overflow horizontally at 360px, and the responsive
+  rules in `src/styles/site.css` were confirmed to match. Nothing has been seen
+  on a real phone. Worth a look before sharing the link with students.
+- **Handout 02's screenshots are all macOS, under one student's username.** The
+  Windows/Mac toggle switches the prose only, so a Windows reader sees a macOS
+  title bar throughout stages 2 to 4. The toggle may over-promise that the
+  images adapt too.
+- **Handout 02 is written against the first assignment**, so `ex1.c` and the
+  `welcome-` repository name are hardcoded. Both will read as wrong from the
+  second assignment onward. The five stages themselves do not change.
+- **Two items in handout 02 need the instructor's confirmation before it is
+  shared.** The source document gives two different URLs for the organisation
+  membership form (`forms.gle/62vVyyMWzkLedn6a8` and the Craft page); the Craft
+  one is used. And the Stage 5 red-cross resolution says to ask the instructor,
+  because the "Understanding your submission status" page it should link to does
+  not exist yet.
 
 ## Provenance and typography
 
