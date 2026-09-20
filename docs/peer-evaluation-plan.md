@@ -1,6 +1,6 @@
 # Assessment as audit — an AI-resistant design for LBYEC2B
 
-Status: draft v3, for discussion. Nothing here is committed to the syllabus yet.
+Status: draft v4, for discussion. Nothing here is committed to the syllabus yet.
 Course: LBYEC2B, Computer Fundamentals and Programming 2 (1 unit, 13 weeks).
 
 **Organising goal.** Assess whether a student's capability against the learning
@@ -14,11 +14,13 @@ Working assumption: class size ~40, instructor is the sole grader. Round count
 scales with the real figure.
 
 > v1 argued a peer-evaluation mechanic into shape. v2 rebuilt it on the audit
-> frame. **v3 times every student-authored artefact in the room**, which is the
-> change that makes the original three-part concept work as designed: the plan
-> and the divergence log rise from rank 5 to rank 2, and 75% of the component
-> now rests on observed work. The implementation itself stays untimed and taken
-> home, for the reason in §5.5. The v1 critique is condensed into Appendix A.
+> frame. v3 timed every student-authored artefact in the room, lifting the plan
+> and divergence log from rank 5 to rank 2 and putting 75% of the component on
+> observed work; the implementation stays untimed and taken home, for the reason
+> in §5.5. **v4 restores a named leader, evaluated by the instructor, inside
+> standing pods of six** — see §5.1, which also separates what pods buy from
+> what rounds buy and concedes that two rounds is defensible where three is
+> preferable. The v1 critique is condensed into Appendix A.
 
 ---
 
@@ -216,25 +218,119 @@ Run it in both directions:
 
 ## 5. The audit programme
 
-### 5.1 Structure
+### 5.1 Structure: pods are the standing unit, rounds are the repeat
 
-**Rotating triads, three rounds.** Triads are drawn at random per round, never
-pairing two members of the same project team and never repeating a pairing.
-Within triad {A, B, C}: A is audited, writes B's modification, and evaluates C.
-Roles rotate each round, so every student is audited once, probes once, and
-observes once, per round.
+These are two different axes and it is worth separating them explicitly, because
+they solve different problems and neither substitutes for the other.
 
-Triads rather than pairs because pairs permit reciprocal trading, and because a
-pair leaves no answer to "who audits the leader."
+- A **pod** is a *spatial* partition. It splits 40 students into manageable
+  groups so that windows can be staggered, machines are sufficient, one person
+  has a real span of control, and the same faces recur. Pods solve **logistics
+  and accountability**.
+- A **round** is a *temporal* repeat. Each round measures every student again,
+  on different material. Rounds solve **reliability and outcome coverage**.
 
-| Round | Week | Material | Outcomes under test |
-|---|---|---|---|
-| R1 | 4 | Pointers, file I/O, structures | LO1, LO2, LO3 |
-| R2 | 7 | MATLAB data pipeline, CSV to figure | LO2, LO3, LO4 |
-| R3 | 10 | GUI, data structures, scoping | LO1, LO3, LO5 |
+Running more pods in parallel does not reduce the number of rounds needed:
+eight pods measured once is still one measurement per student. §5.1.2 makes the
+case for why one is not enough.
+
+#### 5.1.1 Pods
+
+**Pods of six, stable for the term.** Roughly seven pods for a class of 40. Pods
+are drawn so that a pod does not reproduce a project team — you want the audit
+relationships to be independent of the project relationships, so that a project
+grievance does not contaminate audit evidence, and vice versa.
+
+Stability is deliberate and is a change from v2's fully random redraw. A
+standing pod builds enough familiarity for people to write frank evaluations,
+lets the leader form a *comparative* view across their members, and makes the
+scheduling tractable. The audit pairings **inside** the pod are still redrawn
+each round, which preserves the anti-collusion property that mattered.
+
+**Within a pod, each round draws two triads** (or one triad and a trio formed
+with the leader, for odd counts). Inside triad {A, B, C}: A is audited, writes
+B's modification, and evaluates C. No pairing repeats across rounds.
+
+#### 5.1.2 Why more than one round
+
+The honest case, strongest first.
+
+1. **Reliability.** One observation is one data point. A single round means a
+   student's illness, a bad day, or a peer who wrote a lazy modification
+   determines 30% of their grade with nothing to average against. This is the
+   argument that actually carries the decision: single-observation assessment is
+   the least defensible kind on appeal.
+2. **Outcome coverage.** The component claims LO1–LO4. One round in C evidences
+   LO1–LO3 on pointers and structures and says *nothing* about LO4, which lives
+   entirely in MATLAB. You cannot report an outcome you never measured.
+3. **Round one measures novelty, not capability.** The first time students meet
+   an unfamiliar assessment format, scores reflect format shock. If there is
+   only one round, that contamination is the whole result.
+4. **§4.3 needs more than one point per student** for the correlation against
+   the practical examination to say anything.
+5. **Formative value.** A single terminal round gives students no opportunity to
+   act on what they learn about their own reasoning, which is most of the point.
+
+**The concession: two rounds is defensible, one is not.** If supervised lab time
+is the binding constraint — and per §9.1 it probably is — drop to **two rounds,
+R1 in C and R2 in MATLAB**, which preserves outcome coverage of LO1–LO4 and one
+repeat measurement. The third round buys reliability and a leadership rotation,
+not coverage. Do not drop to one; at that point the evidence base is too thin to
+carry 30% and the weight should move back to the machine-problem component.
+
+| Round | Week | Material | Outcomes under test | Keep if cutting to two? |
+|---|---|---|---|---|
+| R1 | 4 | Pointers, file I/O, structures | LO1, LO2, LO3 | Yes |
+| R2 | 7 | MATLAB data pipeline, CSV to figure | LO2, LO3, LO4 | Yes |
+| R3 | 10 | GUI, data structures, scoping | LO1, LO3, LO5 | First to cut — LO5 is already evidenced by the project |
 
 Weeks 12 and 13 stay as they are, and per §4.3 the week-12 examination doubles
 as the scheme's control total.
+
+#### 5.1.3 The pod leader, and the instructor's evaluation of them
+
+Reinstating a named leader is sound **under the audit frame**, and the objection
+raised against it in v1 no longer applies. The original danger was that the
+leader *graded* peers; in this design nobody but the instructor scores anything,
+so the leader's judgement is evidence, not a mark. What a leader adds is real:
+
+- **A comparative view.** One person who sees all five pod members' work across
+  a round can make relative judgements that isolated pairwise raters cannot.
+- **First-pass quality control.** The leader reviews their pod's evaluations for
+  evidence quality before they reach the instructor — an evaluation asserting
+  "good understanding" with nothing quoted goes back. This directly reduces the
+  instructor's §5.3 audit burden.
+- **A genuine LO6 measurement.** Coordinating, chasing, and quality-checking
+  others' work is the teamwork outcome, assessed for once on something other
+  than self-report.
+
+**The leader's job, stated so it is not merely a title.** Each round: confirm
+every pod member's artefacts exist before each window; review the pod's
+evaluations for cited evidence and return the thin ones; submit a one-page pod
+summary naming any exceptions and the reasoning behind them.
+
+**The leader is evaluated by the instructor** — your proposal, and it is the
+right call. It closes the accountability gap that sank the original two-person
+structure, and it means the one person with influence over how evidence is
+presented answers to the assessor rather than to a peer. Concretely the
+instructor scores the pod summary and the quality of the returned evaluations,
+which is §6.1's fifth row applied to the leadership role.
+
+**The leader is still audited like everyone else.** They submit all the same
+artefacts and a pod member writes their modification. Leading is an additional
+role, never an exemption.
+
+**Rotate the leader each round.** With pods of six and three rounds, three
+members lead once each. Recommended over a fixed term-long leader because it
+distributes the LO6 leadership evidence instead of concentrating it in seven
+students, and because it gives you three independent looks at how each pod is
+being run. A fixed leader is cheaper — seven evaluations per term instead of
+twenty-one — and is a reasonable choice if instructor time is tight; the cost
+is that thirty-three students never generate leadership evidence, so LO6 for
+them rests entirely on the project.
+
+Note the interaction with §5.1.2: **rotation is another reason to keep three
+rounds.** At two rounds only a third of the class leads.
 
 ### 5.2 Timeline for one round
 
@@ -243,7 +339,7 @@ implementation itself is taken home — deliberately, for the reason in §5.5.
 
 | Day | Event | Timed? | Produces |
 |---|---|---|---|
-| 0 | Exercise released; triads published | — | — |
+| 0 | Exercise released; pods and this round's triads published | — | — |
 | 0 | *Same session, 15 min, supervised:* **write the plan**, then lock it | ✓ | 1 |
 | 1–4 | Implementation at home, committing as the work proceeds | ✗ | 2, 4 |
 | 4 | Code pushed | — | 4 |
@@ -252,6 +348,8 @@ implementation itself is taken home — deliberately, for the reason in §5.5.
 | 5 | *Same session, 20 min, supervised:* **write your peer's modification** | ✓ | 5 |
 | 6 | *In session, 25 min, supervised, offline:* **respond to your modification** | ✓ | **6** |
 | 6 | *Same session, 15 min:* **write your evaluation** of the third member | ✓ | 7 |
+| 6 | *Leader, after the session:* review the pod's evaluations, return thin ones | — | quality control |
+| 7 | Leader submits the pod summary | — | leader's LO6 evidence |
 | 7 | Instructor forms the file; exception orals held | — | 8, opinion |
 
 Four of the five student artefacts moved in-session relative to v1, and two of
@@ -402,7 +500,7 @@ Averaged across the three rounds:
 | Plan + divergence log, timed, commit-corroborated | 20% | 1, 2, 3 | 2 | LO2, LO3 |
 | **Supervised response** | 35% | 6, informed by 7 | 2 | LO2, LO3 |
 | Modification authored (timed) | 12% | 5 | 4 | LO2 |
-| Quality of the evaluation written as a rater | 8% | 7 | — | LO6 |
+| Quality of your audit work: evaluations written as a rater, and pod supervision in the round you lead | 8% | 7, pod summary | — | LO6 |
 
 The first two rows moved by five points relative to v2 as a consequence of
 timing. The plan and divergence log are now observed artefacts rather than
@@ -465,16 +563,22 @@ Per round, for ~40 students:
 | Activity | Time |
 |---|---|
 | Invigilating two supervised blocks, ~45 and ~40 min | ~1.5 h |
+| Reading seven pod summaries and evaluating the round's leaders | ~0.75 h |
 | Analytical screen (scripted) | ~0 |
 | Grading 40 supervised responses, 4 structured points | ~2.5 h |
 | Grading 40 timed plans and divergence logs, both very short | ~1 h |
 | Auditing 8 peer evaluations | ~0.5 h |
 | Exception orals, assuming a 10% rate | ~0.5 h |
 | File review and opinions | ~0.5 h |
-| **Per round** | **~6.5 h** |
-| **Per term, three rounds** | **~19.5 h** |
+| **Per round** | **~7 h** |
+| **Per term, three rounds** | **~21 h** |
+| *Per term, two rounds (the §5.1.2 concession)* | *~14 h* |
 
-Timing everything raised this from ~12 hours to ~19.5, and that increase should
+Leader evaluation adds about half an hour a round and gives back some of the
+peer-evaluation audit, since the leader has already returned the thin ones;
+treat it as roughly cost-neutral against §5.3's 20% sample.
+
+Timing everything raised this from ~12 hours to ~21, and that increase should
 be looked at squarely rather than waved past. Two things soften it. The ~4.5
 hours of invigilation across the term are **contact hours you are already
 present for**, not new hours, provided the blocks fit the timetable — which is
@@ -548,7 +652,7 @@ be given orally into a recorder for any student who prefers it.
 
 ## 9. Decisions needed from the coordinator
 
-Four that change the design:
+Five that change the design:
 
 1. **Can roughly 85 supervised minutes be scheduled in each of weeks 4, 7 and
    10** — two blocks of about 45 and 40 minutes? This is now the binding
@@ -562,16 +666,22 @@ Four that change the design:
 3. **Is the bounty withdrawn?** The audit frame and a contingent fee are
    incompatible (§1.5); the design does not hold with both.
 4. **Real class size and available grading hours**, which set the round count.
+   Three rounds is the recommendation; **two is the floor** (§5.1.2), and one
+   cannot carry 30%.
+5. **Rotating or fixed pod leader?** Rotating distributes LO6 leadership
+   evidence across half the class and gives three looks at each pod, at ~21
+   leader evaluations per term. Fixed costs ~7 but leaves 33 students with no
+   leadership evidence outside the project. Recommended: rotating.
 
 Three that need settling but do not change the architecture:
 
-5. **Does restructuring the machine-problem component require department
+6. **Does restructuring the machine-problem component require department
    approval,** even though published totals are unchanged?
-6. **Is the AI policy moving from prohibition to disclosure?** The current policy
+7. **Is the AI policy moving from prohibition to disclosure?** The current policy
    bans reading AI summaries in search results, which is unenforceable, and this
    design does not need prohibition to work — it needs the demonstrability rule.
    Worth deciding before publication rather than after.
-7. **Are students told the evidence table in advance?** §7 recommends strongly
+8. **Are students told the evidence table in advance?** §7 recommends strongly
    yes. Noted here because it is a real choice and some colleagues will disagree.
 
 ---
@@ -616,7 +726,8 @@ reasoning that both LO6 and this mechanic require.
 **Why a single student rater could not carry 30%.** Second-year students are
 uncalibrated, peer marks cluster high and track friendship, and with one rater
 per ratee there is no redundancy to catch a lazy or hostile one. The proposal
-also never said who evaluates the leader. Resolved by rotating triads and by the
+also never said who evaluates the leader. Resolved in v4 by pods with a
+rotating leader whom the instructor evaluates directly, and by the
 §2 finding that peers generate rank-4 evidence — real, useful, and not a grade.
 
 **Why the arithmetic did not close.** Published weights already total 100
