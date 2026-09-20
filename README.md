@@ -43,8 +43,17 @@ src/
     Resolution.jsx       the "anticipated difficulty" modal, shared
     SelfCheck.jsx        the two-answer checkpoint — verifies what is on screen
     PredictCheck.jsx     the prediction checkpoint — commits to an answer first
-    FileMachine.jsx      handout 03's trace visualiser: the stream position,
-                         the write buffer and EOF, which prose cannot show
+    FileMachine.jsx      handout 03's trace visualiser: the stream position
+                         and EOF, which prose cannot show
+    explorable/          the explorable figures and the transport they share.
+                         Scrub.jsx defines one timeline, one play control and
+                         one caption frame for all of them, so learning the
+                         first figure teaches the rest: nothing autoplays,
+                         nothing loops, and prefers-reduced-motion withholds
+                         play rather than making it fast. ParseWalker animates
+                         getDelimitedItem, BufferMachine the write buffer and
+                         the syscall it saves, LoopCompare the feof fault with
+                         both loops on one timeline.
     Section.jsx          the section shell and heading
     Brand.jsx            the wordmark and course mark
   pages/
@@ -80,6 +89,12 @@ tools/
                          quick-start guide rather than a university handout.
                          A tool that only detects one of the two failures is how
                          the second one shipped.
+  check-density.py       measures how much of the handout is text and how much
+                         teaches by showing. The page was once 10,948 words
+                         carried by four figures, with twenty of twenty-four
+                         steps having none. Its per-step rule matters more than
+                         its word budget: a page can meet any total and still be
+                         a wall of text if the figures are clustered.
   check-codeblocks.py    checks every code excerpt on the page against the real
                          program it names, including the line number it claims
                          to start at

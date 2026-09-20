@@ -1,6 +1,8 @@
 import React from "react";
 import { CodeBlock, Terminal } from "./CodeBlock.jsx";
 import { FileMachine } from "../../components/FileMachine.jsx";
+import { LoopCompare } from "../../components/explorable/LoopCompare.jsx";
+import { ParseWalker } from "../../components/explorable/ParseWalker.jsx";
 
 /* Stages 4 and 5 of the File I/O handout.
 
@@ -19,8 +21,14 @@ import { FileMachine } from "../../components/FileMachine.jsx";
    indicator, and does not substitute a folksy image for it. An earlier draft
    did, and the image was removed rather than softened, because it invited the
    reader to treat the position as something the programmer maintains by hand
-   rather than as a field the library advances on every successful read. Where
-   a figure is needed, the FileMachine trace is the figure.
+   rather than as a field the library advances on every successful read.
+
+   Two further steps carry an explorable rather than a trace. S4.3 runs both
+   read loops side by side under LoopCompare, and S5.3 walks getDelimitedItem
+   character by character under ParseWalker. In both cases the figure is the
+   explanation and the prose around it was deleted rather than shortened: what
+   remains is only what a figure cannot show, which is why the library is
+   shaped the way it is and what the standard does and does not guarantee.
 
    Every `pos` below is transcribed from the ftell() tables in PROGRAMS.md. No
    position here was calculated by hand, and none may be. If a trace and a
@@ -29,8 +37,9 @@ import { FileMachine } from "../../components/FileMachine.jsx";
    The programs of stage 4 run to thirty lines and more, and no two consecutive
    excerpts of one program are contiguous in its source, so nothing here is
    shown whole and nothing here can be merged: a merged block would number its
-   own lines wrongly. The six blocks of getDelimitedItem in S5.3 are split on
-   purpose and carry connecting prose between them.
+   own lines wrongly. The six blocks of getDelimitedItem in S5.3 are split for
+   that reason and stand on their own captions; the prose that once joined them
+   narrated the behavior ParseWalker now animates, and it is gone.
 
    Stage 5 has no resolutions attached. By that point the reader has a working
    picture of the position and of EOF, and the remaining failures are ordinary
@@ -56,50 +65,20 @@ export const steps45 = [
     title: "Read one character at a time",
     action: <>Download <code className="aw-code">04-readchar.c</code>, put it beside your <code className="aw-code">test.txt</code>, compile it and run it.</>,
     body: (
-      <>
-        <p className="aw-p">
-          Every stream carries a <strong>file position indicator</strong>: the
-          offset, counted in bytes from the start of the file, at which the next
-          operation will take place. It is state held inside the{" "}
-          <code className="aw-code">FILE</code> object, not a variable you
-          declare. <code className="aw-code">fopen</code> sets it to zero for a
-          stream opened in read mode, and every successful read advances it by
-          the number of bytes that read consumed.
-        </p>
-        <p className="aw-p">
-          Three functions address it directly.{" "}
-          <code className="aw-code">ftell</code> reports its current value,{" "}
-          <code className="aw-code">fseek</code> moves it to a chosen offset, and{" "}
-          <code className="aw-code">rewind</code> returns it to zero. Every
-          offset quoted in this handout was obtained by calling{" "}
-          <code className="aw-code">ftell</code> on a real run, so the traces
-          below can be reproduced rather than taken on trust.
-        </p>
-        <p className="aw-p">
-          <code className="aw-code">fgetc</code> returns the byte at the current
-          offset and advances the indicator by one, so forty-four calls consume
-          the whole of <code className="aw-code">test.txt</code>. It returns that
-          byte as an <code className="aw-code">int</code>, and the reason is{" "}
-          <code className="aw-code">EOF</code>.{" "}
-          <code className="aw-code">EOF</code> is a macro defined in{" "}
-          <code className="aw-code">stdio.h</code> that expands to a negative
-          integer constant, conventionally{" "}
-          <code className="aw-code">-1</code>. It is a <strong>sentinel</strong>:
-          a value returned in place of data to signal that no data remains. It
-          is not a character, and no byte of the file ever equals it.
-        </p>
-        <p className="aw-p">
-          That distinction is what the declaration below protects. A{" "}
-          <code className="aw-code">char</code> can represent 256 distinct byte
-          values and has no encoding left over for a 257th value that must
-          differ from all of them. Store the result in a{" "}
-          <code className="aw-code">char</code> and the comparison against{" "}
-          <code className="aw-code">EOF</code> either can never succeed, or
-          succeeds on ordinary data. Which of the two you get is
-          implementation-defined, because the standard does not fix whether
-          plain <code className="aw-code">char</code> is signed.
-        </p>
-      </>
+      <p className="aw-p">
+        Every stream carries a <strong>file position indicator</strong>: the
+        offset, in bytes from the start of the file, at which the next operation
+        will take place. It is state held inside the{" "}
+        <code className="aw-code">FILE</code> object, not a variable you
+        declare, and <code className="aw-code">ftell</code> reports it.{" "}
+        <code className="aw-code">fgetc</code> returns the byte at that offset
+        as an <code className="aw-code">int</code>, never a{" "}
+        <code className="aw-code">char</code>, because it must also return{" "}
+        <code className="aw-code">EOF</code>: a <strong>sentinel</strong>,
+        negative and distinct from all 256 byte values. The standard does not
+        fix whether plain <code className="aw-code">char</code> is signed, so
+        the failure that follows from declaring one is implementation-defined.
+      </p>
     ),
     media: (
       <>
@@ -114,7 +93,6 @@ export const steps45 = [
             "    //so a char loop either never ends or ends on real data.",
             "    int c;"
           ]}
-          caption="The declaration that decides whether this loop can terminate correctly."
         />
         <CodeBlock
           file="04-readchar.c"
@@ -125,11 +103,11 @@ export const steps45 = [
             "        putchar(c);",
             "    }"
           ]}
-          caption="The read is performed inside the loop condition. Step S4.3 explains why that placement is the only correct one."
+          caption="The read is performed inside the loop condition. Step S4.3 shows why."
         />
         <FileMachine
           file={TEST_TXT}
-          caption="The first six calls of 04-readchar.c. The bar marks the file position indicator; tinted bytes have already been consumed."
+          caption="The first six calls of 04-readchar.c. The bar marks the file position indicator."
           trace={[
             { call: "c = fgetc(fp)", pos: 1, vars: { c: "104 ('h')" }, note: "One call consumes one byte. The indicator stood at offset 0 before the call and stands at offset 1 after it." },
             { call: "c = fgetc(fp)", pos: 2, vars: { c: "101 ('e')" } },
@@ -178,12 +156,12 @@ How about no. 3?`}</Terminal>
     action: <>Run <code className="aw-code">05-readascii.c</code> against the same <code className="aw-code">test.txt</code> and compare its output with the one above.</>,
     body: (
       <p className="aw-p">
-        The loop is the one you have just run, with a single change of
-        conversion specifier: <code className="aw-code">%i</code> in place of{" "}
-        <code className="aw-code">%c</code>. Each byte is therefore printed as
-        the integer value actually stored on disk, rather than as the glyph a
-        terminal draws for it. The output is the evidence for a claim that is
-        otherwise easy to doubt, namely that a line break is an ordinary byte.
+        The loop is the one you have just run, with{" "}
+        <code className="aw-code">%i</code> in place of{" "}
+        <code className="aw-code">%c</code>. Each byte is printed as the integer
+        stored on disk rather than as the glyph a terminal draws for it, which
+        is the evidence for a claim otherwise easy to doubt: a line break is an
+        ordinary byte.
       </p>
     ),
     media: (
@@ -211,30 +189,14 @@ How about no. 3?`}</Terminal>
 119 104 101 114 101 32 105 115 32 110 111 46 32 50 63 10 
 72 111 119 32 97 98 111 117 116 32 110 111 46 32 51 63 -1`}</Terminal>
         <p className="aw-p">
-          Two of those numbers repay close attention, and they belong to
-          different categories.
+          The <code className="aw-code">10</code> closing the first two rows is
+          the line terminator. The <code className="aw-code">-1</code> is not a
+          byte of the file at all: it is <code className="aw-code">EOF</code>,
+          printed after the loop.
         </p>
-        <ul className="aw-p">
-          <li>
-            The <code className="aw-code">10</code> that closes each of the first
-            two rows is the line terminator. It is an ordinary byte with the
-            value 10, stored at offset 11 and again at offset 27, and it
-            occupies a position and costs a call exactly like the letters around
-            it. No third <code className="aw-code">10</code> appears, because the
-            file carries no terminator after its last line.
-          </li>
-          <li>
-            The <code className="aw-code">-1</code> at the very end is of another
-            kind entirely. It is the value of{" "}
-            <code className="aw-code">EOF</code>, returned once the stream is
-            exhausted and printed by a{" "}
-            <code className="aw-code">printf</code> placed after the loop. It is
-            a sentinel reported by the library, and it is not a byte of the file.
-          </li>
-        </ul>
         <FileMachine
           file={TEST_TXT}
-          caption="Calls 10 to 13 of the same loop, across the first line terminator. The pilcrow stands for the byte of value 10."
+          caption="Calls 10 to 13 of the same loop, across the first line terminator."
           trace={[
             { call: "c = fgetc(fp)", pos: 10, vars: { c: "32 (space)" }, note: "Call 10 returns the space and leaves the indicator at offset 10, where the '1' of 'no. 1' is stored." },
             { call: "c = fgetc(fp)", pos: 11, vars: { c: "49 ('1')" }, note: "Call 11 consumes the last visible character of line one. The indicator reaches offset 11, and the line is not yet complete." },
@@ -275,31 +237,17 @@ How about no. 3?`}</Terminal>
     body: (
       <>
         <p className="aw-p">
-          Both programs above share one structure: the call that reads is
-          written inside the <code className="aw-code">while</code> condition, so
-          the loop continues only while that call has succeeded. That is not a
-          stylistic preference. It is the only arrangement that stops the loop
-          at the right moment, and the reason lies in how the library reports
-          the end of a stream.
-        </p>
-        <p className="aw-p">
           Alongside the file position indicator, the{" "}
           <code className="aw-code">FILE</code> object holds two further pieces
           of state: an <strong>end-of-file indicator</strong> and an{" "}
           <strong>error indicator</strong>.{" "}
           <code className="aw-code">feof</code> and{" "}
-          <code className="aw-code">ferror</code> report them.
-          Both are set as a <em>side effect</em> of an operation that has
-          already been attempted and has failed; neither is a look-ahead into
-          what the next call would do.
-        </p>
-        <p className="aw-p">
-          That mechanism is the whole of the classic fault. Before the final
-          read both indicators are clear, so a loop conditioned on{" "}
-          <code className="aw-code">!feof(fp)</code> enters its body one more
-          time than the data warrants. Both functions belong{" "}
-          <em>after</em> a loop, where they distinguish exhaustion from failure;
-          the condition of the loop is the result of the read.
+          <code className="aw-code">ferror</code> report them. Both are set as a{" "}
+          <em>side effect</em> of an operation already attempted and already
+          failed; neither looks ahead to what the next call would do. That
+          mechanism, not the duplicate line it produces, is the fault below.
+          Both functions belong <em>after</em> a loop, where they distinguish
+          exhaustion from failure, and never as its condition.
         </p>
       </>
     ),
@@ -316,18 +264,6 @@ How about no. 3?`}</Terminal>
           ]}
           caption="The correct arrangement: the value the loop tests is the value the read returned."
         />
-        <p className="aw-p">
-          The alternative below reads more naturally as English and is
-          nonetheless wrong. On the final pass the end-of-file indicator has not
-          yet been set, because no read has yet failed, so the loop enters its
-          body once more and the read inside it returns nothing.
-        </p>
-        <p className="aw-p">
-          The failed read leaves <code className="aw-code">line</code> holding
-          whatever the previous successful call put there. The body has no way
-          to detect this, because it never examines a return value, so it prints
-          the preceding record a second time.
-        </p>
         <CodeBlock
           from={1}
           focus={[0]}
@@ -337,28 +273,14 @@ How about no. 3?`}</Terminal>
             "    printf(\"[%i] %s\", (int) strlen(line), line);",
             "}"
           ]}
-          caption="Taken from none of the shipped programs. It appears here so that you can recognize it in your own code and remove it."
+          caption="Reads more naturally as English, and is wrong. It is here so you can recognize it in your own code."
         />
+        <LoopCompare />
         <p className="aw-p">
-          The same arrangement applies to every read function in the library,
-          whatever value that function uses to report failure.
-        </p>
-        <ul className="aw-p">
-          <li>
-            One character at a time:{" "}
-            <code className="aw-code">{"while ((c = fgetc(fp)) != EOF)"}</code>,
-            with <code className="aw-code">c</code> declared{" "}
-            <code className="aw-code">int</code>.
-          </li>
-          <li>
-            One line at a time:{" "}
-            <code className="aw-code">{"while (fgets(line, 100, fp) != NULL)"}</code>.
-          </li>
-        </ul>
-        <p className="aw-p">
-          Each of those conditions interrogates the read itself. The defective
-          version interrogates an indicator that the read has not yet had the
-          opportunity to set.
+          As the figure notes, the duplicate needs a file ending in a newline.
+          On one like <code className="aw-code">test.txt</code>, whose last line
+          carries none, the third read sets the indicator itself and the defect
+          hides.
         </p>
       </>
     ),
@@ -397,26 +319,17 @@ How about no. 3?`}</Terminal>
     title: "Read a line at a time with fgets",
     action: <>Run <code className="aw-code">06-readline.c</code>, then step through the trace below before reading the output.</>,
     body: (
-      <>
-        <p className="aw-p">
-          <code className="aw-code">fgets(buf, size, fp)</code> copies bytes from
-          the stream into <code className="aw-code">buf</code> and stops on the
-          first of three conditions. It stops when a newline has been read, when{" "}
-          <code className="aw-code">size - 1</code> characters have been stored,
-          or when the stream is exhausted. It then writes a closing{" "}
-          <code className="aw-code">\0</code> and returns{" "}
-          <code className="aw-code">buf</code>, or{" "}
-          <code className="aw-code">NULL</code> if no characters were read at
-          all.
-        </p>
-        <p className="aw-p">
-          The point students most often miss is what happens to the newline in
-          the first case: it is <strong>retained</strong>, copied into the buffer
-          along with the text that preceded it. That is why the lengths reported
-          below are 12 and 16 rather than 11 and 15, and why every field read
-          this way must be stripped before it is printed in a column.
-        </p>
-      </>
+      <p className="aw-p">
+        <code className="aw-code">fgets(buf, size, fp)</code> copies bytes into{" "}
+        <code className="aw-code">buf</code> and stops on the first of three
+        conditions: a newline, <code className="aw-code">size - 1</code>{" "}
+        characters stored, or an exhausted stream. It then writes a closing{" "}
+        <code className="aw-code">\0</code> and returns{" "}
+        <code className="aw-code">buf</code>, or{" "}
+        <code className="aw-code">NULL</code> if nothing was read. In the first
+        case the newline is <strong>retained</strong>, which is why every field
+        read this way must be stripped before it is printed in a column.
+      </p>
     ),
     media: (
       <>
@@ -435,7 +348,7 @@ How about no. 3?`}</Terminal>
         />
         <FileMachine
           file={TEST_TXT}
-          caption="Four calls to fgets on a 44-byte file. Three return a line; the fourth finds the stream exhausted and returns NULL."
+          caption="Four calls to fgets on the 44 bytes of test.txt."
           trace={[
             {
               call: "fgets(line, 100, fp)",
@@ -467,11 +380,6 @@ How about no. 3?`}</Terminal>
         <Terminal>{`[12] hello no. 1
 [16] where is no. 2?
 [16] How about no. 3?`}</Terminal>
-        <p className="aw-p">
-          After the loop the program emits one newline of its own, because the
-          last line of the file carries none. Without it the shell prompt would
-          resume in the middle of the final row of output.
-        </p>
       </>
     ),
     why: {
@@ -510,60 +418,31 @@ How about no. 3?`}</Terminal>
       <p className="aw-p">
         <code className="aw-code">fscanf</code> is{" "}
         <code className="aw-code">scanf</code> with a stream as its first
-        argument, and it is the natural function to reach for next. Its format
-        string is a sequence of <strong>directives</strong>, matched against the
-        input one after another. A directive is whitespace, or a literal
-        character that must appear exactly, or a{" "}
-        <strong>conversion specifier</strong> such as{" "}
-        <code className="aw-code">%s</code> or{" "}
-        <code className="aw-code">%i</code> that converts input and assigns it. A
-        directive that fails to match ends the call, and the file position
-        indicator is left wherever the failed conversion stopped rather than at
-        a record boundary.
+        argument. Its format string is a sequence of{" "}
+        <strong>directives</strong> matched against the input one after another,
+        and one that fails to match ends the call, leaving the file position
+        indicator wherever the failed conversion stopped rather than at a record
+        boundary.
       </p>
     ),
     media: (
       <>
         <p className="aw-p">
-          Consider <code className="aw-code">%s</code>, which is defined to read
-          a single sequence of non-whitespace characters. Applied to the line{" "}
-          <code className="aw-code">Montero Sport</code>, it converts and assigns{" "}
-          <code className="aw-code">Montero</code> and stops there. The space,
-          the word <code className="aw-code">Sport</code> and the newline all
-          remain unread, and the next call encounters them while expecting the
-          first character of a new field. Every field of{" "}
-          <code className="aw-code">cars.csv</code> that contains a space fails
-          in exactly this way.
+          Two failures follow. <code className="aw-code">%s</code> stops at the
+          first whitespace, so a field containing a space is assigned only as
+          far as that space. Worse, <code className="aw-code">%i</code> matched
+          against a character that cannot begin an integer consumes nothing, so
+          one malformed line becomes a loop that never advances.
         </p>
         <p className="aw-p">
-          A numeric specifier fails more damagingly. Match{" "}
-          <code className="aw-code">%i</code> against a character that cannot
-          begin an integer and the directive fails: nothing is converted,
-          nothing is assigned, and the offending characters are not consumed. The
-          indicator has not moved, so the next call meets the same input and
-          fails identically, and a single malformed line becomes a loop that
-          never advances.
-        </p>
-        <p className="aw-p">
-          Neither outcome announces itself, because{" "}
+          Neither announces itself, because{" "}
           <code className="aw-code">fscanf</code> reports through its return
-          value: the number of input items successfully{" "}
+          value: the number of items successfully{" "}
           <strong>assigned</strong>, which may be fewer than the specifiers you
           wrote. Written as{" "}
           <code className="aw-code">{"if (fscanf(fp, \"%s %i\", name, &qty) != 2)"}</code>,
-          a partial match is detected at once. Written without that comparison it
-          is invisible, and the unassigned variables retain whatever values they
-          held beforehand.
-        </p>
-        <p className="aw-p">
-          The remedy is not a more elaborate format string. It is a{" "}
-          <strong>delimiter</strong>: a character fixed by convention to mark
-          where one field ends, so that field boundaries are read from the data
-          rather than inferred. Stage 5 therefore reads a whole line, divides it
-          at the delimiter, and converts the individual pieces with{" "}
-          <code className="aw-code">sscanf</code>. Under that arrangement a
-          malformed line costs you that line alone, not the remainder of the
-          file.
+          a partial match is caught at once. The remedy, though, is a{" "}
+          <strong>delimiter</strong>.
         </p>
       </>
     ),
@@ -604,71 +483,41 @@ How about no. 3?`}</Terminal>
     body: (
       <>
         <p className="aw-p">
-          A stream is an undifferentiated sequence of bytes; it contains no
-          fields and no records. Those are structures a program imposes on it by
-          convention. That convention is a <strong>delimiter</strong>: a
-          character, or a short sequence of characters, agreed in advance to
-          mark where one data item ends. A <strong>field</strong> is the run
-          of bytes between two delimiters, and a <strong>record</strong> is a
-          group of fields that describes one thing.
-        </p>
-        <p className="aw-p">
-          The delimiter carries no data of its own and is not stored as part of
-          any field. It imposes one requirement on the data it separates: it
-          must not occur inside a field. Where it can occur, the program has no
-          way of distinguishing a separator from a value.
+          A stream is an undifferentiated sequence of bytes: it contains no
+          fields and no records. Those a program imposes by convention, and the
+          convention is a <strong>delimiter</strong>, a character agreed in
+          advance to mark where a data item ends. A <strong>field</strong> lies
+          between two delimiters; a <strong>record</strong> is a group of
+          fields.
         </p>
       </>
     ),
     media: (
       <>
         <p className="aw-p">
-          The two files hold the same four cars under two different conventions.
-          In <code className="aw-code">cars.txt</code> the delimiter is the{" "}
-          <strong>line terminator</strong>: one field per line, and four
-          consecutive lines per record. That is the byte of value 10 you
-          examined in stage 4, now carrying structural meaning rather than
-          merely presentation.
+          The two files hold the same four cars under two conventions. In{" "}
+          <code className="aw-code">cars.txt</code> the delimiter is the{" "}
+          <strong>line terminator</strong>; in{" "}
+          <code className="aw-code">cars.csv</code> it is the{" "}
+          <strong>comma</strong>.
         </p>
         <Terminal label="cars.txt — the first car">{`Toyota
 Corolla
 1995
 TVX-111`}</Terminal>
         <p className="aw-p">
-          In <code className="aw-code">cars.csv</code> the delimiter is the{" "}
-          <strong>comma</strong>, so an entire record occupies a single line and
-          the line terminator separates records rather than fields. The first
-          line is a <strong>header</strong>: it names the columns instead of
-          describing a car, and a program must therefore read past it.
+          A record now occupies one line, and the first of them is a{" "}
+          <strong>header</strong>, which a program must read past.
         </p>
         <Terminal label="cars.csv — the header and the first car">{`make,model,year,plate
 Toyota,Corolla,1995,TVX-111`}</Terminal>
         <p className="aw-p">
-          The comma is convenient but it is not safe in general, and the
-          weakness is not peculiar to commas. Any <strong>in-band</strong>{" "}
-          delimiter — one drawn from the same alphabet as the data it separates
-          — can occur inside a field. When it does, the record is divided in the
-          wrong place, and no diagnostic of any kind is produced. Postal
-          addresses
-          contain commas, as do names written surname-first and prices written
-          under several locale conventions.
-        </p>
-        <p className="aw-p">
-          The general remedies are escaping and quoting, which mark an
-          occurrence of the delimiter as data rather than as structure. The RFC
-          4180 description of CSV specifies exactly such a rule: a field may be
-          enclosed in double quotes, within which a comma is ordinary text. The
-          programs in this handout implement no quoting rule and will therefore
-          mis-parse a quoted field. Know that limit before you point one of them
-          at data you did not write yourself.
-        </p>
-        <p className="aw-p">
-          The alternative is to choose a delimiter that cannot occur in the
-          data. That is why files in circulation are often separated by tabs or
-          semicolons, and occasionally by a sequence such as{" "}
-          <code className="aw-code">:|:</code> that nobody types by accident. The
-          comma is used here because it is the convention the rest of the world
-          reads, and because none of these four records contains one.
+          Any <strong>in-band</strong> delimiter — one drawn from the same
+          alphabet as the data — can occur inside a field, dividing the record
+          in the wrong place with no diagnostic. The remedy is quoting: RFC 4180
+          allows a CSV field to be enclosed in double quotes, within which a
+          comma is ordinary text. The programs here implement no quoting rule
+          and will mis-parse one.
         </p>
       </>
     ),
@@ -696,14 +545,13 @@ Toyota,Corolla,1995,TVX-111`}</Terminal>
     action: <>Compile and run <code className="aw-code">07-fields.c</code> in the folder that holds <code className="aw-code">cars.txt</code>.</>,
     body: (
       <p className="aw-p">
-        A record here is four consecutive lines, so one iteration of the loop is
-        four calls to <code className="aw-code">fgets</code>. The{" "}
-        <code className="aw-code">&amp;&amp;</code> operators between them are
-        doing real work: C guarantees short-circuit evaluation, so the first
-        call that returns <code className="aw-code">NULL</code> prevents the
-        remaining calls from being made. A file that ends part-way through a
-        record therefore terminates the loop rather than printing a record
-        assembled from leftovers.
+        A record here is four consecutive lines, so one iteration is four calls
+        to <code className="aw-code">fgets</code>. The{" "}
+        <code className="aw-code">&amp;&amp;</code> operators between them do
+        real work: C guarantees short-circuit evaluation, so the first call
+        returning <code className="aw-code">NULL</code> prevents the rest from
+        being made, and a file ending part-way through a record terminates the
+        loop rather than printing leftovers.
       </p>
     ),
     media: (
@@ -718,14 +566,10 @@ Toyota,Corolla,1995,TVX-111`}</Terminal>
             "           fgets(year,  40, fp) != NULL &&",
             "           fgets(plate, 40, fp) != NULL) {"
           ]}
-          caption="Four reads for one record, applying the loop condition of step S4.3 four times over."
+          caption="Four reads for one record, applying the condition of step S4.3 four times over."
         />
         <p className="aw-p">
-          All four buffers now end in a newline, because{" "}
-          <code className="aw-code">fgets</code> retains the terminator it
-          stopped on. Left in place, each field would carry a line break into
-          the middle of a table row, and a single record would be spread across
-          four lines of output. Each field is therefore passed through{" "}
+          All four buffers end in a newline, so each is passed through{" "}
           <code className="aw-code">stripNewline</code> before it is printed.
         </p>
         <CodeBlock
@@ -750,7 +594,7 @@ Toyota,Corolla,1995,TVX-111`}</Terminal>
             "    }",
             "}"
           ]}
-          caption="Overwriting the newline with \\0 terminates the string one character earlier. The n > 0 test guards against indexing before the start of an empty string, and the '\\n' test against truncating a final line that carries no terminator."
+          caption="Overwriting the newline with \\0 terminates the string one character earlier. The n > 0 test guards against indexing before the start of an empty string."
         />
         <Terminal>{`MAKE         MODEL            YEAR   PLATE     
 Toyota       Corolla          1995   TVX-111   
@@ -758,19 +602,10 @@ Toyota       Vios             2014   TJJ-100
 Mitsubishi   Montero Sport    2018   JJT-001   
 Honda        Civic            2021   HCV-221   `}</Terminal>
         <p className="aw-p">
-          The row for <code className="aw-code">Montero Sport</code> demonstrates
-          the value of an explicit delimiter. The field contains a space and
-          nonetheless arrives intact, because the delimiter here is the line
-          terminator and not whitespace in general. A single{" "}
-          <code className="aw-code">%s</code> would have assigned{" "}
-          <code className="aw-code">Montero</code> and abandoned the remainder,
-          exactly as step S4.5 described.
-        </p>
-        <p className="aw-p">
-          Note also that the year is still held as text. Formatted with{" "}
-          <code className="aw-code">%-6s</code> it is displayed correctly, but it
-          is a string of digits rather than a number, so it cannot be compared,
-          averaged or sorted numerically. Step S5.4 converts it.
+          <code className="aw-code">Montero Sport</code> is the value of an
+          explicit delimiter: the space falls inside a field and the field
+          arrives intact. The year is still a string of digits; step S5.4
+          converts it.
         </p>
       </>
     ),
@@ -805,12 +640,10 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
     body: (
       <p className="aw-p">
         With the comma as the delimiter, four fields share a single line, so{" "}
-        <code className="aw-code">fgets</code> can no longer perform the
-        separation on your behalf. That responsibility moves into one function,{" "}
-        <code className="aw-code">getDelimitedItem</code>, which reads exactly
-        one field. It stops at the first of three terminating conditions: a
-        comma, the end of the record, or the end of the stream. Everything else
-        in the program is built on that one primitive.
+        <code className="aw-code">fgets</code> can no longer separate them on
+        your behalf. <code className="aw-code">getDelimitedItem</code> reads
+        exactly one field and stops at a comma, the end of the record, or the
+        end of the stream. Run the figure first, then read the code against it.
       </p>
     ),
     media: (
@@ -825,14 +658,13 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "    int c;",
             "    int n = 0;      //characters stored so far"
           ]}
-          caption="out is the buffer the item is written into, and size is the capacity of that buffer. The caller supplies both, so the function assumes neither."
+          caption="out is the buffer the item is written into and size is its capacity. The caller supplies both."
         />
+        <ParseWalker />
         <p className="aw-p">
-          The first character is read on its own, ahead of the loop, so that the
-          function can distinguish two situations which otherwise look alike: a
-          stream with nothing left in it, and a field that is legitimately
-          empty. The two require different responses from the caller, so they
-          are reported by different return values.
+          The first character is read ahead of the loop so that two situations
+          which look alike can be told apart: an exhausted stream, and a field
+          that is legitimately empty.
         </p>
         <CodeBlock
           file="08-csv.c"
@@ -846,14 +678,8 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "        return -1;",
             "    }"
           ]}
-          caption="A return of -1 reports that the stream was exhausted. It is deliberately distinct from 0, which will report a field of no characters."
+          caption="A return of -1 reports an exhausted stream, deliberately distinct from the 0 that will report a field of no characters."
         />
-        <p className="aw-p">
-          Beyond that check at least one character is available, and the loop
-          now runs until the field ends. Its condition names the three
-          terminating conditions explicitly, because each of them may
-          legitimately follow a field and none of them is an error.
-        </p>
         <CodeBlock
           file="08-csv.c"
           from={27}
@@ -866,15 +692,8 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "        //come back with an invisible character glued to it.",
             "        if (c != '\\r') {"
           ]}
+          caption="The loop names its terminating conditions explicitly, because each may legitimately follow a field and none is an error."
         />
-        <p className="aw-p">
-          The delimiter is consumed but never stored, and that single decision
-          is what makes the function composable. The caller receives the field
-          alone, and the file position indicator is left at the first byte of
-          the field that follows. The carriage return of a Windows line ending
-          is discarded as it passes rather than trimmed afterwards, so a file
-          saved under either convention yields identical fields.
-        </p>
         <CodeBlock
           file="08-csv.c"
           from={37}
@@ -886,13 +705,8 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "            }",
             "        }"
           ]}
-          caption="The size - 1 bound reserves room for the closing \\0. Characters beyond that bound are consumed but not stored, so an over-long field is truncated rather than overrunning the caller's buffer."
+          caption="The size - 1 bound reserves room for the closing \\0. Characters beyond it are consumed but not stored, so an over-long field is truncated rather than overrunning the caller's buffer."
         />
-        <p className="aw-p">
-          One statement remains, and it is the one most often omitted: each
-          iteration must fetch the next character, or the loop will test the
-          same value indefinitely.
-        </p>
         <CodeBlock
           file="08-csv.c"
           from={43}
@@ -900,14 +714,8 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "        c = fgetc(fp);",
             "    }"
           ]}
-          caption="Without this statement the loop would test the same value of c indefinitely, and the program would appear to hang."
+          caption="The statement most often omitted. Without it the loop tests the same value of c indefinitely and the program appears to hang."
         />
-        <p className="aw-p">
-          When the loop ends, the characters of the field are in{" "}
-          <code className="aw-code">out</code>, but they do not yet constitute a
-          string. A C string is a sequence of characters followed by a null
-          character, and no library function supplies that for you here.
-        </p>
         <CodeBlock
           file="08-csv.c"
           from={46}
@@ -918,7 +726,7 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "",
             "    return n;"
           ]}
-          caption="The return value is the length of the field, which is what allows the caller to recognize an empty field and distinguish it from an exhausted stream."
+          caption="A C string has to be closed off by hand. The return value is the length of the field, which is what lets the caller distinguish an empty field from an exhausted stream."
         />
       </>
     ),
@@ -956,11 +764,11 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
     action: <>Compile and run <code className="aw-code">08-csv.c</code> in the folder that holds <code className="aw-code">cars.csv</code>.</>,
     body: (
       <p className="aw-p">
-        The header line is consumed first and discarded, so that the loop which
-        follows encounters records only. If that first read returns{" "}
-        <code className="aw-code">NULL</code>, the file held nothing at all, and
-        that is a condition worth reporting explicitly rather than presenting as
-        a table of zero cars.
+        The header line is consumed first and discarded, so the loop that
+        follows encounters records only. If that read returns{" "}
+        <code className="aw-code">NULL</code> the file held nothing at all,
+        which is worth reporting rather than presenting as a table of zero
+        cars.
       </p>
     ),
     media: (
@@ -977,13 +785,6 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "    }"
           ]}
         />
-        <p className="aw-p">
-          One iteration of the loop assembles one record. The first call decides
-          whether a record is present at all, and the remaining three complete
-          it once that question has been settled. A file terminated by a newline
-          and a file without one both stop here by the same mechanism, because
-          the condition tests a return value rather than an indicator.
-        </p>
         <CodeBlock
           file="08-csv.c"
           from={82}
@@ -991,7 +792,7 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
           lines={[
             "    while ((n = getDelimitedItem(fp, make, 40)) >= 0) {"
           ]}
-          caption="The read is once again the loop condition, following the rule established in step S4.3."
+          caption="One iteration assembles one record, and the first call decides whether a record is present at all."
         />
         <CodeBlock
           file="08-csv.c"
@@ -1001,7 +802,7 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "            continue;",
             "        }"
           ]}
-          caption="An empty first field means a blank line rather than a record, so the iteration is abandoned and the next field is read."
+          caption="An empty first field means a blank line rather than a record, so the iteration is abandoned."
         />
         <CodeBlock
           file="08-csv.c"
@@ -1013,17 +814,13 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
           ]}
         />
         <p className="aw-p">
-          All four fields are text at this point, the year included, because
-          everything read from a text stream arrives as characters.{" "}
-          <code className="aw-code">sscanf</code> performs the conversion: it
-          applies the same directive matching as{" "}
-          <code className="aw-code">fscanf</code>, but to a string already in
-          memory rather than to a stream. Like{" "}
-          <code className="aw-code">fscanf</code> it returns the number of items
-          successfully assigned, and it is that count, not the value in{" "}
-          <code className="aw-code">y</code>, which tells you whether the field
-          was numeric. Checking the count is what distinguishes a parser from a
-          guess.
+          All four fields are text, because everything read from a text stream
+          arrives as characters. <code className="aw-code">sscanf</code> applies
+          the directive matching of <code className="aw-code">fscanf</code> to a
+          string already in memory and likewise returns the number of items
+          assigned. That count, not the value in{" "}
+          <code className="aw-code">y</code>, tells you whether the field was
+          numeric.
         </p>
         <CodeBlock
           file="08-csv.c"
@@ -1036,7 +833,7 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "            continue;",
             "        }"
           ]}
-          caption="Comparing the return value against 1 is what prevents a typographical error in the data file from printing an indeterminate value."
+          caption="Comparing the return value against 1 is what stops a typographical error in the data file from printing an indeterminate value."
         />
         <CodeBlock
           file="08-csv.c"
@@ -1046,7 +843,7 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
             "        printf(\"%-12s %-16s %6i %-10s\\n\",",
             "               make, model, y, plate);"
           ]}
-          caption="%6i rather than %-6s: the year is now an int, so it is formatted right-aligned as numeric columns conventionally are."
+          caption="%6i rather than %-6s: the year is now an int, right-aligned as numeric columns conventionally are."
         />
         <Terminal>{`MAKE         MODEL              YEAR PLATE     
 Toyota       Corolla            1995 TVX-111   
@@ -1085,46 +882,26 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
     action: <>Open <code className="aw-code">cars.csv</code>, add a fifth record in the same form as the four already there, save the file and run <code className="aw-code">08-csv.c</code> again.</>,
     body: (
       <p className="aw-p">
-        Four fields require exactly three commas, and you should leave no spaces
-        around them unless you intend those spaces to form part of the data.
-        Nothing needs recompiling, because the data resides in the file and the
-        program reads whatever the file happens to contain. That separation
-        between program and data is the point of the entire handout.
+        Four fields require exactly three commas, and leave no spaces around
+        them unless you intend those spaces to be data. Nothing needs
+        recompiling: the program reads whatever the file contains.
       </p>
     ),
     media: (
       <>
         <p className="aw-p">
-          While the file is open, carry out the other two experiments as well.
-          Put a word where a year belongs, and observe that the record is
-          reported by name and skipped rather than printed with an indeterminate
-          value. That is the <code className="aw-code">sscanf</code> return check
-          from the previous step doing the work it was written for.
+          Then two experiments. Put a word where a year belongs, and the record
+          is named and skipped.
         </p>
         <Terminal label="A year that is not a number">{`MAKE         MODEL              YEAR PLATE     
 Skipping Toyota Corolla: year 'nineteen' is not a number
 Honda        Civic              2021 HCV-221   `}</Terminal>
         <p className="aw-p">
-          Then leave a blank line at the end of the file, and confirm that no
-          additional row appears. That is the field of length 0 from step S5.3
-          being recognized and stepped over rather than treated as a record.
-        </p>
-        <p className="aw-p">
-          You now have a program that converts a delimited data file into a
-          formatted table, and it is built from five identifiable components.
-        </p>
-        <ul className="aw-p">
-          <li>A file held on disk, outliving the process that wrote it.</li>
-          <li>A delimiter, fixed by convention between writer and reader.</li>
-          <li>Records read one at a time into variables of the right size.</li>
-          <li>A numeric conversion whose return value is checked.</li>
-          <li>Output formatted into aligned columns.</li>
-        </ul>
-        <p className="aw-p">
-          That is the structure of essentially every data-handling task ahead of
-          you, and you have now implemented it once without a library. One
-          further change is worth making to it, and it forms the final step of
-          this handout.
+          Then leave a blank line at the end and confirm that no extra row
+          appears: that is the field of length 0 from step S5.3 being stepped
+          over. A file on disk, a delimiter fixed by convention, records read
+          one at a time, a checked conversion, aligned output — that is the
+          structure of essentially every data task ahead of you.
         </p>
       </>
     ),
@@ -1147,36 +924,19 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
     title: "Separate reading, record assembly and presentation",
     action: <>Compile and run <code className="aw-code">09-modular.c</code> beside <code className="aw-code">cars.txt</code>, then compare its output with the one from step S5.2.</>,
     body: (
-      <>
-        <p className="aw-p">
-          <code className="aw-code">07-fields.c</code> works, and nothing in it
-          is incorrect. <code className="aw-code">09-modular.c</code> performs
-          the same task with two functions interposed between{" "}
-          <code className="aw-code">main</code> and the stream, and the two
-          programs emit identical bytes. That is the point of the exercise: the
-          structure has changed and the behavior has not, which is what the term{" "}
-          <strong>refactoring</strong> denotes.
-        </p>
-        <p className="aw-p">
-          What the second version buys is a <strong>separation of
-          concerns</strong>. Three distinct responsibilities are tangled
-          together in the first program: reading and cleaning one field,
-          assembling four fields into a record, and presenting a record as a row
-          of a table. In the second each has a name, a boundary and a defined
-          result, so each can be reasoned about without the other two in view.
-        </p>
-      </>
+      <p className="aw-p">
+        <code className="aw-code">09-modular.c</code> performs the task of{" "}
+        <code className="aw-code">07-fields.c</code> with two functions
+        interposed between <code className="aw-code">main</code> and the stream,
+        and the two emit identical bytes: the structure has changed and the
+        behavior has not, which is what <strong>refactoring</strong> denotes.
+        What it buys is a <strong>separation of concerns</strong> — reading a
+        field, assembling a record and presenting a row are tangled together in
+        the first program and named separately in the second.
+      </p>
     ),
     media: (
       <>
-        <p className="aw-p">
-          <code className="aw-code">readField</code> carries the first
-          responsibility and nothing else. It reads one line and removes the
-          terminator that <code className="aw-code">fgets</code> retained,
-          returning 1 when a field was obtained and 0 once the stream is
-          exhausted. Its caller therefore never has to remember that fields
-          arrive with a newline attached.
-        </p>
         <CodeBlock
           file="09-modular.c"
           from={6}
@@ -1188,7 +948,7 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
             "        return 0;               //nothing left to read",
             "    }"
           ]}
-          caption="The four NULL tests of 07-fields.c, now expressed once in the only function that reads."
+          caption="The first responsibility and nothing else: 1 when a field was obtained, 0 once the stream is exhausted. The four NULL tests of 07-fields.c, expressed once."
         />
         <CodeBlock
           file="09-modular.c"
@@ -1202,15 +962,8 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
             "",
             "    return 1;"
           ]}
-          caption="The body of stripNewline from step S5.2, now located inside the only function that has any need of it."
+          caption="The body of stripNewline from step S5.2, inside the only function that needs it."
         />
-        <p className="aw-p">
-          <code className="aw-code">readCar</code> carries the second
-          responsibility, record assembly. It calls{" "}
-          <code className="aw-code">readField</code> once per field and returns
-          1 only when all four fields were present, so a record is either
-          complete or not delivered at all.
-        </p>
         <CodeBlock
           file="09-modular.c"
           from={23}
@@ -1218,6 +971,7 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
             "int readCar(FILE *fp, char *make, char *model,",
             "            char *year, char *plate) {"
           ]}
+          caption="The second responsibility, record assembly: 1 only when all four fields were present."
         />
         <CodeBlock
           file="09-modular.c"
@@ -1231,19 +985,13 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
             "",
             "    return 1;"
           ]}
-          caption="Four fields, with an early return the moment any one of them proves to be absent."
+          caption="An early return the moment any one field proves to be absent."
         />
         <p className="aw-p">
-          That guard is the part of the design worth carrying forward. A file
-          may end part-way through a record, so that three fields arrive and the
-          fourth does not. The three that arrived are genuine data, but the
-          record they would form is not, and returning 0 ensures the caller
-          never receives a partial record. The stray fields are discarded rather
-          than printed alongside values left over from the preceding record.
-        </p>
-        <p className="aw-p">
-          The third responsibility, presentation, is all that remains in{" "}
-          <code className="aw-code">main</code>.
+          That guard is the part worth carrying forward. A file may end
+          part-way through a record: the fields that arrived are genuine data,
+          but the record they would form is not, and returning 0 keeps it from
+          the caller.
         </p>
         <CodeBlock
           file="09-modular.c"
@@ -1255,34 +1003,22 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
             "               make, model, year, plate);",
             "    }"
           ]}
-          caption="The loop condition now asks a single question: was a further complete record available?"
+          caption="Presentation is all that remains in main: was a further complete record available?"
         />
-        <p className="aw-p">
-          <code className="aw-code">main</code> now states what is to happen
-          once per record and no longer states how a field is read or how a
-          record is assembled. Each of the three pieces can be modified, tested
-          or replaced without the other two being opened.
-        </p>
         <Terminal label="09-modular.c — identical to the output of 07-fields.c">{`MAKE         MODEL            YEAR   PLATE     
 Toyota       Corolla          1995   TVX-111   
 Toyota       Vios             2014   TJJ-100   
 Mitsubishi   Montero Sport    2018   JJT-001   
 Honda        Civic            2021   HCV-221   `}</Terminal>
         <p className="aw-p">
-          The same division reappears in Week 7, where MATLAB supplies the
-          reading and you supply the assembly and the presentation, and again in
-          the Week 13 team project. A function is the smallest unit of work a
-          team can allocate to one person, test in isolation and then
-          integrate. That is why the boundaries drawn here matter beyond this
-          one program.
+          The same division reappears in Week 7 and in the Week 13 team
+          project: a function is the smallest unit of work a team can allocate,
+          test in isolation and then integrate.
         </p>
         <p className="aw-p">
-          That concludes the handout. You opened a stream and made the program
-          report an open that had failed, then wrote bytes and learned where the
-          library holds them until the stream is closed. You then read those
-          bytes back while watching the file position indicator advance, and
-          turned a delimited data file into a table. The reference at the foot
-          of this page is the part worth keeping beside you.
+          That concludes the handout: a stream opened, bytes written and held
+          by the library until the stream was closed, those bytes read back with
+          the position in view, and a delimited file turned into a table.
         </p>
       </>
     ),

@@ -1,4 +1,8 @@
 @import "./dlsu/index.css";
+@import "./parts/explorable.css";
+@import "./parts/parse-walker.css";
+@import "./parts/buffer-machine.css";
+@import "./parts/loop-compare.css";
 @import "./parts/file-machine.css";
 @import "./parts/predict-check.css";
 @import "./parts/file-io.css";

@@ -1,0 +1,393 @@
+/* ParseWalker — getDelimitedItem walked one character at a time.
+
+   The shared chrome (the frame, the transport, the caption, the "what to
+   notice" line) belongs to explorable.css. Only what is particular to this
+   figure lives here, and every class is prefixed `pw-` so that the four
+   figures on the site can never reach into each other's rules.
+
+   The whole figure is a vertical stack of panels, because on a 360px phone
+   there is only ever one column available and a layout that reflows into one
+   column is a layout with two behaviors to get right instead of one. On a wide
+   screen the panels simply get wider; the reading order never changes. */
+
+.pw {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* ---- which call we are in -------------------------------------------- */
+
+.pw-call {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.pw-call-n {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.pw-call-src {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-2);
+}
+
+/* ---- panels ----------------------------------------------------------- */
+
+.pw-panel { min-width: 0; }
+
+.pw-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-secondary);
+}
+.pw-meta {
+  font-family: var(--font-sans);
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+  font-feature-settings: 'tnum';
+}
+
+.pw-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+  /* The sentence changes length from frame to frame. Reserving two lines stops
+     everything below it from jumping as the reader scrubs, which is the kind
+     of movement that reads as a fault rather than as an explanation. */
+  min-height: 3.2em;
+}
+
+/* ---- the character rows ----------------------------------------------- */
+
+/* A line of CSV does not fit across a phone at a legible size, so the row
+   scrolls inside itself. The page never scrolls sideways; .ex-scroll, which is
+   applied alongside this class, owns that behavior. */
+.pw-scroll { padding-bottom: var(--space-1); }
+
+.pw-row {
+  display: flex;
+  gap: 2px;
+  width: max-content;
+  padding: var(--space-2) 0 0;
+}
+
+.pw-cell,
+.pw-slot {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-width: 1.75rem;
+  padding: var(--space-1) 2px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-page);
+  transition: background var(--ex-fade), border-color var(--ex-fade),
+              color var(--ex-fade), transform var(--ex-move);
+}
+
+.pw-glyph {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1;
+  color: var(--text-primary);
+}
+.pw-idx {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  line-height: 1;
+  color: var(--text-muted);
+  font-feature-settings: 'tnum';
+}
+
+/* Consumed characters sit behind the cursor. They are dimmed rather than
+   removed, because the point of four calls on one line is that the stream
+   position keeps moving forward through characters that are still there. */
+.pw-cell.is-past {
+  background: var(--surface-sunken);
+  opacity: .6;
+}
+
+/* The character fgetc is about to return. The heavy border and the caret below
+   carry this together, so it survives a reader who cannot separate the tints. */
+.pw-cell.is-cursor {
+  border-color: var(--green-700);
+  border-width: var(--border-width-thick);
+  background: var(--surface-brand-tint);
+  opacity: 1;
+}
+.pw-cell.is-cursor::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 0; height: 0;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--green-700);
+}
+
+/* The character just returned by fgetc — the current value of c. */
+.pw-cell.is-read {
+  border-color: var(--gold-600);
+  border-width: var(--border-width-thick);
+  background: var(--surface-gold-tint);
+  opacity: 1;
+}
+
+/* The commas and the newline are what the loop tests for, so they must not
+   look like the letters around them even before the cursor arrives. */
+.pw-cell-delim {
+  border-style: dashed;
+  border-color: var(--border-gold);
+  background: var(--surface-gold-tint);
+}
+.pw-cell-delim .pw-glyph {
+  color: var(--text-gold);
+  font-weight: var(--weight-bold);
+}
+
+/* There is no byte at this position. Drawn hollow for that reason. */
+.pw-cell-eof {
+  border-style: dotted;
+  border-color: var(--border-strong);
+  background: transparent;
+}
+.pw-cell-eof .pw-glyph {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-secondary);
+}
+
+/* ---- the buffer ------------------------------------------------------- */
+
+.pw-slot {
+  border-style: dashed;
+  background: var(--surface-subtle);
+}
+.pw-slot .pw-glyph { min-height: 1em; }
+
+.pw-slot.is-filled {
+  border-style: solid;
+  border-color: var(--green-700);
+  background: var(--surface-brand-tint);
+}
+.pw-slot.is-filled .pw-glyph {
+  color: var(--text-accent);
+  font-weight: var(--weight-semibold);
+}
+
+/* The character stored on this very frame. The lift is what makes "one letter
+   at a time" readable as motion rather than as a row that silently got longer. */
+.pw-slot.is-fresh { transform: translateY(-3px); }
+
+/* The terminator. It is not a character the file contained, so it is drawn as
+   something the function added. */
+.pw-slot.is-nul {
+  border-style: solid;
+  border-color: var(--gold-600);
+  background: var(--surface-gold-tint);
+}
+.pw-slot.is-nul .pw-glyph {
+  color: var(--text-gold);
+  font-weight: var(--weight-bold);
+}
+
+/* ---- the variables ---------------------------------------------------- */
+
+.pw-vars {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.pw-var {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-subtle);
+}
+.pw-var-name {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+.pw-var-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  font-feature-settings: 'tnum';
+}
+.pw-var-value.is-empty {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+}
+.pw-var-ret {
+  border-color: var(--border-gold);
+  background: var(--surface-gold-tint);
+}
+.pw-var-ret .pw-var-value { color: var(--text-gold); }
+
+/* ---- the four conditions ---------------------------------------------- */
+
+.pw-conds {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.pw-cond {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-page);
+  transition: background var(--ex-fade), border-color var(--ex-fade),
+              opacity var(--ex-fade);
+  /* The three conditions that do not hold stay legible. A reader has to be
+     able to see what the loop is NOT doing to understand what it is. */
+  opacity: .55;
+}
+.pw-cond.is-on {
+  opacity: 1;
+  border-color: var(--border-brand);
+  border-left-color: var(--green-700);
+  background: var(--surface-brand-tint);
+}
+
+/* The word, not only the tint, says which condition holds. The box keeps its
+   width in both states so the rows do not shift as the reader scrubs. */
+.pw-cond-flag {
+  flex: none;
+  width: 3.2em;
+  padding-top: 1px;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-accent);
+}
+.pw-cond-text { min-width: 0; display: block; }
+.pw-cond-code {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+.pw-cond-label {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+.pw-cond-note {
+  display: block;
+  font-size: var(--text-xs);
+  line-height: var(--leading-snug);
+  color: var(--text-secondary);
+}
+
+/* ---- the completed fields --------------------------------------------- */
+
+.pw-fields {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.pw-field {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-subtle);
+  transition: border-color var(--ex-fade), background var(--ex-fade),
+              transform var(--ex-move);
+}
+/* The field that arrived on this frame. This is the moment a field leaves the
+   line and becomes a string, so it is worth marking. */
+.pw-field.is-new {
+  border-color: var(--border-brand);
+  background: var(--surface-brand-tint);
+  transform: translateX(3px);
+}
+.pw-field-name {
+  flex: none;
+  min-width: 4.5em;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+.pw-field-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  word-break: break-all;
+}
+.pw-field-n {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  font-feature-settings: 'tnum';
+}
+
+@media (max-width: 400px) {
+  /* At the narrowest supported width the index numbers under each cell are the
+     first thing to go: the glyph and the cursor carry the lesson, the indices
+     only label it, and dropping them buys back enough room to keep the glyphs
+     at a readable size. */
+  .pw-cell, .pw-slot { min-width: 1.5rem; }
+  .pw-idx { display: none; }
+  .pw-cond-flag { width: 2.8em; }
+}
+
+@media print {
+  /* On paper there is one frame and no cursor to follow, so the conditions
+     that do not hold would read as fully present. They are dimmed further and
+     the "NOW" flag does the work instead. */
+  .pw-cond { opacity: 1; }
+  .pw-cond:not(.is-on) { color: var(--text-muted); }
+  .pw-scroll { overflow: visible; }
+  .pw-row { flex-wrap: wrap; width: auto; }
+}

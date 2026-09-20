@@ -248,6 +248,7 @@ async function fileIO() {
      "a reference class is missing");
   ok("the stream model is taught, not assumed",
      /\bstream\b/i.test(txt()), "the word stream never appears");
+
   ok("the stage map is visible before starting",
      all(".aw-row").length === 5, `found ${all(".aw-row").length} rows`);
   ok("no stage is locked",
@@ -314,7 +315,7 @@ async function fileIO() {
   // Stage sizes are read off the page rather than hard-coded: steps get added
   // to this handout, and a stale constant here would silently stop walking a
   // stage half way and still report a pass.
-  let maxDen = 0, rowCounts = new Set(), machinesDriven = 0, unsolved = 0, sawConsumedCue = false;
+  let maxDen = 0, rowCounts = new Set(), unsolved = 0, sawConsumedCue = false, exDriven = 0;
 
   for (let stage = 1; stage <= 5; stage++) {
     const size = all(".aw-row.is-current .aw-stepchip").length;
@@ -324,19 +325,22 @@ async function fileIO() {
       rowCounts.add(all(".aw-row").length);
 
       // Drive the FileMachine wherever one appears.
-      const fm = D().querySelector(".fm");
-      if (fm) {
-        const countOf = () => (D().querySelector(".fm-count") || {}).textContent || "";
-        const posOf = () => (D().querySelector(".fm-bytes") || {}).textContent || "";
-        const first = countOf(), firstBytes = posOf();
-        const next = [...fm.querySelectorAll(".fm-btn")].find(b => /Next/.test(b.textContent));
-        if (next && !next.disabled) {
-          next.click(); await wait(140);
-          if (countOf() !== first) machinesDriven++;
-          const reset = [...fm.querySelectorAll(".fm-btn")].find(b => /Reset/.test(b.textContent));
-          if (reset && !reset.disabled) { reset.click(); await wait(140); }
-          ok(`the trace on stage ${stage} step ${step} resets to its first call`,
-             countOf() === first && posOf() === firstBytes, "reset did not restore the first frame");
+      // Drive whatever explorable this step carries, through the shared
+      // transport rather than through any figure's own controls.
+      const ex = D().querySelector(".ex");
+      if (ex) {
+        const range = ex.querySelector(".ex-range");
+        if (range && Number(range.max) > 0) {
+          const before = (ex.querySelector(".ex-status") || {}).textContent || "";
+          const setValue = Object.getOwnPropertyDescriptor(
+            D().defaultView.HTMLInputElement.prototype, "value").set;
+          setValue.call(range, String(range.max));
+          range.dispatchEvent(new (D().defaultView.Event)("input", { bubbles: true }));
+          await wait(200);
+          const after = (ex.querySelector(".ex-status") || {}).textContent || "";
+          exDriven++;
+          ok(`the figure on stage ${stage} step ${step} responds to its timeline`,
+             after !== before && after.length > 0, "status did not change when scrubbed");
         }
       }
 
@@ -382,7 +386,8 @@ async function fileIO() {
   }
 
   ok("every prediction has a reachable correct answer", unsolved === 0, `${unsolved} never solved`);
-  ok("at least three traces were driven", machinesDriven >= 3, `drove ${machinesDriven}`);
+  ok("at least five explorable figures were driven", exDriven >= 5, `drove ${exDriven}`);
+
   ok("the stage map always shows exactly five rows",
      rowCounts.size === 1 && rowCounts.has(5), `row counts seen: ${[...rowCounts]}`);
   // The rule is not a particular number, it is that a reader never sees a big

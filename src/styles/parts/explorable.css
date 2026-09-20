@@ -1,0 +1,121 @@
+/* The shared chrome for every explorable figure.
+
+   Four figures, one instrument. The transport, the caption, the "what to
+   notice" line and the focus treatment are defined once here so that learning
+   the first figure teaches the reader all four. Anything particular to a single
+   figure lives in that figure's own stylesheet under its own prefix. */
+
+.ex {
+  margin: var(--space-6) 0 0;
+  border: 1px solid var(--border-default);
+  border-top: 3px solid var(--gold-500);
+  border-radius: var(--radius-md);
+  background: var(--surface-page);
+  overflow: hidden;
+}
+
+.ex-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--space-3); flex-wrap: wrap;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-subtle);
+}
+.ex-title {
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider); text-transform: uppercase;
+  color: var(--text-secondary);
+}
+/* What the reader is meant to watch. A figure that does not say this is a
+   figure the reader has to reverse-engineer before it can teach them. */
+.ex-notice {
+  font-size: var(--text-xs); color: var(--text-gold);
+  font-weight: var(--weight-semibold); min-width: 0;
+}
+
+.ex-body { padding: var(--space-5); min-width: 0; }
+
+/* ---- the transport ---------------------------------------------------- */
+
+.ex-transport {
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-subtle);
+  padding: var(--space-3) var(--space-5) var(--space-4);
+}
+.ex-controls { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+
+.ex-btn {
+  flex: none; cursor: pointer; font-family: var(--font-sans);
+  display: grid; place-items: center;
+  min-width: var(--touch-target-min); min-height: var(--touch-target-min);
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm); color: var(--text-secondary);
+  background: var(--surface-page);
+  border: 1px solid var(--border-default); border-radius: var(--radius-md);
+  transition: var(--transition-control);
+}
+.ex-btn:hover:not(:disabled) { border-color: var(--green-700); color: var(--text-accent); }
+.ex-btn:disabled { opacity: .45; cursor: not-allowed; }
+.ex-btn.is-primary {
+  background: var(--green-700); border-color: var(--green-700); color: var(--text-inverse);
+}
+.ex-btn.is-primary:hover:not(:disabled) { background: var(--green-800); color: var(--text-inverse); }
+.ex-btn.is-quiet {
+  border-color: transparent; text-decoration: underline; text-underline-offset: 3px;
+  font-size: var(--text-xs);
+}
+
+/* The timeline. A real range input, styled but never replaced: replacing it
+   would mean reimplementing arrow keys, Home, End and the focus ring, and the
+   reimplementation is always worse. */
+.ex-range {
+  flex: 1 1 140px; min-width: 120px; height: var(--touch-target-min);
+  margin: 0; accent-color: var(--green-700); cursor: pointer;
+}
+
+.ex-status {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xs); line-height: var(--leading-relaxed);
+  color: var(--text-secondary); font-feature-settings: 'tnum';
+  min-height: 2.6em;   /* reserve the line so the figure does not jump */
+}
+
+.ex-caption {
+  margin: 0; padding: var(--space-3) var(--space-5) var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-xs); line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+}
+
+/* The sentence equivalent of the drawing, for a reader not getting it from the
+   drawing. Visually hidden, never display:none, which would remove it from the
+   accessibility tree along with the screen. */
+.ex-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* Anything wide scrolls inside itself. The page never scrolls sideways. */
+.ex-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ex-scroll:focus-visible { outline: var(--focus-ring); outline-offset: -2px; }
+
+/* Motion is confined to these two custom properties so that a figure cannot
+   animate in a way the reduced-motion rule does not reach. */
+.ex { --ex-move: 220ms var(--ease-standard); --ex-fade: 160ms var(--ease-standard); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ex { --ex-move: 1ms; --ex-fade: 1ms; }
+}
+
+@media (max-width: 640px) {
+  .ex-head, .ex-transport { padding-left: var(--space-4); padding-right: var(--space-4); }
+  .ex-body { padding: var(--space-4); }
+  .ex-range { flex-basis: 100%; order: 10; }
+}
+
+@media print {
+  /* A timeline is meaningless on paper. The figure prints at its first frame
+     with its caption, which is the state the prose refers to. */
+  .ex-transport { display: none; }
+  .ex { break-inside: avoid; page-break-inside: avoid; border: 1pt solid #000; }
+}

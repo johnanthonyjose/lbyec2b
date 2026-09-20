@@ -1,6 +1,6 @@
 import React from "react";
 import { CodeBlock, Terminal } from "./CodeBlock.jsx";
-import { FileMachine } from "../../components/FileMachine.jsx";
+import { BufferMachine } from "../../components/explorable/BufferMachine.jsx";
 
 /* Stages 1 to 3 of the File I/O handout: the problem, the open, the write.
 
@@ -30,14 +30,23 @@ import { FileMachine } from "../../components/FileMachine.jsx";
    reader has been calling fprintf and fscanf since week one without being told.
 
    Stage 3 is built around buffering, which is the one thing in these three
-   stages that cannot be seen in the source at all. It gets the FileMachine for
-   that reason and for no other, and S3.4 names the three buffering policies and
-   the system-call cost that motivates all of them.
+   stages that cannot be seen in the source at all. S3.4 therefore hands the
+   mechanism to BufferMachine, which animates the bytes accumulating while the
+   file stays empty, the flush at fclose, the system-call count in both modes,
+   and what an abnormal termination leaves behind. The prose beside it no longer
+   narrates any of that. It keeps only what the figure cannot show: the names of
+   the three buffering policies, and the fact that exit flushes every open
+   stream, so a program returning from main writes its buffer with or without
+   fclose and only abnormal termination loses it. That last point was wrong in
+   an earlier draft of this page; it was checked against a compiler, and it is
+   not to be restated as "a missing fclose empties the file".
 
    The register is academic professional: mechanism before procedure, technical
-   vocabulary defined where it is first used, and no analogies. Corrections to
-   the older course handout are student-facing noise, so they live in the `why`
-   folds and in resolutions.jsx, never in a step body.
+   vocabulary defined where it is first used, and no analogies. The figures
+   carry the explanation and the prose serves them, so where a figure teaches a
+   mechanism the paragraphs that taught it have been removed rather than
+   shortened. Corrections to the older course handout are student-facing noise,
+   so they live in the `why` folds and in resolutions.jsx, never in a step body.
 
    forget.c is seventeen lines and is therefore shown whole, in one block.
    01-open.c, 02-write.c, 03-append.c and 10-twofiles.c are long enough to be
@@ -47,49 +56,6 @@ import { FileMachine } from "../../components/FileMachine.jsx";
    Every byte count, every stream position and every line of terminal output
    below is transcribed from the verified program set. Nothing here was
    calculated by hand. */
-
-/* The 27 bytes 02-write.c leaves on disk. Stage 3's write trace is drawn
-   against exactly these, so the figure and the byte table cannot drift apart.
-   03-append.c then takes the same file from 27 bytes to 44. */
-const AFTER_WRITE = "hello no. 1\nwhere is no. 2?";
-
-/* One frame per call in 02-write.c. `pos` is how many bytes the program has
-   issued, which is not the same as how many bytes are on disk: until fclose
-   they are all still in the stream's buffer, and the buffer strip under the
-   file is what says so. The counts are the ones measured on the real file —
-   12 bytes from the fprintf, 14 from the fputs, 1 from the fputc. */
-const writeTrace = [
-  {
-    call: 'fp = fopen("test.txt", "w");',
-    pos: 0,
-    buffered: "",
-    note: "Nothing has been written, and yet test.txt already exists and is already empty. The \"w\" mode truncated it during the open, before any write call was reached."
-  },
-  {
-    call: 'fprintf(fp, "hello no. %i\\n", 1);',
-    pos: 12,
-    buffered: "hello no. 1\\n",
-    note: "Twelve bytes issued: eleven characters and the newline that terminates the line. They are in the stream's buffer, in memory. The file on disk is still zero bytes long."
-  },
-  {
-    call: 'fputs("where is no. 2", fp);',
-    pos: 26,
-    buffered: "hello no. 1\\nwhere is no. 2",
-    note: "Fourteen further bytes, and still nothing on disk. A program that crashed at this point would leave an empty file and report no error whatever. One that terminates normally has its streams flushed for it by exit."
-  },
-  {
-    call: "fputc('?', fp);",
-    pos: 27,
-    buffered: "hello no. 1\\nwhere is no. 2?",
-    note: "One more byte. The buffer now holds all 27 bytes the program intends to write, and the file on disk holds none of them."
-  },
-  {
-    call: "fclose(fp);",
-    pos: 27,
-    closed: true,
-    note: "fclose flushes the buffer to the file and then releases the stream. This single call is the difference between a 27-byte test.txt and an empty one."
-  }
-];
 
 export const steps13 = [
   /* ─────────────────────────────────────────────────────────────────────────
@@ -103,10 +69,8 @@ export const steps13 = [
     body: (
       <p className="aw-p">
         The program reads an integer, prints it back, and returns from{" "}
-        <code className="aw-code">main</code>. Every program you have written in
-        this course so far has had that same shape: read input, compute, produce
-        output, terminate. Nothing in it records anything outside the memory the
-        running program was given.
+        <code className="aw-code">main</code>. Nothing in it records anything
+        outside the memory the running program was given.
       </p>
     ),
     media: (
@@ -143,18 +107,18 @@ export const steps13 = [
         {
           id: "remembers",
           label: "The number from the first run",
-          note: "The value was on your screen a moment ago, so it is tempting to assume the program still holds it. It does not. No statement in forget.c places that integer anywhere outside the run that read it."
+          note: "It is tempting to assume the program still holds it. No statement in forget.c places that integer anywhere outside the run that read it."
         },
         {
           id: "asks-again",
           label: "It asks for a number again, and knows nothing about the first run",
           correct: true,
-          note: "Correct. The second run is a distinct process with an address space of its own. The variable n occupies a fresh address holding whatever bytes were last left there, and the first run's value is not reachable from it at all."
+          note: "Correct. The second run is a distinct process with an address space of its own, and the first run's value is not reachable from it at all."
         },
         {
           id: "zero",
           label: "Zero, because n is reset",
-          note: "The right answer for the wrong reason. Nothing resets n, and an uninitialized local variable holds whatever bytes already occupied its storage. The point is not that the value became zero, but that no value survived the process at all."
+          note: "The right answer for the wrong reason. An uninitialized local variable holds whatever bytes already occupied its storage. The point is not that the value became zero, but that no value survived the process."
         }
       ]
     }
@@ -168,50 +132,17 @@ export const steps13 = [
       <>
         <p className="aw-p">
           The variable <code className="aw-code">n</code> lived in main memory,
-          the working store the processor addresses directly. That memory formed
           part of the <strong>address space</strong> of the{" "}
           <strong>process</strong>, which is your program as the operating system
-          runs it. When <code className="aw-code">main</code> returned, the
-          process terminated, and the operating system reclaimed every byte of
-          that address space, including the bytes holding your integer.
+          runs it. When <code className="aw-code">main</code> returned the process
+          terminated, and the operating system reclaimed that address space.
         </p>
         <p className="aw-p">
-          This is not a defect. It is the arrangement that allows one machine to
-          run a thousand programs a day without their interfering with one
-          another. It does mean that anything a program must keep has to be
-          placed outside the process entirely. That destination is a{" "}
-          <strong>file</strong>: a named sequence of bytes held on a storage
-          device.
-        </p>
-        <p className="aw-p">
-          The device belongs to <strong>secondary storage</strong> — a hard disk
-          or a flash drive — which sits below main memory in the storage
-          hierarchy. Secondary storage is slower to reach by several orders of
-          magnitude, is very much larger, and retains its contents when power is
-          removed. Main memory is fast, comparatively small, and volatile, and a
-          process holds it only for the duration of its own run. A file therefore
-          outlives the program that wrote it, and it survives the machine being
-          switched off.
-        </p>
-        <p className="aw-p">
-          A file may hold data of any kind: text, audio, video, images, or a
-          combination of them within the one file.
-        </p>
-        <p className="aw-p">
-          File input and output is the means by which a program places bytes into
-          a file and retrieves them afterwards. Two situations call for it:
-        </p>
-        <ul className="aw-p">
-          <li>
-            The data has to outlive the process that produced it, or the machine
-            being switched off.
-          </li>
-          <li>
-            The data is too large to hold in main memory in its entirety.
-          </li>
-        </ul>
-        <p className="aw-p">
-          This week the first of the two is the one that concerns us.
+          What a program must keep therefore goes outside the process, into a{" "}
+          <strong>file</strong>: a named sequence of bytes held on{" "}
+          <strong>secondary storage</strong>, which is far larger than main
+          memory, slower to reach by orders of magnitude, and retains its
+          contents when power is removed.
         </p>
       </>
     ),
@@ -240,42 +171,20 @@ export const steps13 = [
     body: (
       <>
         <p className="aw-p">
-          On Windows, locate an <code className="aw-code">.exe</code>; the{" "}
-          <code className="aw-code">forget.exe</code> you have just compiled will
-          serve. Open it in Notepad rather than running it. On macOS, open the
-          compiled <code className="aw-code">forget</code> file itself, the one
-          carrying no extension. The thirty seconds are worth spending.
+          Most of what appears is unreadable. The editor displayed the character
+          each byte denotes under its text encoding, and those bytes were never
+          intended to denote characters.
         </p>
         <p className="aw-p">
-          Most of what appears is unreadable: runs of accented letters, empty
-          squares, long stretches of apparent nothing. The editor has not
-          malfunctioned. It performed the single operation it always performs,
-          which is to display the character that each byte denotes under its text
-          encoding. Those bytes were never intended to denote characters.
-        </p>
-        <p className="aw-p">
-          That is the whole of the distinction, and it is a distinction about
-          interpretation rather than about the bytes themselves. A file is a
-          sequence of bytes and nothing more; <strong>text</strong> and{" "}
-          <strong>binary</strong> are two contracts under which a program may
-          read that sequence. Under the text contract each byte, or each short
-          group of bytes, denotes a character, and the characters are organized
-          into <strong>lines</strong> separated by a newline. Any reader can
-          therefore recover the content in any editor, which is what{" "}
-          <strong>human-readable</strong> means.
-        </p>
-        <p className="aw-p">
-          Under the binary contract a byte denotes whatever the writing
-          application decided it would denote: a machine instruction in an
-          executable, a sample in an audio file, a component of a pixel in an
-          image. One and the same byte sequence answers to either contract, and
-          nothing stored inside the file records which of them was intended.
-        </p>
-        <p className="aw-p">
-          Text files are not confined to those named{" "}
-          <code className="aw-code">.txt</code>. An HTML page is a text file, and
-          so is an XML document. Notepad displays all three, because all three
-          are characters organized into lines.
+          A file is a sequence of bytes and nothing more;{" "}
+          <strong>text</strong> and <strong>binary</strong> are two contracts
+          under which a program may read that sequence. Under the text contract
+          each byte, or each short group of bytes, denotes a character, and the
+          characters are organized into <strong>lines</strong> separated by a
+          newline, which is what <strong>human-readable</strong> means. Under the
+          binary contract a byte denotes whatever the writing application decided
+          it would denote. Nothing stored inside the file records which contract
+          was intended.
         </p>
       </>
     ),
@@ -286,18 +195,18 @@ export const steps13 = [
         {
           id: "fine",
           label: "It runs as before — you only opened it, you did not change anything",
-          note: "Opening alone is harmless; saving is not. Notepad writes back what it is displaying, and it cannot display bytes for which its encoding provides no character. What it writes back is therefore not what it read."
+          note: "Opening alone is harmless; saving is not. Notepad writes back what it is displaying, and it cannot display bytes for which its encoding provides no character."
         },
         {
           id: "broken",
           label: "It is damaged and will probably refuse to run",
           correct: true,
-          note: "Correct, and this is why the exercise is to look rather than to save. Every byte the editor could not represent is written back as a substitute character, so the machine instructions become different instructions. Look, close without saving, and keep a copy of anything you value."
+          note: "Correct, and this is why the exercise is to look rather than to save. Every byte the editor could not represent is written back as a substitute character, so the machine instructions become different instructions."
         },
         {
           id: "slower",
           label: "It runs, but slower or with odd output",
-          note: "A reasonable guess, but corrupted machine code is rarely graceful. The operating system validates the structure of an executable before transferring control to it, and the usual outcome is a refusal to start."
+          note: "Corrupted machine code is rarely graceful. The operating system validates the structure of an executable before transferring control to it, and the usual outcome is a refusal to start."
         }
       ]
     }
@@ -310,36 +219,19 @@ export const steps13 = [
     body: (
       <>
         <p className="aw-p">
-          It is still your text. Nothing about the file has changed except the
-          three letters after the dot. A filename extension is a{" "}
-          <strong>convention</strong>: a claim by whoever named the file about
-          the contract under which its bytes are meant to be read. No part of the
-          operating system enforces that claim, and nothing verifies it against
-          the contents.
-        </p>
-        <p className="aw-p">
-          This matters to a program that is about to open one.{" "}
-          <code className="aw-code">fopen</code> inspects neither the name nor the
-          contents. It establishes access to the byte sequence and leaves the
-          interpretation entirely to you. Read a{" "}
-          <code className="aw-code">.txt</code> that is in fact a spreadsheet
-          with <code className="aw-code">fgets</code> and you obtain nonsense,
-          and no error is reported, because nothing has gone wrong as far as the
-          library is concerned. Your program is the only party that knows which
-          contract the bytes were written under.
-        </p>
-        <p className="aw-p">
-          Everything from this point onward concerns{" "}
-          <strong>text files only</strong>. Every program in this handout opens
-          its file in text mode, reads and writes characters, and treats the line
-          as its unit of work. Binary files are not difficult, but they are not
-          this week's subject.
+          It is still your text. A filename extension is a{" "}
+          <strong>convention</strong>: a claim about the contract under which the
+          bytes are meant to be read, which nothing enforces and nothing verifies
+          against the contents. <code className="aw-code">fopen</code> inspects
+          neither the name nor the contents either, so reading a file under the
+          wrong contract reports no error. Everything from this point onward
+          concerns <strong>text files only</strong>.
         </p>
       </>
     ),
     why: {
       label: "Then how does anything know what a file is?",
-      body: <>Principally by inspecting the contents. Many formats begin with a short fixed byte sequence called a <em>magic number</em>: a PNG opens with 0x89 followed by the letters PNG, and a PDF opens with %PDF. Editors read those bytes and treat the extension as no more than a hint. Your own programs can define the format they expect and reject anything that does not match it.</>
+      body: <>Principally by inspecting the contents. Many formats begin with a short fixed byte sequence called a <em>magic number</em>: a PNG opens with 0x89 followed by the letters PNG, and a PDF opens with %PDF. Editors read those bytes and treat the extension as no more than a hint.</>
     },
     check: {
       kind: "self",
@@ -350,7 +242,7 @@ export const steps13 = [
       },
       alt: {
         label: "I could name them but not explain the difference",
-        note: <>Return to what Notepad did with the executable. It carried out exactly one operation: display the character that each byte denotes. That operation is the text contract. A binary file is one for which the same operation yields nonsense, because its bytes were written to be read under a different contract entirely.</>
+        note: <>Return to what Notepad did with the executable. It carried out exactly one operation: display the character that each byte denotes. That operation is the text contract, and a binary file is one for which it yields nonsense.</>
       }
     }
   },
@@ -366,57 +258,32 @@ export const steps13 = [
     body: (
       <>
         <p className="aw-p">
-          You already include <code className="aw-code">stdio.h</code> for{" "}
-          <code className="aw-code">printf</code>, and file access uses that same
-          header. There is nothing new to add.
-        </p>
-        <p className="aw-p">
-          The C standard library models every file as a <strong>stream</strong>:
-          an ordered sequence of bytes, together with the state required to
-          traverse it. That state — the current <strong>position</strong>, the{" "}
-          <strong>buffering mode</strong>, and the end-of-file and error{" "}
-          <strong>indicators</strong> — is held in an object of type{" "}
-          <code className="aw-code">FILE</code>, declared in{" "}
-          <code className="aw-code">stdio.h</code>.
+          File access needs no header beyond the{" "}
+          <code className="aw-code">stdio.h</code> you already include. The
+          library models every file as a <strong>stream</strong>: an ordered
+          sequence of bytes together with the state required to traverse it — the{" "}
+          <strong>position</strong>, the <strong>buffering mode</strong>, and the
+          end-of-file and error <strong>indicators</strong> — held in a{" "}
+          <code className="aw-code">FILE</code> object.
         </p>
         <p className="aw-p">
           You never manipulate that object directly.{" "}
           <code className="aw-code">fopen</code> constructs one and returns a{" "}
-          <code className="aw-code">FILE *</code> referring to it; every
+          <code className="aw-code">FILE *</code> referring to it, every
           subsequent operation takes that pointer, and{" "}
-          <code className="aw-code">fclose</code> releases it. The library owns
-          the object, and its layout is{" "}
-          <strong>implementation-defined</strong>, meaning each compiler is free
-          to choose it. That is why the interface hands you a pointer rather than
-          a value.
+          <code className="aw-code">fclose</code> releases it. Its layout is{" "}
+          <strong>implementation-defined</strong>, which is why the interface
+          hands you a pointer rather than a value.
         </p>
-        <ul className="aw-p">
-          <li>
-            <code className="aw-code">fopen</code> constructs the{" "}
-            <code className="aw-code">FILE</code> object and yields the pointer
-            to it.
-          </li>
-          <li>
-            Every read and every write takes that pointer as an argument.
-          </li>
-          <li>
-            <code className="aw-code">fclose</code> releases the object and
-            leaves the pointer no longer usable.
-          </li>
-        </ul>
         <p className="aw-p">
-          You have been using streams since your first program.{" "}
-          <code className="aw-code">printf(...)</code> is defined as{" "}
-          <code className="aw-code">fprintf(stdout, ...)</code>, and{" "}
-          <code className="aw-code">scanf</code> reads from{" "}
-          <code className="aw-code">stdin</code>. The runtime opens{" "}
-          <code className="aw-code">stdin</code>,{" "}
+          You have been using streams since your first program:{" "}
+          <code className="aw-code">printf(...)</code> is{" "}
+          <code className="aw-code">fprintf(stdout, ...)</code>, and the runtime
+          opens <code className="aw-code">stdin</code>,{" "}
           <code className="aw-code">stdout</code> and{" "}
-          <code className="aw-code">stderr</code> as{" "}
-          <code className="aw-code">FILE *</code> streams before{" "}
-          <code className="aw-code">main</code> is entered, which is why they
-          need no opening of yours. Opening a file of your own simply adds a
-          fourth stream beside those three.
+          <code className="aw-code">stderr</code> before{" "}
+          <code className="aw-code">main</code> is entered. Your own file is a
+          fourth stream beside them.
         </p>
       </>
     ),
@@ -436,7 +303,7 @@ export const steps13 = [
     ),
     why: {
       label: "Why a pointer, and not a variable of type FILE?",
-      body: <>Because the bookkeeping belongs to the library rather than to you. The size and layout of <code className="aw-code">FILE</code> are implementation-defined and differ between compilers, so copying one would produce an unsynchronized duplicate of private state rather than a second handle on the same stream. A pointer guarantees one authoritative record per open stream. An older handout named <code className="aw-code">stdlib.h</code> for the file functions; the correct header is <code className="aw-code">stdio.h</code>, for reading and writing alike.</>
+      body: <>Because the bookkeeping belongs to the library rather than to you. Copying a <code className="aw-code">FILE</code> would produce an unsynchronized duplicate of private state rather than a second handle on the same stream, so a pointer guarantees one authoritative record per open stream. An older handout named <code className="aw-code">stdlib.h</code> for the file functions; the correct header is <code className="aw-code">stdio.h</code>, for reading and writing alike.</>
     },
     check: {
       kind: "self",
@@ -447,7 +314,7 @@ export const steps13 = [
       },
       alt: {
         label: "The compiler complains about FILE",
-        note: <>An "unknown type name FILE" means that <code className="aw-code">stdio.h</code> is missing or misspelled, since the type is declared nowhere else. Check the angle brackets and the spelling: <code className="aw-code">stdio</code>, not <code className="aw-code">studio</code>. That typo is the one this course encounters most often.</>
+        note: <>An "unknown type name FILE" means that <code className="aw-code">stdio.h</code> is missing or misspelled, since the type is declared nowhere else. Check the spelling: <code className="aw-code">stdio</code>, not <code className="aw-code">studio</code>.</>
       }
     }
   },
@@ -460,55 +327,21 @@ export const steps13 = [
       <>
         <p className="aw-p">
           <code className="aw-code">fopen</code> takes a file name and a{" "}
-          <strong>mode</strong> string, and returns the stream. The mode{" "}
+          <strong>mode</strong> string, and returns the stream.{" "}
           <code className="aw-code">"r"</code> opens an existing file for reading
-          only and creates nothing, so the call fails if{" "}
-          <code className="aw-code">test.txt</code> is absent. You have not
-          written <code className="aw-code">test.txt</code> yet, and that is
-          deliberate: this program is meant to fail first.
-        </p>
-        <p className="aw-p">
-          A mode may carry a trailing <code className="aw-code">b</code>, as in{" "}
-          <code className="aw-code">"rb"</code>, which requests a binary stream
-          instead of a text one. The two are identical on POSIX systems such as
-          macOS and Linux. On Windows a text stream translates between the single
-          newline your program writes and the two-byte line ending stored on
-          disk, which is why identical data can occupy a different number of
-          bytes on the two platforms. Every mode in this handout is a text mode.
+          and creates nothing, so this program is meant to fail first. A trailing{" "}
+          <code className="aw-code">b</code> requests a binary stream instead;
+          every mode here is a text mode.
         </p>
         <p className="aw-p">
           A bare name such as <code className="aw-code">"test.txt"</code> does not
           mean "beside my source file". It is resolved against the{" "}
-          <strong>working directory</strong>, which is an attribute of the
-          process, inherited from whatever launched it. Build in one directory
-          and launch the program from another, and the name is resolved somewhere
-          you are not looking. Your editor may launch the program from the
-          project root while the source sits in a subdirectory, and this is the
-          most frequent cause of a failed{" "}
-          <code className="aw-code">fopen</code> in this course.
-        </p>
-        <p className="aw-p">
-          A path may precede the name, and paths are of two kinds.
-        </p>
-        <ul className="aw-p">
-          <li>
-            An <strong>absolute path</strong> names the file from the root of the
-            drive. <code className="aw-code">"c:/temp/test1.txt"</code> denotes
-            test1.txt in the temp folder on drive C, and it denotes the same file
-            regardless of where the process was launched from.
-          </li>
-          <li>
-            A <strong>relative path</strong> is resolved from the working
-            directory. <code className="aw-code">"test.txt"</code> is one, and so
-            is <code className="aw-code">"../test2.txt"</code>, in which the two
-            dots denote the <strong>parent directory</strong>, one level above
-            the working one.
-          </li>
-        </ul>
-        <p className="aw-p">
-          Use forward slashes in either kind. Windows accepts them throughout its
-          file interfaces, and the same source then runs unchanged on macOS. Two
-          minutes spent on the panel below can save you an hour later.
+          <strong>working directory</strong>, an attribute of the process
+          inherited from whatever launched it, and your editor may launch the
+          program from the project root while the source sits in a subdirectory.
+          Paths, absolute and relative, are tabulated in the reference below. Use
+          forward slashes in either kind: Windows accepts them, and the same
+          source then runs unchanged on macOS.
         </p>
       </>
     ),
@@ -540,18 +373,18 @@ export const steps13 = [
         {
           id: "sixteen",
           label: "Sixteen — exactly what they typed",
-          note: "That is what the line looks like on the screen, which is why the fault conceals itself so well. The compiler resolves escape sequences first, so what was typed and what is passed are two different strings here."
+          note: "That is what the line looks like on the screen, which is why the fault conceals itself. The compiler resolves escape sequences first, so what was typed and what is passed are different strings."
         },
         {
           id: "fourteen",
           label: "Fourteen, because each backslash pair collapsed to one character",
           correct: true,
-          note: <>Correct. <code className="aw-code">\t</code> collapses to a tab, and <code className="aw-code">\d</code> collapses to a plain <code className="aw-code">d</code>, with a compiler warning that was probably never read. What reaches <code className="aw-code">fopen</code> is <code className="aw-code">c:</code>, a tab, then <code className="aw-code">empdata.txt</code>: sixteen characters typed, fourteen passed, and no such file anywhere on the drive.</>
+          note: <>Correct. <code className="aw-code">\t</code> collapses to a tab and <code className="aw-code">\d</code> to a plain <code className="aw-code">d</code>. What reaches <code className="aw-code">fopen</code> is <code className="aw-code">c:</code>, a tab, then <code className="aw-code">empdata.txt</code>: sixteen characters typed, fourteen passed, and no such file on the drive.</>
         },
         {
           id: "error",
           label: "None — it would not compile",
-          note: <>An unrecognized escape such as <code className="aw-code">\d</code> is a warning rather than an error, so the program compiles and runs. That is precisely the difficulty here: nothing stops you, and the failure arrives later and in silence.</>
+          note: <>An unrecognized escape such as <code className="aw-code">\d</code> is a warning rather than an error, so the program compiles and runs. Nothing stops you, and the failure arrives later and in silence.</>
         }
       ]
     }
@@ -566,34 +399,19 @@ export const steps13 = [
         <p className="aw-p">
           <code className="aw-code">fopen</code> reports failure by returning a
           null pointer and setting <code className="aw-code">errno</code>, the
-          library variable recording the most recent error condition. The call
-          does not crash and prints nothing of its own, so execution continues
-          with a pointer that refers to no stream at all.
-        </p>
-        <p className="aw-p">
-          Passing that null pointer to{" "}
-          <code className="aw-code">fprintf</code>,{" "}
-          <code className="aw-code">fgets</code> or{" "}
-          <code className="aw-code">fclose</code> is{" "}
-          <strong>undefined behavior</strong>: those functions dereference the
-          pointer to reach the <code className="aw-code">FILE</code> object, and
-          the standard imposes no requirement whatever on what follows. On most
-          machines the result is a crash several lines away from the actual
-          fault.
+          library variable recording the most recent error condition. It prints
+          nothing of its own, so execution continues with a pointer that refers
+          to no stream, and passing that pointer to any later call is{" "}
+          <strong>undefined behavior</strong>: the standard imposes no
+          requirement whatever on what follows.
         </p>
         <p className="aw-p">
           <code className="aw-code">perror</code> renders{" "}
-          <code className="aw-code">errno</code> into a diagnostic. It writes your
-          message, then a colon, then the text the implementation associates with
-          the current error:{" "}
-          <code className="aw-code">No such file or directory</code>, or{" "}
-          <code className="aw-code">Permission denied</code>. That second half is
-          the entire value of the call, because it is the difference between
-          knowing that the open failed and knowing why. It costs you one line.
-        </p>
-        <p className="aw-p">
-          Every <code className="aw-code">fopen</code> you write this term earns
-          these four lines.
+          <code className="aw-code">errno</code> into a diagnostic: your message,
+          a colon, then the implementation's text for the current error, such as{" "}
+          <code className="aw-code">No such file or directory</code>. That second
+          half is the difference between knowing that the open failed and knowing
+          why.
         </p>
       </>
     ),
@@ -624,13 +442,13 @@ export const steps13 = [
         {
           id: "nothing",
           label: "Nothing — the program returns 1 and exits",
-          note: <>This is what you would obtain without <code className="aw-code">perror</code>, and the <code className="aw-code">return 1</code> does indeed end the run. But <code className="aw-code">perror</code> has already written its diagnostic by the time that statement is reached.</>
+          note: <>The <code className="aw-code">return 1</code> does end the run, but <code className="aw-code">perror</code> has already written its diagnostic by the time that statement is reached.</>
         },
         {
           id: "perror-line",
           label: "Could not open test.txt: No such file or directory",
           correct: true,
-          note: "Correct, and that is the exact line: your message, a colon, and the reason recorded by the operating system. The exit status is 1, and the program is behaving as intended, because the file genuinely is not there yet."
+          note: "Correct, and that is the exact line: your message, a colon, and the reason recorded by the operating system. The program is behaving as intended, because the file genuinely is not there yet."
         },
         {
           id: "opened",
@@ -649,23 +467,12 @@ export const steps13 = [
       <>
         <p className="aw-p">
           <code className="aw-code">fclose</code> guarantees three things in
-          order. It flushes any output still held for the stream, it releases the{" "}
-          <code className="aw-code">FILE</code> object and the operating system
-          resources beneath it, and it leaves the pointer no longer usable for
-          anything. Stage 3 concerns the first of the three; here the second is
-          what matters.
-        </p>
-        <p className="aw-p">
-          An operating system permits a process a bounded number of open streams,
-          so a program that opens in a loop without closing will exhaust that
-          allowance and see its next <code className="aw-code">fopen</code> fail.
-        </p>
-        <p className="aw-p">
-          Run the program now and you will see the first of the two outputs
-          below. Return after stage 3, once{" "}
-          <code className="aw-code">test.txt</code> exists, and run it again for
-          the second. The failure is the case you will meet first, and it is the
-          point of the program.
+          order: it flushes any output still held for the stream, it releases the{" "}
+          <code className="aw-code">FILE</code> object and the resources beneath
+          it, and it leaves the pointer no longer usable. Stage 3 concerns the
+          first; here the second matters, because a process may hold only a
+          bounded number of open streams. Run the program now for the first of
+          the two outputs below, and again after stage 3 for the second.
         </p>
       </>
     ),
@@ -692,7 +499,7 @@ export const steps13 = [
     ),
     why: {
       label: "Why return 1 rather than 0?",
-      body: <>The value <code className="aw-code">main</code> returns is the program's <strong>exit status</strong>, which the shell retains and any calling process can read. Zero conventionally means the run succeeded, and any other value means it did not. Nothing inspects the status here. But your program will soon be one stage of a pipeline, and a truthful status is what tells the next stage whether to run at all.</>
+      body: <>The value <code className="aw-code">main</code> returns is the program's <strong>exit status</strong>, which the shell retains and any calling process can read. Zero conventionally means the run succeeded. Nothing inspects the status here, but your program will soon be one stage of a pipeline, and a truthful status is what tells the next stage whether to run.</>
     },
     difficulty: "The program runs, prints nothing, and exits normally",
     fix: 3,
@@ -701,11 +508,11 @@ export const steps13 = [
       question: "Did you see the perror line, with a reason after the colon?",
       ok: {
         label: "Yes — it told me the file does not exist",
-        note: "That is the habit this stage exists to install. Your program now fails audibly, and every remaining failure this week will arrive with a message attached to it."
+        note: "That is the habit this stage exists to install. Your program now fails audibly."
       },
       alt: {
         label: "It ran and printed nothing at all",
-        note: <>Silence together with a zero exit status means that neither branch printed anything. Check that the <code className="aw-code">printf</code> sits outside the <code className="aw-code">if</code> block, and that nothing returns before it is reached. The resolution above is a procedure for locating where the silence begins.</>
+        note: <>Silence together with a zero exit status means that neither branch printed anything. Check that the <code className="aw-code">printf</code> sits outside the <code className="aw-code">if</code> block, and that nothing returns before it is reached.</>
       }
     }
   },
@@ -718,41 +525,17 @@ export const steps13 = [
       <>
         <p className="aw-p">
           Almost every useful program has an input and an output, which means two
-          streams open at the same time. Your machine problem will have both, and
-          so will your project.
+          streams open at once. Each <code className="aw-code">fopen</code>{" "}
+          constructs a separate <code className="aw-code">FILE</code> object with
+          its own position, buffer and indicators, so advancing through one
+          stream moves nothing in the other.
         </p>
         <p className="aw-p">
-          Nothing restricts a program to a single stream. Each{" "}
-          <code className="aw-code">fopen</code> constructs a separate{" "}
-          <code className="aw-code">FILE</code> object, and each of those objects
-          carries its own position, its own buffer, and its own end-of-file and
-          error indicators. Advancing through one stream therefore moves nothing
-          in the other, and the three standard streams remain open alongside them
-          throughout.
-        </p>
-        <p className="aw-p">
-          <code className="aw-code">10-twofiles.c</code> reads{" "}
-          <code className="aw-code">cars.txt</code> and writes{" "}
-          <code className="aw-code">plates.txt</code>. The loop in the middle uses
-          the reading calls introduced in stage 4, so disregard it for now and
-          attend only to the pointers, the checks and the closes.
-        </p>
-        <ul className="aw-p">
-          <li>
-            Each open stream needs a pointer of its own. Two declarators on one
-            line still declare two independent handles.
-          </li>
-          <li>
-            Check both opens, since either can fail on its own and for a reason
-            of its own.
-          </li>
-          <li>Two streams open means two streams to close.</li>
-        </ul>
-        <p className="aw-p">
-          Examine the second check closely. By the time it runs,{" "}
-          <code className="aw-code">cars.txt</code> is already open, so that
-          branch closes the input stream before it returns. One open that failed
-          is no reason to abandon one that succeeded.
+          The loop in the middle of{" "}
+          <code className="aw-code">10-twofiles.c</code> uses stage 4's reading
+          calls, so attend only to the pointers, the checks and the closes — and
+          to what the second check does before it returns, since one open that
+          failed is no reason to abandon one that succeeded.
         </p>
       </>
     ),
@@ -818,7 +601,7 @@ HCV-221`}
     ),
     why: {
       label: "Why bother closing the input if the program is about to end?",
-      body: <>In this program you could omit it, because terminating the process closes every stream it holds. But <code className="aw-code">main</code> is the one place where that argument holds. Move this code into a function of its own, and the function returns while the program carries on, so the stream stays open and nothing tells you. Closing on every path is the habit that continues to work once the code moves.</>
+      body: <>In this program you could omit it, because terminating the process closes every stream it holds, and <code className="aw-code">main</code> is the one place where that argument holds. Move the code into a function and the function returns while the program carries on, so the stream stays open and nothing tells you.</>
     },
     check: {
       kind: "predict",
@@ -828,17 +611,17 @@ HCV-221`}
           id: "nothing-visible",
           label: "Nothing you can see — the process ends and the file is released with it",
           correct: true,
-          note: <>Correct, and that is exactly why the habit is difficult to acquire: termination cleans up after you. But this code soon becomes a function rather than a <code className="aw-code">main</code>, and a function that returns cleans up nothing at all.</>
+          note: <>Correct, and that is why the habit is difficult to acquire: termination cleans up after you. But a function that returns cleans up nothing at all.</>
         },
         {
           id: "locked",
           label: "cars.txt stays locked until you restart the machine",
-          note: "Reasonable, but no. An open stream is bookkeeping held inside a process, and when the process terminates the operating system discards that bookkeeping. No file outlives it in a locked state."
+          note: "An open stream is bookkeeping held inside a process, and the operating system discards it when the process terminates. No file outlives it in a locked state."
         },
         {
           id: "crash",
           label: "The program crashes on the return",
-          note: <>Nothing crashes. <code className="aw-code">fpIn</code> remains a valid pointer to an open stream, and it is simply never used again. A leak is quiet by its nature, so close on the failing path regardless.</>
+          note: <>Nothing crashes. <code className="aw-code">fpIn</code> remains a valid pointer to an open stream and is simply never used again. A leak is quiet by its nature, so close on the failing path regardless.</>
         }
       ]
     }
@@ -856,24 +639,15 @@ HCV-221`}
       <>
         <p className="aw-p">
           Mode <code className="aw-code">"w"</code> creates the file if it does
-          not exist. If the file does exist,{" "}
-          <code className="aw-code">"w"</code>{" "}
-          <strong>truncates it to zero bytes</strong>, and the{" "}
-          <strong>truncation</strong> is part of the open itself. It occurs
+          not exist, and if it does exist{" "}
+          <strong>truncates it to zero bytes</strong>. The{" "}
+          <strong>truncation</strong> is part of the open itself: it occurs
           before a single character is written, and whether or not you go on to
-          write anything at all. Whatever the file held is gone from that moment.
-        </p>
-        <p className="aw-p">
-          A write program that fails halfway therefore leaves an empty file
-          rather than a partial one, and re-running a write program destroys what
-          the previous run produced. Keep one copy of any data you value outside
-          the directory your program writes into.
-        </p>
-        <p className="aw-p">
-          The null check belongs here as well. Opening for writing fails less
-          often than opening for reading, but it does still fail: a directory
-          that does not exist, a file held open by another application, a
-          read-only volume.
+          write anything at all. A write program that fails halfway therefore
+          leaves an empty file rather than a partial one, so keep one copy of any
+          data you value outside the directory your program writes into. The null
+          check belongs here as well: opening for writing fails less often than
+          opening for reading, but it still fails.
         </p>
       </>
     ),
@@ -899,7 +673,7 @@ HCV-221`}
         {
           id: "five-thousand",
           label: "5,000 bytes — nothing was written, so nothing changed",
-          note: "The reasonable reading, and the one that costs people their data. Truncation is not something the write calls perform; it is something the open performs, and it had already happened when the crash came."
+          note: "The reading that costs people their data. Truncation is not something the write calls perform; it is something the open performs, and it had already happened when the crash came."
         },
         {
           id: "zero",
@@ -910,7 +684,7 @@ HCV-221`}
         {
           id: "partial",
           label: "Somewhere in between, depending on how far it got",
-          note: "That would be right if writing overwrote the existing bytes one at a time from the start. It is a fair guess, but not what happens: the length drops to zero at the open, and grows from there."
+          note: "That would be right if writing overwrote the existing bytes one at a time from the start. The length drops to zero at the open, and grows from there."
         }
       ]
     }
@@ -925,30 +699,22 @@ HCV-221`}
         <p className="aw-p">
           <code className="aw-code">fprintf</code> is{" "}
           <code className="aw-code">printf</code> with a stream as its first
-          argument, and it is the call to reach for whenever a value has to be
-          formatted. Here it writes twelve bytes: eleven characters and the{" "}
-          <code className="aw-code">\n</code> that terminates the first line.
-        </p>
-        <p className="aw-p">
-          <code className="aw-code">fputs</code> writes a string exactly as
-          given, and its argument order is the reverse of{" "}
-          <code className="aw-code">fprintf</code>'s:{" "}
-          <strong>the string first, the stream second</strong>. Supplying them
-          the other way round is only a <strong>warning</strong> on most
-          compilers, <code className="aw-code">incompatible pointer types</code>,
-          so the program builds and runs regardless. By the time it crashes, the{" "}
-          <code className="aw-code">"w"</code> open has already emptied your file.
-          Treat that warning as fatal: compile with{" "}
-          <code className="aw-code">-Wall</code> and read what it tells you.{" "}
-          <code className="aw-code">fputs</code> appends no newline of its own,
-          so the next write continues on the same line.
+          argument, and here it writes twelve bytes.{" "}
+          <code className="aw-code">fputs</code> takes its arguments the other way
+          round: <strong>the string first, the stream second</strong>. Supplying
+          them reversed is only a <strong>warning</strong> on most compilers,{" "}
+          <code className="aw-code">incompatible pointer types</code>, so the
+          program still builds and runs. By the time it crashes, the{" "}
+          <code className="aw-code">"w"</code> open has already emptied your
+          file. Compile with <code className="aw-code">-Wall</code> and treat
+          that warning as fatal.
         </p>
         <p className="aw-p">
           <code className="aw-code">fputc</code> writes a single character, and
-          the quotation marks decide the type.{" "}
-          <code className="aw-code">'?'</code> is a character constant, which is
-          what the function expects. <code className="aw-code">"?"</code> is a
-          string literal, which is a different type and the wrong one.
+          the quotation marks decide the type:{" "}
+          <code className="aw-code">'?'</code> is the character constant the
+          function expects, and <code className="aw-code">"?"</code> is a string
+          literal, a different type and the wrong one.
         </p>
       </>
     ),
@@ -995,7 +761,7 @@ HCV-221`}
         {
           id: "three",
           label: "Three — one per call",
-          note: <>One call is not one line. Only the <code className="aw-code">fprintf</code> wrote a <code className="aw-code">\n</code> here, and the other two appended characters to the line that newline had already begun.</>
+          note: <>One call is not one line. Only the <code className="aw-code">fprintf</code> wrote a <code className="aw-code">\n</code>, and the other two appended to the line it had begun.</>
         },
         {
           id: "two",
@@ -1006,7 +772,7 @@ HCV-221`}
         {
           id: "one",
           label: "One long line, because only fprintf ends with a newline",
-          note: <>The <code className="aw-code">\n</code> is genuinely present, and a newline is an ordinary byte that terminates the line preceding it. There are therefore two lines, of which the second is simply unterminated.</>
+          note: <>A newline is an ordinary byte that terminates the line preceding it. There are therefore two lines, of which the second is simply unterminated.</>
         }
       ]
     }
@@ -1019,22 +785,13 @@ HCV-221`}
     body: (
       <>
         <p className="aw-p">
-          Mode <code className="aw-code">"a"</code> is append. It creates the file
-          when the file is missing, exactly as{" "}
-          <code className="aw-code">"w"</code> does. When the file exists,
-          however, it preserves the contents and positions every write at the
-          end, so nothing already stored is lost. That one letter decides whether
-          a log accumulates across runs or holds only the most recent one.
-        </p>
-        <p className="aw-p">
-          Note the leading <code className="aw-code">\n</code> in the string.{" "}
-          <code className="aw-code">02-write.c</code> left the file ending in{" "}
-          <code className="aw-code">?</code> with no line terminator, so without
-          that <code className="aw-code">\n</code> the two lines would run
-          together as{" "}
-          <code className="aw-code">where is no. 2?How about no. 3?</code>. When
-          you append, you append to whatever the previous program left behind,
-          and you are obliged to know what that was.
+          Mode <code className="aw-code">"a"</code> creates the file when it is
+          missing, exactly as <code className="aw-code">"w"</code> does, but when
+          the file exists it preserves the contents and positions every write at
+          the end. That one letter decides whether a log accumulates across runs
+          or holds only the most recent one. Note the leading{" "}
+          <code className="aw-code">\n</code>: when you append, you append to
+          whatever the previous program left behind.
         </p>
       </>
     ),
@@ -1077,7 +834,7 @@ Appended a third line to test.txt.`}
       },
       alt: {
         label: "I see fewer lines, or the text is run together",
-        note: <>Two lines with <code className="aw-code">no. 2?How</code> joined means the leading <code className="aw-code">\n</code> is missing from the appended string. A single line, or an empty file, means <code className="aw-code">03-append.c</code> was opened with <code className="aw-code">"w"</code> rather than <code className="aw-code">"a"</code>. Check the mode letter, then run <code className="aw-code">02-write</code> again to rebuild the file.</>
+        note: <>Two lines with <code className="aw-code">no. 2?How</code> joined means the leading <code className="aw-code">\n</code> is missing. A single line, or an empty file, means <code className="aw-code">03-append.c</code> was opened with <code className="aw-code">"w"</code> rather than <code className="aw-code">"a"</code>.</>
       }
     }
   },
@@ -1085,53 +842,36 @@ Appended a third line to test.txt.`}
     id: "S3.4",
     stage: 3, n: 4,
     title: "Buffering, and why fclose is not optional",
-    action: <>Step through the five calls of <code className="aw-code">02-write.c</code> below, watching the buffer rather than the file.</>,
+    action: <>Step through <code className="aw-code">02-write.c</code> in the figure below, then run it again with each of the other two controls changed.</>,
     body: (
       <>
         <p className="aw-p">
           A write call does not reach the disk. It deposits bytes into a{" "}
-          <strong>buffer</strong>, a region of memory the library maintains for
-          the stream, and the library hands that buffer to the operating system
-          later. It works this way because each hand-off is a{" "}
-          <strong>system call</strong>, a transition into the kernel that costs
-          far more than the copying itself. One system call per byte would make
-          output slower by orders of magnitude, so the library batches the bytes
-          instead.
+          <strong>buffer</strong>, memory the library maintains for the stream,
+          and hands that buffer to the operating system later in a{" "}
+          <strong>system call</strong>, which costs far more than the copying
+          itself. The standard defines three policies: a{" "}
+          <strong>fully buffered</strong> stream is transferred when its buffer
+          fills, a <strong>line buffered</strong> stream at each newline, and an{" "}
+          <strong>unbuffered</strong> stream immediately, which is why{" "}
+          <code className="aw-code">stderr</code> diagnostics survive a crash.
         </p>
         <p className="aw-p">
-          The standard defines three buffering policies. A{" "}
-          <strong>fully buffered</strong> stream is transferred only when its
-          buffer fills. A <strong>line buffered</strong> stream is transferred
-          whenever a newline is written. An <strong>unbuffered</strong> stream is
-          transferred immediately, which is why{" "}
-          <code className="aw-code">stderr</code> is unbuffered and its
-          diagnostics survive a crash.
-        </p>
-        <p className="aw-p">
-          <code className="aw-code">stdout</code> is typically line buffered when
-          it is connected to a terminal, and fully buffered when it is redirected
-          into a file. That is why the output of a redirected program can arrive
-          in an order that surprises you, with the diagnostics appearing well
-          before the ordinary output they described.{" "}
-          <code className="aw-code">setvbuf</code> sets the policy for a stream
-          explicitly, and it must be called before any other operation on that
-          stream.
-        </p>
-        <p className="aw-p">
-          The buffer is also invisible. Every call in the figure below returns
-          successfully, and none reports an error, yet until the final frame the
-          file on disk holds none of what the program has written. Step through
-          the calls and watch the two strips disagree.
+          What the figure cannot show is the program without{" "}
+          <code className="aw-code">fclose</code> at all. Returning from{" "}
+          <code className="aw-code">main</code> calls{" "}
+          <code className="aw-code">exit</code>, which is required to flush and
+          close every stream still open, so a program that terminates normally
+          has its buffer transferred whether or not you wrote the call. Only{" "}
+          <strong>abnormal</strong> termination loses it.{" "}
+          <code className="aw-code">fclose</code> is the guarantee that the
+          transfer happens where you put it.
         </p>
       </>
     ),
     media: (
       <>
-        <FileMachine
-          file={{ name: "test.txt", content: AFTER_WRITE }}
-          trace={writeTrace}
-          caption="02-write.c, one call at a time. The upper strip is what the program has issued. The buffer strip beneath it is where those bytes actually reside until the final call."
-        />
+        <BufferMachine caption="02-write.c, one call at a time, in both buffering modes and with both endings." />
         <p className="aw-p">
           Where each byte ends up. <code className="aw-code">02-write</code>{" "}
           leaves the first 27:
@@ -1149,14 +889,14 @@ Appended a third line to test.txt.`}
           <li>bytes 28 to 43 — <code className="aw-code">How about no. 3?</code></li>
         </ul>
         <p className="aw-p">
-          That is 44 bytes in total, and there is no byte at offset 44. The file
-          ends with no trailing newline, and stage 4 depends on that.
+          44 bytes in all, with no byte at offset 44: the file ends with no
+          trailing newline, and stage 4 depends on that.
         </p>
       </>
     ),
     why: {
-      label: "What if I need to see the file before the program ends?",
-      body: <><code className="aw-code">fflush(fp)</code> transfers the buffer to the file without closing the stream, which helps when you are debugging a long loop. The program may not reach its <code className="aw-code">fclose</code> for several minutes, and if the loop is itself the bug it will never reach it at all. <code className="aw-code">fflush</code> is not a substitute for <code className="aw-code">fclose</code>, which also releases the stream.</>
+      label: "Controlling the buffer yourself",
+      body: <><code className="aw-code">fflush(fp)</code> transfers the buffer to the file without closing the stream, which helps when you are debugging a long loop that may never reach its <code className="aw-code">fclose</code>. It is not a substitute for <code className="aw-code">fclose</code>, which also releases the stream. <code className="aw-code">setvbuf</code> selects the policy for a stream, and the standard requires it to be called before any other operation on that stream. The policy explains a common surprise: <code className="aw-code">stdout</code> is typically line buffered to a terminal but fully buffered when redirected to a file, so a program whose output looks correctly ordered on screen can produce a different order once redirected.</>
     },
     difficulty: "The file is empty, or my data has vanished",
     fix: 4,
@@ -1168,17 +908,17 @@ Appended a third line to test.txt.`}
           id: "full",
           label: "A complete 27-byte test.txt, exactly as before",
           correct: true,
-          note: <>Correct, and the reason is worth knowing, because the usual answer here is the wrong one. Returning from <code className="aw-code">main</code> calls <code className="aw-code">exit</code>, and <code className="aw-code">exit</code> is required to flush and close every stream still open, so the buffer is transferred for you. What <code className="aw-code">fclose</code> provides is the <em>guarantee</em>: it happens where you placed it, rather than waiting on the end of a program that may never arrive there.</>
+          note: <>Correct, and the usual answer here is the wrong one. Returning from <code className="aw-code">main</code> calls <code className="aw-code">exit</code>, and <code className="aw-code">exit</code> is required to flush and close every stream still open, so the buffer is transferred for you. What <code className="aw-code">fclose</code> provides is the <em>guarantee</em>: it happens where you placed it.</>
         },
         {
           id: "empty",
           label: "A test.txt that exists and is empty",
-          note: <>The reading almost everyone arrives at, and it is right about the mechanism while being wrong about this program. The bytes really are sitting in the buffer, and they really would be lost, but only if the program terminated <strong>abnormally</strong>. Place a crash before the end of <code className="aw-code">main</code> and you will get the empty file you expected.</>
+          note: <>Right about the mechanism, wrong about this program. The bytes really are in the buffer, and they really would be lost, but only if the program terminated <strong>abnormally</strong>. Place a crash before the end of <code className="aw-code">main</code> and you will get the empty file you expected.</>
         },
         {
           id: "error",
           label: "An error message, or a crash on exit",
-          note: "Nothing reports anything at all, and that is the property worth carrying forward. When file output goes missing it goes missing silently, and the only evidence is a file that is not what you expected."
+          note: "Nothing reports anything at all. When file output goes missing it goes missing silently, and the only evidence is a file that is not what you expected."
         }
       ]
     }

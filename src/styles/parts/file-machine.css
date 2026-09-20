@@ -1,10 +1,18 @@
 /* ──────────────────────────────────────────────────────────────────────────
    FileMachine (handout 03, File I/O)
 
-   Three regions — the calls, the file, the variables — which the reader is
+   The figure's frame, caption, transport and status line now come from the
+   shared explorable chrome in explorable.css, which every figure in the
+   handout wears. What is left here is only what is particular to this one:
+   three regions — the calls, the file, the variables — which the reader is
    meant to read left to right as cause, effect and result. The layout keeps
    that reading order at every width: on a phone the three stack in the same
    order rather than reflowing into a different story.
+
+   The controls that used to live in this file are gone. They were a second
+   instrument for a reader who already had to learn ScrubBar's, and every rule
+   that styled them (.fm-controls, .fm-btn, .fm-count, .fm-hint) went with
+   them.
 
    The one visual decision worth recording: consumed bytes are drawn as a calm
    tint with reduced contrast, never as a highlight. A highlight says "look
@@ -12,33 +20,26 @@
    reader is finished with. The thing to look at is the caret.
    ────────────────────────────────────────────────────────────────────────── */
 
+/* The figure element, its border and its background belong to .ex now. This
+   element is only the drawing, so it cancels the body padding it sits in and
+   lets the three regions run to the edges of the frame, which is where their
+   dividing rules have to reach for the three-column reading to hold. */
 .fm {
-  margin: var(--space-6) 0 0;
-  padding: 0;
-  border: 1px solid var(--border-default);
-  border-top: 3px solid var(--gold-500);
-  border-radius: var(--radius-md);
-  background: var(--surface-page);
+  margin: calc(var(--space-5) * -1);
+  min-width: 0;
 }
 
 .fm-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.2fr) minmax(0, 0.85fr);
-  grid-template-areas:
-    "calls file vars"
-    "ctrl  file vars";
-  align-items: start;
+  grid-template-areas: "calls file vars";
+  align-items: stretch;
   gap: 0;
 }
 
-.fm-calls { grid-area: calls; padding-bottom: var(--space-3); }
-.fm-controls { grid-area: ctrl; }
+.fm-calls { grid-area: calls; }
 .fm-file { grid-area: file; border-left: 1px solid var(--border-subtle); }
 .fm-vars { grid-area: vars; border-left: 1px solid var(--border-subtle); }
-
-/* The file and variables panels span both rows of the left column, so their
-   rules have to run the full height rather than stopping at the controls. */
-.fm-file, .fm-vars { align-self: stretch; }
 
 .fm-region { padding: var(--space-4) var(--space-5) var(--space-5); min-width: 0; }
 
@@ -83,41 +84,9 @@
   line-height: var(--leading-snug); word-break: break-word; min-width: 0;
 }
 
-/* Controls ---------------------------------------------------------------- */
-.fm-controls {
-  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
-  padding: 0 var(--space-5) var(--space-5);
-}
-.fm-btn {
-  cursor: pointer; flex: 0 1 auto;
-  font-family: var(--font-sans); font-size: var(--text-sm); font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-wide);
-  background: transparent; border: 1px solid var(--border-default);
-  border-radius: var(--radius-md); color: var(--text-secondary);
-  padding: 0 var(--space-5); min-height: var(--touch-target-min);
-  transition: var(--transition-control);
-}
-.fm-btn:hover:not(:disabled) { border-color: var(--green-700); color: var(--text-accent); }
-.fm-btn:disabled { opacity: .5; cursor: not-allowed; }
-.fm-btn.is-primary { background: var(--green-700); border-color: var(--green-700); color: var(--text-inverse); }
-.fm-btn.is-primary:hover:not(:disabled) { background: var(--green-800); color: var(--text-inverse); }
-.fm-btn.is-quiet { border-color: transparent; text-decoration: underline; text-underline-offset: 3px; padding: 0 var(--space-3); }
-.fm-btn.is-quiet:hover:not(:disabled) { border-color: transparent; }
-
-.fm-count {
-  font-size: var(--text-2xs); letter-spacing: var(--tracking-wide); text-transform: uppercase;
-  color: var(--text-secondary); font-feature-settings: 'tnum'; margin-left: auto;
-}
-.fm-hint {
-  flex: 1 0 100%; margin: var(--space-2) 0 0;
-  font-size: var(--text-xs); line-height: var(--leading-normal); color: var(--text-secondary);
-  max-width: 44ch;
-}
-
 /* The file ---------------------------------------------------------------- */
 .fm-bytes-scroll {
   margin: var(--space-3) 0 0;
-  overflow-x: auto;
   background: var(--surface-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
@@ -139,33 +108,48 @@
 /* Consumed bytes must not be told apart by colour alone: the tint is about a
    1.07:1 step against the surface, which greyscale, sunlight and cheap phone
    panels all erase. The underline is the real signal and the tint supports it.
-   Contrast stays at full strength — these are the bytes the figure is about. */
+   Contrast stays at full strength — these are the bytes the figure is about.
+
+   The tint now arrives byte by byte as the caret passes, so it is faded in
+   over var(--ex-fade) rather than switched. The underline is not animated: it
+   is the carrier of the meaning and it must be correct on the first painted
+   frame, whatever the transition does. */
 .fm-b.is-consumed {
   background: var(--green-50); color: var(--text-primary);
   text-decoration: underline; text-decoration-color: var(--green-700);
   text-decoration-thickness: 2px; text-underline-offset: 3px;
 }
+.fm:not(.is-live) .fm-b { transition: background-color var(--ex-fade); }
 /* The pilcrow is dimmer than the bytes around it so that it reads as an
    annotation of a byte rather than as a printable character in the file. */
 .fm-b-nl { color: var(--text-secondary); }
 .fm-b-nl.is-consumed { color: var(--text-secondary); }
 
-/* The few literal numbers in this file are all here or in the byte grid above,
+/* The caret ---------------------------------------------------------------
+   The few literal numbers in this file are all here or in the byte grid above,
    and they are optical rather than spatial: a caret measured in spacing tokens
    would not line up with a glyph, and a line height taken from a leading token
    would not leave room for the tint to read as a band. Every colour, font
-   size, radius, spacing and duration is a token. */
+   size, radius, spacing and duration is a token.
+
+   --fm-frac is how far the position has travelled into the cell the caret is
+   standing in, between 0 and 1, written by the component from the transport's
+   continuous position. The grid is monospaced, so one cell is exactly 1ch and
+   the caret lands on the glyph boundary at every whole number, at any font
+   size the page happens to be set to. */
 .fm-caret {
   display: inline-block; width: 2px; height: 1.15em; vertical-align: text-bottom;
   margin: 0 -1px; background: var(--gold-600);
-  animation: fm-caret-in var(--duration-fast) var(--ease-entrance);
+  transform: translateX(calc(var(--fm-frac, 0) * 1ch));
+  will-change: transform;
 }
-/* Scale, never fade. See the note above the Caret component: a caret that
-   rests invisible is worse than a caret that never moved. */
-@keyframes fm-caret-in {
-  from { transform: scaleY(.35); }
-  to   { transform: none; }
-}
+/* Stepping and scrubbing move the caret one authored position at a time, so
+   the trip between them is drawn rather than jumped. Playing already moves it
+   every animation frame, and a transition layered on top of that would make
+   the caret trail the position it is reporting, so the component drops the
+   transition for the duration of play. --ex-move is clamped to 1ms under
+   prefers-reduced-motion, which is the only motion budget this figure has. */
+.fm:not(.is-live) .fm-caret { transition: transform var(--ex-move); }
 
 .fm-buffer {
   margin: var(--space-3) 0 0;
@@ -219,53 +203,51 @@
 .fm-statelist dd { font-feature-settings: 'tnum'; }
 /* End of file is stated in words, and marked, because it is the condition the
    reader is looking for. Colour is never the only carrier: the word changes
-   too, and the live status line repeats it. */
+   too, and the transport's status line repeats it. */
 .fm-statelist dd.is-flagged {
   font-weight: var(--weight-semibold); color: var(--status-info);
   background: var(--status-info-bg); border-radius: var(--radius-sm); padding: 0 var(--space-2);
   justify-self: start;
 }
 
-/* The sentence under the figure ------------------------------------------- */
+/* The sentence the authored frame carries, under the drawing and above the
+   transport, so the two things the reader consults sit together. */
 .fm-note {
   margin: 0; padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--border-subtle);
   font-size: var(--text-base); line-height: var(--leading-relaxed);
   color: var(--text-secondary); max-width: 78ch;
 }
-.fm-status {
-  margin: 0; padding: 0 var(--space-5) var(--space-4);
-  font-size: var(--text-xs); color: var(--text-secondary); font-feature-settings: 'tnum';
-}
-.fm-caption {
-  margin: 0; padding: var(--space-3) var(--space-5) var(--space-4);
-  border-top: 1px solid var(--border-subtle);
-  font-size: var(--text-xs); line-height: var(--leading-normal); color: var(--text-secondary);
-}
 
+/* The sentence equivalent of the byte grid, which is aria-hidden because one
+   element per byte would be read out letter by letter. Visually hidden, never
+   display:none, which would take it out of the accessibility tree too. */
 .fm-sr {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
   overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
 }
 
 /* Narrow screens -----------------------------------------------------------
-   One column, in reading order, with the controls kept directly under the call
-   list. The file panel is the tall one and scrolls inside itself, so controls
-   placed after it would sit below the fold exactly when they are wanted. */
+   One column, in reading order. The transport is outside this drawing and sits
+   under all of it, in the same place under every figure in the handout, which
+   is the point of there being only one transport. */
 @media (max-width: 860px) {
   .fm-grid {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "calls" "ctrl" "file" "vars";
+    grid-template-areas: "calls" "file" "vars";
   }
   .fm-file, .fm-vars {
     border-left: 0;
     border-top: 1px solid var(--border-subtle);
   }
   .fm-region { padding: var(--space-4); }
-  .fm-controls { padding: 0 var(--space-4) var(--space-4); }
-  .fm-btn { flex: 1 1 auto; }
-  .fm-count { width: 100%; margin-left: 0; text-align: center; }
-  .fm-note, .fm-status, .fm-caption { padding-left: var(--space-4); padding-right: var(--space-4); }
+  .fm-note { padding: var(--space-4); }
+}
+
+@media (max-width: 640px) {
+  /* .ex-body drops to var(--space-4) at this width, so the drawing's negative
+     margin has to follow it or the regions would sit inset on one side. */
+  .fm { margin: calc(var(--space-4) * -1); }
 }
 
 /* The byte grid is focusable so a keyboard user can scroll it, which is only

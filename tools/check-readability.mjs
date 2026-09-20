@@ -65,6 +65,16 @@ for (const st of steps) {
      fp) 2 fgets... Previous Next Reset") reads as one 60-word sentence and
      makes the whole measurement meaningless. */
   const strip = (re) => { html = html.replace(re, " "); };
+
+  /* Every explorable figure's drawing and transport is chrome, not prose. Its
+     cell labels, variable chips and condition names ("still reading", "set",
+     "n = 6") are read as glances, not as sentences, and counting them drags
+     the mean toward zero and makes a page of proper academic prose look like
+     a quick-start guide. The figcaption IS prose and is deliberately kept.
+     This is the same class of error as counting the FileMachine call list. */
+  strip(/<div class="ex-head"[\s\S]*?<\/div>\s*(?=<div class="ex-body")/g);
+  strip(/<div class="ex-body"[\s\S]*?(?=<div class="ex-transport"|<figcaption class="ex-caption"|<\/figure>)/g);
+  strip(/<div class="ex-transport"[\s\S]*?(?=<figcaption class="ex-caption"|<\/figure>)/g);
   strip(/<pre[\s\S]*?<\/pre>/g);                       // code and terminal output
   strip(/<figcaption class="fio-code-head"[\s\S]*?<\/figcaption>/g);
   strip(/<ol class="fm-call-list"[\s\S]*?<\/ol>/g);     // the call list

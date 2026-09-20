@@ -66,20 +66,37 @@ def main():
     if mode == "--subseq":
         # A round that ADDS material shifts every later entry, so a positional
         # compare reports the whole file as changed and hides a real edit in
-        # the noise. The question that actually matters is whether every old
-        # entry still appears, unaltered and in the same order: if the old list
-        # is a subsequence of the new one, nothing was modified or removed and
-        # everything else is an addition.
+        # the noise. The question that matters is whether every original entry
+        # still appears, unaltered and in the same relative order.
+        #
+        # Two separate questions, answered separately, because conflating them
+        # was actively misleading: a single greedy scan reports every entry
+        # after the first missing one as missing too, which buries the one
+        # fact you needed.
+        from collections import Counter
         old = json.loads(pathlib.Path(sys.argv[2]).read_text())
+        norm = lambda x: json.dumps(x, sort_keys=True) if isinstance(x, (list, dict)) else x
         bad = False
         for k in data:
-            o, n = old.get(k, []), data[k]
-            it = iter(n)
-            missing = [x for x in o if not any(y == x for y in it)]
-            if missing:
+            o = [norm(x) for x in old.get(k, [])]
+            n = [norm(x) for x in data[k]]
+
+            gone = Counter(o) - Counter(n)          # what actually disappeared
+            budget = dict(gone)
+            it, in_order = iter(n), True
+            for x in o:
+                if budget.get(x, 0):                # a known deletion; skip it
+                    budget[x] -= 1
+                    continue
+                if not any(y == x for y in it):
+                    in_order = False
+                    break
+
+            if gone or not in_order:
                 bad = True
-                print(f"\n!! {k}: {len(missing)} entr{'y' if len(missing)==1 else 'ies'} altered or removed")
-                for x in missing[:8]: print(f"   {x!r}")
+                print(f"\n!! {k}: {sum(gone.values())} removed, order {'kept' if in_order else 'BROKEN'}")
+                for x, c in sorted(gone.items()):
+                    print(f"   removed x{c}: {x}")
             else:
                 print(f"  ok  {len(o):4d} -> {len(n):4d}  {k}: all originals intact, {len(n)-len(o)} added")
         return 1 if bad else 0
