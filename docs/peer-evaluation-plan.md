@@ -1,6 +1,6 @@
 # Assessment as audit — an AI-resistant design for LBYEC2B
 
-Status: draft v4, for discussion. Nothing here is committed to the syllabus yet.
+Status: draft v5, for discussion. Nothing here is committed to the syllabus yet.
 Course: LBYEC2B, Computer Fundamentals and Programming 2 (1 unit, 13 weeks).
 
 **Organising goal.** Assess whether a student's capability against the learning
@@ -17,10 +17,12 @@ scales with the real figure.
 > frame. v3 timed every student-authored artefact in the room, lifting the plan
 > and divergence log from rank 5 to rank 2 and putting 75% of the component on
 > observed work; the implementation stays untimed and taken home, for the reason
-> in §5.5. **v4 restores a named leader, evaluated by the instructor, inside
-> standing pods of six** — see §5.1, which also separates what pods buy from
-> what rounds buy and concedes that two rounds is defensible where three is
-> preferable. The v1 critique is condensed into Appendix A.
+> in §5.5. v4 restored a named leader, evaluated by the instructor, inside
+> standing pods of six. **v5 implements the decision to run a single round**,
+> and spends the saved effort on recovering what repetition would have bought:
+> two independent probes per student, two evaluators, a mandatory ungraded dry
+> run in week 3, and a stated re-sit right — see §5.1.2. The v1 critique is
+> condensed into Appendix A.
 
 ---
 
@@ -202,8 +204,8 @@ This one is free and nobody usually connects it. The syllabus already contains a
 supervised, unaided, individually-assessed practical examination at 15%. That is
 an independent rank-2 measurement of LO1–LO4 on every student in the class.
 
-Use it as the audit's **control total**. If the three rounds of peer-audit
-evidence say a student is Exemplary and the practical examination says
+Use it as the audit's **control total**. If the round's peer-audit
+evidence says a student is Exemplary and the practical examination says
 Beginning, the discrepancy is a finding — about that student, or about the
 scheme. Either way you want to know, and computing it costs one scatter plot.
 
@@ -245,47 +247,119 @@ Stability is deliberate and is a change from v2's fully random redraw. A
 standing pod builds enough familiarity for people to write frank evaluations,
 lets the leader form a *comparative* view across their members, and makes the
 scheduling tractable. The audit pairings **inside** the pod are still redrawn
-each round, which preserves the anti-collusion property that mattered.
+for the round, which preserves the anti-collusion property that mattered.
 
-**Within a pod, each round draws two triads** (or one triad and a trio formed
-with the leader, for odd counts). Inside triad {A, B, C}: A is audited, writes
-B's modification, and evaluates C. No pairing repeats across rounds.
+**Within a pod of six, each member is probed by two others and evaluated by two
+others**, drawn so that no pair probes each other reciprocally. A simple ring
+works and is easy to publish: number the members 1–6; member *n* writes
+modifications for *n+1* and *n+2*, and evaluates *n+3* and *n+4*. Everyone
+writes two, receives two, evaluates two and is evaluated by two, and nobody
+probes someone who is probing them.
 
-#### 5.1.2 Why more than one round
+#### 5.1.2 One round: the decision, and how to make it hold
 
-The honest case, strongest first.
+**Decision taken: a single round.** The trade is understood and is not
+unreasonable — one round that is run properly beats three that are rushed,
+scheduled badly, and marked in a hurry, and the instructor time falls from ~21
+hours to ~8. What follows is the honest cost, stated once, and then the design
+changes that buy most of it back.
 
-1. **Reliability.** One observation is one data point. A single round means a
-   student's illness, a bad day, or a peer who wrote a lazy modification
-   determines 30% of their grade with nothing to average against. This is the
-   argument that actually carries the decision: single-observation assessment is
-   the least defensible kind on appeal.
-2. **Outcome coverage.** The component claims LO1–LO4. One round in C evidences
-   LO1–LO3 on pointers and structures and says *nothing* about LO4, which lives
-   entirely in MATLAB. You cannot report an outcome you never measured.
-3. **Round one measures novelty, not capability.** The first time students meet
-   an unfamiliar assessment format, scores reflect format shock. If there is
-   only one round, that contamination is the whole result.
-4. **§4.3 needs more than one point per student** for the correlation against
-   the practical examination to say anything.
-5. **Formative value.** A single terminal round gives students no opportunity to
-   act on what they learn about their own reasoning, which is most of the point.
+**What one round costs, plainly.**
 
-**The concession: two rounds is defensible, one is not.** If supervised lab time
-is the binding constraint — and per §9.1 it probably is — drop to **two rounds,
-R1 in C and R2 in MATLAB**, which preserves outcome coverage of LO1–LO4 and one
-repeat measurement. The third round buys reliability and a leadership rotation,
-not coverage. Do not drop to one; at that point the evidence base is too thin to
-carry 30% and the weight should move back to the machine-problem component.
+- *No repeat measurement.* Illness, a bad day, or a lazy probe from a peer is
+  unmitigated. Answered by §5.1.2a and by a stated re-sit right.
+- *Novelty contamination becomes the entire result.* Students are bad at an
+  unfamiliar assessment format the first time they meet it. In a three-round
+  design round one absorbs this; with one round there is nothing to absorb it.
+  Answered by the dry run in §5.1.2b, which is now **mandatory, not optional**.
+- *Coverage narrows to one technology.* The component can only claim the
+  outcomes the round actually measures. Answered by choosing the week
+  deliberately — §5.1.2c.
+- *Leader rotation is impossible.* One leader per pod, fixed, so ~7 of 40
+  students generate leadership evidence. Accepted; see §5.1.3.
 
-| Round | Week | Material | Outcomes under test | Keep if cutting to two? |
-|---|---|---|---|---|
-| R1 | 4 | Pointers, file I/O, structures | LO1, LO2, LO3 | Yes |
-| R2 | 7 | MATLAB data pipeline, CSV to figure | LO2, LO3, LO4 | Yes |
-| R3 | 10 | GUI, data structures, scoping | LO1, LO3, LO5 | First to cut — LO5 is already evidenced by the project |
+**What one round gains, and it is not nothing.** Three well-separated pods'
+worth of logistics collapse into a single well-prepared week. Invigilation is
+easier to secure once than three times. Students face one format rather than a
+term of recurring examinations, which was a real morale risk in v3. And the
+whole scheme can be piloted, judged and revised in one term instead of being
+committed to across a term before any evidence about it exists.
 
-Weeks 12 and 13 stay as they are, and per §4.3 the week-12 examination doubles
-as the scheme's control total.
+##### 5.1.2a Recover reliability inside the round: two probes, two observers
+
+Reliability came from repeated measurement over *time*. With one round it has to
+come from redundancy *within* the round, and it largely can.
+
+**Two modifications, from two different peers.** This is the single most
+important change and it substitutes directly for the missing second round. Each
+student receives probes from two independent peers and answers both in the
+supervised window. Two probes means one lazy or badly-aimed modification no
+longer determines the result, and agreement between two independent probes is
+genuinely informative in a way one never is.
+
+**Two evaluators per student.** In a pod of six this costs nothing structurally:
+each member writes two short evaluations instead of one. Peer evidence is rank 4
+precisely because the observer is untrained, and two untrained observers who
+agree are worth appreciably more than one.
+
+**Already-redundant artefacts.** Note that the round was never a single
+measurement even before this: the plan, the divergence log, the two
+modifications authored, and the two responses are five separate observations of
+LO2 and LO3 reasoning, gathered under observation on different days. What one
+round loses is *temporal* spread and *topic* spread, not sample size.
+
+**A stated re-sit right.** Any student may request one re-sit of the response
+window, no justification required, within two weeks. With one round this is not
+a courtesy; it is the only remaining safeguard against a bad day, and it costs
+almost nothing because few will use it.
+
+##### 5.1.2b A mandatory ungraded dry run
+
+Run the entire mechanic in **week 3**, ungraded, on a deliberately small
+exercise — a single file-reading function is enough. Full format: a 10-minute
+plan, a 10-minute modification for a peer, a 15-minute response, one evaluation
+form. Nothing is marked; the instructor returns two or three worked examples of
+what a strong modification and a strong response look like.
+
+This is the highest-value 45 minutes in the entire one-round design. Without it
+the graded round measures how quickly students decode an unfamiliar format, and
+that is not a learning outcome. It also surfaces your own logistics problems —
+timings, machine lockdown, invigilation — while they are still free to fix.
+
+**If nothing else in this section is adopted, adopt the dry run.**
+
+##### 5.1.2c Which week
+
+With one round, the week determines which outcomes the component can honestly
+claim. The syllabus itself settles it: **week 6, elementary matrix operations,
+is the only week mapped to LO1 through LO4** — exactly the span the
+machine-problem component claims.
+
+| Candidate | Mapped outcomes | Assessment |
+|---|---|---|
+| Week 4, structures | LO1–LO3 | Earliest, so the strongest effect on behaviour for the rest of the term, but no LO4 at all |
+| **Week 6, matrix operations** | **LO1–LO4** | **Recommended.** Full coverage; C and introductory MATLAB both behind the students; still early enough to shape weeks 7–13 |
+| Week 7, analyzing data | LO4 only | Too narrow, and it collides with the project announcement |
+| Week 10, GUI | LO1–LO4 | Also full coverage, but too late to change behaviour and it collides with project implementation |
+
+Week 6 also sits well against the dry run in week 3 — far enough apart that the
+format has settled, close enough that it is still fresh.
+
+If week 6's material proves too thin to support a modification that changes a
+real constraint (§5.2), week 10 is the fallback, at the cost of the behavioural
+effect.
+
+##### 5.1.2d Weight
+
+**Recommendation: carry 25%, not 30%,** with the remaining 5% staying in
+conventionally-marked machine problems. One round with two probes is a
+defensible basis for a quarter of the grade; the last five points are cheap
+insurance against a single week going wrong for reasons outside any student's
+control.
+
+If 30% is preferred, it is carryable **provided** §5.1.2a and the dry run are
+both adopted. It is not carryable on a single probe with no dry run, and that
+is the one combination to avoid.
 
 #### 5.1.3 The pod leader, and the instructor's evaluation of them
 
@@ -320,50 +394,70 @@ which is §6.1's fifth row applied to the leadership role.
 artefacts and a pod member writes their modification. Leading is an additional
 role, never an exemption.
 
-**Rotate the leader each round.** With pods of six and three rounds, three
-members lead once each. Recommended over a fixed term-long leader because it
-distributes the LO6 leadership evidence instead of concentrating it in seven
-students, and because it gives you three independent looks at how each pod is
-being run. A fixed leader is cheaper — seven evaluations per term instead of
-twenty-one — and is a reasonable choice if instructor time is tight; the cost
-is that thirty-three students never generate leadership evidence, so LO6 for
-them rests entirely on the project.
+**One leader per pod, fixed for the term** — rotation needs rounds to rotate
+through, and with a single round there are none. This is a real loss: roughly
+seven of forty students will generate leadership evidence, and LO6 for the other
+thirty-three rests entirely on the project's teamwork rubric. Two partial
+compensations, both cheap:
 
-Note the interaction with §5.1.2: **rotation is another reason to keep three
-rounds.** At two rounds only a third of the class leads.
+- **Appoint deliberately rather than by volunteer or popularity.** With only
+  seven leadership slots, use them: pick students for whom the evidence is most
+  useful, or who most need the developmental experience.
+- **Name a deputy in each pod** who runs the evidence quality-control pass on
+  the leader's own artefacts, and who takes over if the leader is absent. That
+  yields fourteen students with some coordination evidence instead of seven, at
+  no extra instructor cost.
 
-### 5.2 Timeline for one round
+---
 
-Every student-authored artefact is now **timed and in-session**. Only the
+### 5.2 Timeline
+
+Every student-authored artefact is **timed and in-session**. Only the
 implementation itself is taken home — deliberately, for the reason in §5.5.
 
-| Day | Event | Timed? | Produces |
+**Week 3, the dry run** (§5.1.2b): the whole format, ungraded, on a trivial
+exercise. ~45 minutes, with worked examples returned the following session.
+
+**Week 6, the graded round**, in three supervised blocks:
+
+| Day | Event | Block | Produces |
 |---|---|---|---|
-| 0 | Exercise released; pods and this round's triads published | — | — |
-| 0 | *Same session, 15 min, supervised:* **write the plan**, then lock it | ✓ | 1 |
-| 1–4 | Implementation at home, committing as the work proceeds | ✗ | 2, 4 |
+| 0 | Exercise released; pods and the probe ring published | — | — |
+| 0 | *15 min:* **write the plan**, then lock it | **A — 15 min** | 1 |
+| 1–4 | Implementation at home, committing as the work proceeds | — | 2, 4 |
 | 4 | Code pushed | — | 4 |
-| 5 | *In session, 10 min, supervised:* **divergence log**, from your own commit log | ✓ | 3 |
-| 5 | Automated analytical screen runs; artefacts released to the peer | — | exceptions |
-| 5 | *Same session, 20 min, supervised:* **write your peer's modification** | ✓ | 5 |
-| 6 | *In session, 25 min, supervised, offline:* **respond to your modification** | ✓ | **6** |
-| 6 | *Same session, 15 min:* **write your evaluation** of the third member | ✓ | 7 |
+| 5 | Automated analytical screen runs; artefacts released along the ring | — | exceptions |
+| 5 | *10 min:* **divergence log**, from your own commit log | **B — 35 min** | 3 |
+| 5 | *24 min:* **write two modifications**, 12 min each, for two different peers | ↑ | 5 |
+| 6 | *30 min, offline:* **respond to both modifications you received**, 15 min each | **C — 45 min** | **6** |
+| 6 | *15 min:* **write two evaluations**, of two other pod members | ↑ | 7 |
 | 6 | *Leader, after the session:* review the pod's evaluations, return thin ones | — | quality control |
 | 7 | Leader submits the pod summary | — | leader's LO6 evidence |
 | 7 | Instructor forms the file; exception orals held | — | 8, opinion |
+| ≤ wk 8 | Re-sit of block C, on request, no justification needed (§5.1.2a) | — | — |
 
-Four of the five student artefacts moved in-session relative to v1, and two of
-them — the plan and the divergence log — **rise from rank 5 to rank 2** as a
-direct result. That is the largest single improvement to the evidence base in
-either revision, and it comes from one decision: write it in the room.
+**Total supervised time: ~95 minutes**, in blocks of 15, 35 and 45, plus the
+45-minute dry run in week 3. That is *less than half* the 255 minutes three
+rounds would have needed, even after doubling the probes — the strongest
+practical argument for the decision taken.
 
-The windows group into **two supervised blocks of roughly 45 and 40 minutes**,
-which is the practical scheduling unit. LBY courses carry laboratory contact
-hours, so both blocks should fit inside the round week's normal sessions —
-**confirm this against the actual timetable before committing**, because §9.1
-now turns on total supervised minutes rather than on one window.
+Every student artefact is written in the room, and the plan and divergence log
+**rise from rank 5 to rank 2** as a direct result. That remains the largest
+single improvement to the evidence base across all revisions, and it comes from
+one decision: write it in the room.
 
-**Modification quality control.** The modification must change a *constraint*,
+Blocks A and B are short and can be appended to otherwise normal sessions.
+**Block C is the one to protect**: it carries 35% of the component and it is now
+the only substantive test in the design. LBY courses carry laboratory contact
+hours, so ~95 minutes across week 6 should fit — **confirm it against the actual
+timetable before committing**.
+
+**Two probes, and they stay independent.** Each student receives modifications
+from two peers who do not see each other's work (§5.1.1's ring). Where both
+probes attack the same weakness, that convergence is itself a finding worth
+recording in the file.
+
+**Modification quality control.** Each modification must change a *constraint*,
 not a parameter: an input-validity assumption, a scale or memory bound, the
 shape or arrival order of the data, a new failure mode, or the removal of an
 assumption the original relied on. Changing a literal, renaming, or "also print
@@ -371,7 +465,10 @@ X" is out of scope and scores zero. The author must state in one sentence which
 part of the peer's design they expect to break — that sentence is the graded
 artefact, because it is a direct measurement of LO2.
 
-**Response format**, 25 minutes, offline, on the student's own program:
+**Response format**, 15 minutes per modification, offline, on the student's own
+program. Two probes means two passes through the same four points. The
+repetition is deliberate — the second pass is the reliability check that a
+second round would otherwise have provided:
 1. What breaks under this modification, and why.
 2. The minimal change that fixes it.
 3. The revised algorithm, as pseudocode.
@@ -492,7 +589,7 @@ Component: **Machine problems and exercise mastery — 30% of the final grade**,
 formed from the existing machine-problem 25% and teacher's-evaluation 5%, so the
 published totals do not move and no other component is disturbed.
 
-Averaged across the three rounds:
+Within the single round:
 
 | Sub-component | Share | Evidence | Rank | Outcome |
 |---|---|---|---|---|
@@ -526,7 +623,7 @@ because LO1 says implement.
 
 ### 6.2 The opinion
 
-For each student each round, the instructor records one of four opinions. This
+For each student, the instructor records one of four opinions. This
 is not decoration — it gives you a vocabulary for cases the usual scale handles
 badly.
 
@@ -547,7 +644,7 @@ keeping them distinct is both fairer and far easier to defend on appeal.
 
 ### 6.3 The working file
 
-One page per student per round, generated mostly automatically: the nine data
+One page per student, generated mostly automatically: the nine data
 points with their ranks, the analytical comparisons and their outcomes, any
 exceptions and how they were resolved, the sub-component marks, and the opinion.
 
@@ -562,35 +659,34 @@ Per round, for ~40 students:
 
 | Activity | Time |
 |---|---|
-| Invigilating two supervised blocks, ~45 and ~40 min | ~1.5 h |
-| Reading seven pod summaries and evaluating the round's leaders | ~0.75 h |
+| Running the week-3 dry run and returning worked examples | ~1.5 h |
+| Invigilating three blocks, ~95 min total | ~1.75 h |
 | Analytical screen (scripted) | ~0 |
-| Grading 40 supervised responses, 4 structured points | ~2.5 h |
+| Grading 80 responses — 40 students × 2 probes, 4 structured points each | ~4 h |
 | Grading 40 timed plans and divergence logs, both very short | ~1 h |
-| Auditing 8 peer evaluations | ~0.5 h |
+| Grading 80 authored modifications, one sentence each is what counts | ~1 h |
+| Auditing a 20% sample of 80 peer evaluations | ~0.75 h |
+| Reading 7 pod summaries and evaluating the leaders | ~0.75 h |
 | Exception orals, assuming a 10% rate | ~0.5 h |
-| File review and opinions | ~0.5 h |
-| **Per round** | **~7 h** |
-| **Per term, three rounds** | **~21 h** |
-| *Per term, two rounds (the §5.1.2 concession)* | *~14 h* |
+| File review and opinions | ~0.75 h |
+| Re-sits, assuming a 5% uptake | ~0.25 h |
+| **Whole term** | **~12 h** |
 
-Leader evaluation adds about half an hour a round and gives back some of the
-peer-evaluation audit, since the leader has already returned the thin ones;
-treat it as roughly cost-neutral against §5.3's 20% sample.
+About ~12 hours for the term, against ~21 for the three-round design. Note
+where the money went: doubling the probes costs ~2 hours of extra marking, and
+it is the best-value spending in the table, because it is the only thing
+standing between a single observation and a defensible mark. The dry run costs
+~1.5 hours and protects the entire result from novelty contamination. Neither
+is a candidate for cutting.
 
-Timing everything raised this from ~12 hours to ~21, and that increase should
-be looked at squarely rather than waved past. Two things soften it. The ~4.5
-hours of invigilation across the term are **contact hours you are already
-present for**, not new hours, provided the blocks fit the timetable — which is
-exactly why §9.1 is the first decision. And much of the marking displaces
-machine problems you already grade, with the supervised artefacts being short
-and structured, which is why they mark quickly.
+Two things further soften the total. The ~1.75 hours of invigilation are
+**contact hours you are already present for**, provided the blocks fit the
+timetable — which is why §9.1 remains the first decision. And much of the
+marking displaces machine-problem marking you already do, with the supervised
+artefacts being short and structured, which is why they go quickly.
 
-The residue is real, though: call it five to seven genuinely new hours across
-the term for a one-unit course, bought in exchange for moving 75% of the
-component onto observed evidence. That is a good trade, and it is a trade. If
-the real class size is materially above 40 the correct adjustment is fewer
-rounds, not
+With one round there is no longer a round count to trim. If the real class size
+is materially above 40, the adjustment is a lower weight per §5.1.2d, never
 thinner evidence.
 
 ---
@@ -632,21 +728,31 @@ be given orally into a recorder for any student who prefers it.
 
 ## 8. Sequencing
 
-1. **Now.** Settle the four decisions in §9 that change the design.
-2. **Before the term.** Publish the evidence table and the demonstrability rule
-   to students — this is a teaching artefact, not fine print. Write the
-   modification bank. Script the analytical screen. Build the one-page file
-   template.
-3. **Week 4, R1, as a pilot at 5% of the final grade,** with the remainder held
-   in the existing machine-problem component and the intent published from day
-   one so nobody is surprised. Measure: actual duration of the supervised
-   window, substantiveness of the modifications, spread between peer evidence
-   and instructor marks, and the exception rate.
-4. **Week 12.** Run §4.3 against the practical examination. This is the honest
-   test of whether the scheme measures capability. If the correlation is weak,
-   the rounds are not working and the weight should not be carried into next
-   term regardless of how good the design looks on paper.
-5. **R2 and R3 at full weight**, if the pilot holds.
+1. **Now.** Settle the four decisions in §9 that change the design — above all
+   whether ~95 supervised minutes exist in week 6.
+2. **Before the term.** Publish the evidence table (§2) and the demonstrability
+   rule (§3) to students; these are teaching artefacts, not fine print. Write
+   the modification bank. Script the analytical screen. Build the one-page file
+   template and the evaluation form. Form pods and appoint leaders and deputies.
+3. **Week 3 — the dry run.** Ungraded, full format, small exercise. Return
+   worked examples of a strong modification and a strong response. This also
+   shakes out your invigilation and machine-lockdown problems while they are
+   still free to fix.
+4. **Week 6 — the graded round.** Three blocks, ~95 minutes.
+5. **Weeks 7–8.** Marking, exception orals, re-sits, files closed.
+6. **Week 12 — validate.** Run §4.3 against the practical examination. With one
+   round this is *more* important, not less: it is the only external check on
+   whether the round measured capability at all. A weak correlation means the
+   weight should not be repeated next term, whatever the design looks like on
+   paper.
+7. **After the term.** Decide on the strength of that correlation whether to
+   keep one round at this weight, or add a second next term.
+
+**Note on piloting.** v3 recommended running the first round as a low-stakes
+pilot at 5%. With a single round that option is gone — the round *is* the
+assessment, so it cannot also be the rehearsal. The week-3 dry run is what
+replaces it, and it is the reason §5.1.2b calls it mandatory rather than
+advisable.
 
 ---
 
@@ -654,24 +760,25 @@ be given orally into a recorder for any student who prefers it.
 
 Five that change the design:
 
-1. **Can roughly 85 supervised minutes be scheduled in each of weeks 4, 7 and
-   10** — two blocks of about 45 and 40 minutes? This is now the binding
+1. **Can ~95 supervised minutes be scheduled in week 6** (blocks of 15, 35 and
+   45) **plus ~45 minutes in week 3 for the dry run?** This is the binding
    constraint on the whole architecture, since 75% of the component is timed
-   observed work. If only one block is available, keep the 25-minute response
-   window and revert the plan, divergence log and evaluation to take-home, which
-   costs them their rank-2 standing and shifts the §6.1 weights back toward the
-   program. If no block is available, the recording fallback becomes primary.
+   observed work and there is no second round to fall back on. If only one
+   block is available, protect block C and revert the plan, divergence log and
+   evaluations to take-home — which costs them their rank-2 standing and shifts
+   the §6.1 weights back toward the program. If no block is available, the
+   recording fallback becomes primary and the weight should drop further.
 2. **Is commit history mandatory and inspectable for machine problems?** §4.1 is
    the cheap engine, and it does not run without it.
 3. **Is the bounty withdrawn?** The audit frame and a contingent fee are
    incompatible (§1.5); the design does not hold with both.
-4. **Real class size and available grading hours**, which set the round count.
-   Three rounds is the recommendation; **two is the floor** (§5.1.2), and one
-   cannot carry 30%.
-5. **Rotating or fixed pod leader?** Rotating distributes LO6 leadership
-   evidence across half the class and gives three looks at each pod, at ~21
-   leader evaluations per term. Fixed costs ~7 but leaves 33 students with no
-   leadership evidence outside the project. Recommended: rotating.
+4. **What weight does the single round carry?** §5.1.2d recommends 25%, with
+   5% left in conventionally-marked machine problems. 30% is carryable **only**
+   with both the two-probe design and the week-3 dry run in place.
+5. **Which week?** §5.1.2c recommends week 6, the only week the syllabus maps
+   to LO1–LO4. Week 4 trades LO4 coverage for a stronger effect on behaviour
+   across the rest of the term; week 10 is the fallback if week 6's material
+   will not support a real constraint change.
 
 Three that need settling but do not change the architecture:
 
@@ -737,7 +844,7 @@ everything else untouched.
 
 **Why the workload was infeasible.** Applied to every machine problem at ~40
 students it generates roughly 160 artefacts per exercise and over a thousand per
-term, for a one-unit course. Reduced to three rounds with hard caps and
+term, for a one-unit course. Reduced to a single round with hard caps and
 structured forms; costed in §6.4.
 
 ## Appendix B — alternatives considered
