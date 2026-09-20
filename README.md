@@ -68,6 +68,15 @@ tools/
   smoke.sh, smoke.html   behavioural test for all three handouts, in real Chrome
   render-check.mjs       renders every page, step and modal without a browser
   check-steps.py         structural check on handout 03's step data
+  check-readability.mjs  measures the prose a student actually reads, by
+                         rendering each step and counting sentence length.
+                         The handout's audience reads English as a second
+                         language, on a phone, under deadline; the first draft
+                         averaged 18 words a sentence and had to be rewritten.
+  check-invariants.py    snapshots the verified material — every line of C,
+                         every program output, every ftell offset, every
+                         correct answer — so a prose edit can be proved to have
+                         changed only prose. --save before, --diff after.
 
 original/                the Craft exports the handouts were ported from
 ```
