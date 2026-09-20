@@ -1,4 +1,4 @@
-<title>LBYEC2B — The week 6 exercise audit</title>
+<title>LBYEC2B — Mechanics: Machine Problem Audit</title>
 
 <style>
   :root {
@@ -24,58 +24,26 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --green: #56b87a;
-      --green-deep: #c9e7d5;
-      --green-mid: #97d3b0;
-      --gold: #d3ba8c;
-      --gold-deep: #e6d5b4;
-
-      --ground: #10130f;
-      --surface: #181c17;
-      --surface-green: #14241a;
-      --surface-gold: #241d12;
-      --ink: #e7eae6;
-      --ink-soft: #b3bab4;
-      --ink-faint: #8b938c;
-      --rule: #2b302b;
-      --rule-firm: #3d443d;
+      --green: #56b87a; --green-deep: #c9e7d5; --green-mid: #97d3b0;
+      --gold: #d3ba8c; --gold-deep: #e6d5b4;
+      --ground: #10130f; --surface: #181c17; --surface-green: #14241a; --surface-gold: #241d12;
+      --ink: #e7eae6; --ink-soft: #b3bab4; --ink-faint: #8b938c;
+      --rule: #2b302b; --rule-firm: #3d443d;
     }
   }
-
   :root[data-theme="dark"] {
-    --green: #56b87a;
-    --green-deep: #c9e7d5;
-    --green-mid: #97d3b0;
-    --gold: #d3ba8c;
-    --gold-deep: #e6d5b4;
-
-    --ground: #10130f;
-    --surface: #181c17;
-    --surface-green: #14241a;
-    --surface-gold: #241d12;
-    --ink: #e7eae6;
-    --ink-soft: #b3bab4;
-    --ink-faint: #8b938c;
-    --rule: #2b302b;
-    --rule-firm: #3d443d;
+    --green: #56b87a; --green-deep: #c9e7d5; --green-mid: #97d3b0;
+    --gold: #d3ba8c; --gold-deep: #e6d5b4;
+    --ground: #10130f; --surface: #181c17; --surface-green: #14241a; --surface-gold: #241d12;
+    --ink: #e7eae6; --ink-soft: #b3bab4; --ink-faint: #8b938c;
+    --rule: #2b302b; --rule-firm: #3d443d;
   }
-
   :root[data-theme="light"] {
-    --green: #00703c;
-    --green-deep: #00341a;
-    --green-mid: #005229;
-    --gold: #b08d57;
-    --gold-deep: #6f552c;
-
-    --ground: #ffffff;
-    --surface: #f7f8f7;
-    --surface-green: #e8f4ec;
-    --surface-gold: #f4ecdd;
-    --ink: #1e211f;
-    --ink-soft: #4c524e;
-    --ink-faint: #6e756f;
-    --rule: #e1e4e2;
-    --rule-firm: #c7ccc8;
+    --green: #00703c; --green-deep: #00341a; --green-mid: #005229;
+    --gold: #b08d57; --gold-deep: #6f552c;
+    --ground: #ffffff; --surface: #f7f8f7; --surface-green: #e8f4ec; --surface-gold: #f4ecdd;
+    --ink: #1e211f; --ink-soft: #4c524e; --ink-faint: #6e756f;
+    --rule: #e1e4e2; --rule-firm: #c7ccc8;
   }
 
   body {
@@ -83,480 +51,661 @@
     color: var(--ink);
     font-family: var(--sans);
     font-size: 16px;
-    line-height: 1.62;
+    line-height: 1.66;
     -webkit-font-smoothing: antialiased;
   }
 
   .sheet {
-    max-width: 50rem;
+    max-width: 52rem;
     margin: 0 auto;
-    padding: clamp(28px, 6vw, 64px) clamp(20px, 5vw, 48px) 72px;
+    padding: clamp(26px, 5vw, 56px) clamp(20px, 5vw, 48px) 80px;
     display: flex;
     flex-direction: column;
-    gap: 44px;
+    gap: 40px;
   }
 
   /* ---------- masthead ---------- */
 
-  .masthead { display: flex; flex-direction: column; gap: 14px; }
-
-  .eyebrow {
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--gold-deep);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: baseline;
+  .masthead { display: flex; flex-direction: column; gap: 12px; }
+  .inst {
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold-deep); display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline;
   }
-  .eyebrow span::after { content: "·"; margin-left: 10px; color: var(--rule-firm); }
-  .eyebrow span:last-child::after { content: none; }
+  .inst span::after { content: "·"; margin-left: 10px; color: var(--rule-firm); }
+  .inst span:last-child::after { content: none; }
 
+  .doctype {
+    font-size: 12.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--green);
+  }
   h1 {
-    font-family: var(--serif);
-    font-size: clamp(34px, 6.2vw, 52px);
-    font-weight: 600;
-    line-height: 1.08;
-    letter-spacing: -0.015em;
-    text-wrap: balance;
-    margin: 0;
-    color: var(--green-mid);
+    font-family: var(--serif); font-size: clamp(31px, 5.4vw, 46px); font-weight: 600;
+    line-height: 1.1; letter-spacing: -0.014em; text-wrap: balance; margin: 0; color: var(--green-mid);
   }
+  .masthead-rule { height: 3px; background: var(--gold); width: 64px; border-radius: 2px; margin-top: 4px; }
 
-  .standfirst {
-    font-family: var(--serif);
-    font-size: clamp(18px, 2.4vw, 21px);
-    line-height: 1.5;
-    color: var(--ink-soft);
-    max-width: 44ch;
-    margin: 0;
+  .docmeta {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 4px 28px; margin-top: 10px; font-size: 14.5px;
   }
+  .docmeta div { display: flex; gap: 8px; }
+  .docmeta dt { font-weight: 600; color: var(--ink-faint); white-space: nowrap; }
+  .docmeta dd { margin: 0; color: var(--ink-soft); }
 
-  .masthead-rule { height: 3px; background: var(--gold); width: 64px; border-radius: 2px; }
+  /* ---------- table of contents ---------- */
+
+  .toc {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 18px 22px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .toc-label {
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .toc ol { margin: 0; padding: 0; list-style: none; display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 5px 24px; }
+  .toc li { font-size: 14.5px; display: grid; grid-template-columns: 2.1rem 1fr; gap: 8px; }
+  .toc-num { font-weight: 700; color: var(--gold-deep); font-variant-numeric: tabular-nums; }
+  .toc a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
+  .toc a:hover, .toc a:focus-visible { color: var(--green); border-bottom-color: var(--green); }
 
   /* ---------- sections ---------- */
 
-  section { display: flex; flex-direction: column; gap: 18px; }
+  section { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 20px; }
 
   h2 {
-    font-family: var(--serif);
-    font-size: 25px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    margin: 0;
-    padding-bottom: 9px;
-    border-bottom: 1px solid var(--rule);
-    color: var(--ink);
+    font-family: var(--serif); font-size: 26px; font-weight: 600; letter-spacing: -0.01em;
+    margin: 0; padding-bottom: 9px; border-bottom: 1px solid var(--rule); color: var(--ink);
+    display: grid; grid-template-columns: 2.6rem 1fr; gap: 10px; align-items: baseline;
+  }
+  h2 .sec-num { font-size: 19px; font-weight: 700; color: var(--gold); font-family: var(--sans); }
+
+  h3 {
+    font-family: var(--sans); font-size: 15px; font-weight: 700; letter-spacing: 0.03em;
+    margin: 8px 0 0; color: var(--green);
   }
 
-  p { margin: 0; max-width: 64ch; }
+  p { margin: 0; max-width: 66ch; }
   .muted { color: var(--ink-soft); }
+  .tight { font-size: 15px; }
 
-  /* ---------- duration rail ---------- */
-
-  .rail { display: flex; flex-direction: column; gap: 2px; }
-
-  .stage {
-    display: grid;
-    grid-template-columns: 7.5rem 1fr;
-    gap: 0 20px;
-    align-items: start;
-    padding: 13px 0 13px 16px;
-    border-left: 3px solid var(--rule-firm);
+  ol.clauses { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 11px; counter-reset: clause; }
+  ol.clauses > li {
+    display: grid; grid-template-columns: 2.6rem 1fr; gap: 12px; max-width: 70ch;
+    counter-increment: clause;
   }
-  .stage.is-practice { border-left-color: var(--green); background: var(--surface-green); }
-  .stage.is-graded { border-left-color: var(--gold); background: var(--surface-gold); }
-  .stage.is-home { border-left-style: dotted; }
-
-  .stage-when {
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    padding-top: 3px;
+  ol.clauses > li::before {
+    content: counter(clause) "."; font-weight: 700; color: var(--gold-deep);
+    font-variant-numeric: tabular-nums; text-align: right;
   }
-  .stage-mins {
-    display: block;
-    font-family: var(--serif);
-    font-size: 19px;
-    font-weight: 600;
-    letter-spacing: 0;
-    text-transform: none;
-    font-variant-numeric: tabular-nums;
-    color: var(--green);
-  }
-  .stage.is-home .stage-mins { color: var(--ink-faint); font-style: italic; font-size: 16px; }
+  ol.clauses ul { margin: 8px 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 6px; }
+  ol.clauses ul li { font-size: 15px; color: var(--ink-soft); }
+  ol.clauses ul li::marker { color: var(--gold); }
 
-  .stage-body { display: flex; flex-direction: column; gap: 5px; }
-  .stage-title { font-weight: 600; font-size: 16.5px; }
-  .stage-note { font-size: 14.5px; color: var(--ink-soft); max-width: 52ch; }
-
-  .substage {
-    display: grid;
-    grid-template-columns: 3.6rem 1fr;
-    gap: 0 14px;
-    padding: 7px 0;
-    border-top: 1px solid var(--rule);
-    font-size: 14.5px;
+  dl.terms { display: flex; flex-direction: column; gap: 0; margin: 0; }
+  dl.terms > div {
+    display: grid; grid-template-columns: minmax(10rem, 14rem) 1fr; gap: 6px 22px;
+    padding: 12px 0; border-top: 1px solid var(--rule); font-size: 15.5px;
   }
-  .substage:first-of-type { margin-top: 7px; }
-  .substage-mins {
-    font-variant-numeric: tabular-nums;
-    font-weight: 700;
+  dl.terms > div:last-child { border-bottom: 1px solid var(--rule); }
+  dl.terms dt { font-weight: 600; }
+  dl.terms dd { margin: 0; color: var(--ink-soft); max-width: 54ch; }
+
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 32rem; }
+  caption {
+    caption-side: top; text-align: left; font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); padding-bottom: 9px;
+  }
+  th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  thead th {
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); border-bottom: 2px solid var(--rule-firm);
+  }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; color: var(--green); }
+  tbody tr:last-child td { border-bottom: 2px solid var(--rule-firm); }
+  tr.total td { font-weight: 700; border-bottom: 0; }
+
+  .note {
+    background: var(--surface-gold); border-left: 4px solid var(--gold); border-radius: 0 4px 4px 0;
+    padding: 16px 20px; display: flex; flex-direction: column; gap: 7px;
+  }
+  .note-label {
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
     color: var(--gold-deep);
-    font-size: 13.5px;
-    padding-top: 2px;
   }
-  .substage-what strong { font-weight: 600; }
-  .substage-what span { color: var(--ink-soft); }
+  .note p { font-size: 15px; }
 
-  /* ---------- marks ---------- */
-
-  .marksbar {
-    display: flex;
-    height: 34px;
-    border-radius: 3px;
-    overflow: hidden;
-    border: 1px solid var(--rule-firm);
+  .affirm {
+    background: var(--surface-green); border-left: 4px solid var(--green); border-radius: 0 4px 4px 0;
+    padding: 16px 20px; display: flex; flex-direction: column; gap: 7px;
   }
-  .marksbar div {
-    display: grid;
-    place-items: center;
-    font-size: 12px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: #fff;
-  }
-
-  .marks { display: flex; flex-direction: column; gap: 0; }
-  .mark {
-    display: grid;
-    grid-template-columns: 3.2rem 1fr auto;
-    gap: 16px;
-    align-items: baseline;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--rule);
-    font-size: 15.5px;
-  }
-  .mark:last-child { border-bottom: 0; }
-  .mark-pct { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--green); }
-  .mark-where {
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    white-space: nowrap;
-  }
-  .mark.is-room .mark-where { color: var(--gold-deep); }
-
-  /* ---------- callout ---------- */
-
-  .callout {
-    background: var(--surface);
-    border-left: 4px solid var(--green);
-    border-radius: 0 4px 4px 0;
-    padding: 18px 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .callout-label {
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+  .affirm-label {
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
     color: var(--green);
   }
-  .callout p { font-size: 15.5px; }
+  .affirm p { font-size: 15px; }
 
-  /* ---------- plain lists ---------- */
+  /* ---------- leader guide ---------- */
 
-  ul.plain { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; }
-  ul.plain li {
-    display: grid;
-    grid-template-columns: 1.1rem 1fr;
-    gap: 10px;
-    font-size: 15.5px;
-    max-width: 64ch;
+  .guide {
+    background: var(--surface); border: 1px solid var(--rule-firm); border-top: 4px solid var(--green);
+    border-radius: 4px; padding: clamp(22px, 4vw, 34px); display: flex; flex-direction: column; gap: 22px;
   }
-  ul.plain li::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    margin-top: 0.62em;
-    border-radius: 1px;
-    background: var(--gold);
+  .guide h2 { border-bottom-color: var(--rule-firm); }
+
+  .checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  .checklist li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 11px; font-size: 15.5px; max-width: 64ch; }
+  .checklist li::before {
+    content: ""; width: 14px; height: 14px; margin-top: 0.36em;
+    border: 1.5px solid var(--green); border-radius: 2px;
   }
 
-  .pairs { display: flex; flex-direction: column; gap: 0; }
-  .pair {
-    display: grid;
-    grid-template-columns: minmax(10rem, 15rem) 1fr;
-    gap: 6px 22px;
-    padding: 12px 0;
-    border-top: 1px solid var(--rule);
-    font-size: 15.5px;
+  .donts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  .donts li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 11px; font-size: 15.5px; max-width: 64ch; }
+  .donts li::before {
+    content: "×"; color: var(--gold-deep); font-weight: 700; font-size: 17px;
+    line-height: 1.35; text-align: center;
   }
-  .pair:last-child { border-bottom: 1px solid var(--rule); }
-  .pair dt { font-weight: 600; }
-  .pair dd { margin: 0; color: var(--ink-soft); max-width: 52ch; }
+
+  .sample {
+    border: 1px solid var(--rule); border-radius: 4px; overflow: hidden;
+    display: grid; grid-template-columns: 1fr 1fr; font-size: 14.5px;
+  }
+  .sample > div { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .sample > div:first-child { border-right: 1px solid var(--rule); }
+  .sample-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .sample-bad .sample-tag { color: var(--gold-deep); }
+  .sample-good .sample-tag { color: var(--green); }
+  .sample q { font-style: italic; color: var(--ink-soft); quotes: "\201C" "\201D"; }
 
   footer {
-    border-top: 2px solid var(--green);
-    padding-top: 16px;
-    font-size: 13.5px;
-    color: var(--ink-faint);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 18px;
+    border-top: 2px solid var(--green); padding-top: 16px; font-size: 13.5px;
+    color: var(--ink-faint); display: flex; flex-wrap: wrap; gap: 6px 18px;
   }
 
-  @media (max-width: 34rem) {
-    .stage, .pair { grid-template-columns: 1fr; gap: 6px; }
-    .stage { padding-left: 13px; }
-    .mark { grid-template-columns: 3rem 1fr; }
-    .mark-where { grid-column: 2; }
+  @media (max-width: 36rem) {
+    dl.terms > div { grid-template-columns: 1fr; gap: 4px; }
+    h2 { grid-template-columns: 1fr; gap: 2px; }
+    h2 .sec-num { font-size: 13px; }
+    .sample { grid-template-columns: 1fr; }
+    .sample > div:first-child { border-right: 0; border-bottom: 1px solid var(--rule); }
   }
 
   @media print {
     .sheet { padding: 0; gap: 26px; max-width: none; }
-    section { break-inside: avoid; }
+    section, .guide { break-inside: avoid; }
+    .toc { break-after: page; }
   }
 </style>
 
 <div class="sheet">
 
   <header class="masthead">
-    <div class="eyebrow">
-      <span>LBYEC2B</span><span>Computer Fundamentals and Programming 2</span><span>Week 6</span>
+    <div class="inst">
+      <span>De La Salle University</span>
+      <span>Gokongwei College of Engineering</span>
+      <span>Department of Electronics, Computer, and Electrical Engineering</span>
     </div>
-    <h1>The exercise audit</h1>
+    <div class="doctype">Mechanics of the Activity</div>
+    <h1>Machine Problem Audit</h1>
     <div class="masthead-rule"></div>
-    <p class="standfirst">Anyone can submit code that works. This is where you show that the
-      reasoning behind yours is yours.</p>
+    <dl class="docmeta">
+      <div><dt>Course</dt><dd>LBYEC2B — Computer Fundamentals and Programming 2</dd></div>
+      <div><dt>Schedule</dt><dd>Week 3 (dry run) and Week 6 (graded)</dd></div>
+      <div><dt>Weight</dt><dd>Twenty-five percent (25%) of the final grade</dd></div>
+      <div><dt>Status</dt><dd>Draft, for review</dd></div>
+    </dl>
   </header>
 
-  <section>
-    <h2>What happens, and when</h2>
-    <p class="muted">You build the exercise at home, in your own time. Everything you claim
-      <em>about</em> what you built, you write in the room.</p>
+  <nav class="toc" aria-label="Contents">
+    <div class="toc-label">Contents</div>
+    <ol>
+      <li><span class="toc-num">I.</span><a href="#rationale">Rationale</a></li>
+      <li><span class="toc-num">II.</span><a href="#coverage">Coverage and Weight</a></li>
+      <li><span class="toc-num">III.</span><a href="#terms">Definition of Terms</a></li>
+      <li><span class="toc-num">IV.</span><a href="#teams">Composition of the Audit Teams</a></li>
+      <li><span class="toc-num">V.</span><a href="#mechanics">Mechanics</a></li>
+      <li><span class="toc-num">VI.</span><a href="#criteria">Criteria for Evaluation</a></li>
+      <li><span class="toc-num">VII.</span><a href="#schedule">Schedule of Activities</a></li>
+      <li><span class="toc-num">VIII.</span><a href="#conduct">Conduct of the Supervised Session</a></li>
+      <li><span class="toc-num">IX.</span><a href="#ai">Policy on Artificial Intelligence</a></li>
+      <li><span class="toc-num">X.</span><a href="#provisions">Other Provisions</a></li>
+      <li><span class="toc-num">XI.</span><a href="#guide">Guide for Team Leaders</a></li>
+      <li><span class="toc-num">XII.</span><a href="#queries">Queries</a></li>
+    </ol>
+  </nav>
 
-    <div class="rail">
-
-      <div class="stage is-practice">
-        <div class="stage-when">Week 3<span class="stage-mins">30 min</span></div>
-        <div class="stage-body">
-          <div class="stage-title">Practice run — not graded</div>
-          <div class="stage-note">The whole format on a deliberately small exercise, so nothing
-            in week 6 is unfamiliar. You get worked examples back afterwards.</div>
-        </div>
-      </div>
-
-      <div class="stage is-graded">
-        <div class="stage-when">Week 6 · Day 0<span class="stage-mins">15 min</span></div>
-        <div class="stage-body">
-          <div class="stage-title">Write your plan, then lock it</div>
-          <div class="stage-note">Bullets: how you'll break the problem up, what data structures
-            you'll use, and which parts you expect to be hard. Being wrong about the hard part is
-            fine — you'll explain it later, and that explanation is worth more than a safe guess.</div>
-        </div>
-      </div>
-
-      <div class="stage is-home">
-        <div class="stage-when">Days 1–4<span class="stage-mins">at home</span></div>
-        <div class="stage-body">
-          <div class="stage-title">Build it, committing as you go</div>
-          <div class="stage-note">Commit while you work rather than once at the end. Your commit
-            history is part of what's read — see below.</div>
-        </div>
-      </div>
-
-      <div class="stage is-home">
-        <div class="stage-when">Day 4<span class="stage-mins">deadline</span></div>
-        <div class="stage-body">
-          <div class="stage-title">Push your code</div>
-        </div>
-      </div>
-
-      <div class="stage is-graded">
-        <div class="stage-when">Week 6 · Day 5<span class="stage-mins">60 min</span></div>
-        <div class="stage-body">
-          <div class="stage-title">One supervised session</div>
-          <div class="stage-note">Four things, in order, in a single sitting.</div>
-
-          <div class="substage">
-            <div class="substage-mins">8 min</div>
-            <div class="substage-what"><strong>Read your assigned pod member's program.</strong></div>
-          </div>
-          <div class="substage">
-            <div class="substage-mins">12 min</div>
-            <div class="substage-what"><strong>Write one modification of their exercise.</strong>
-              <span>Change a constraint, not a number. Say in one sentence which part of their
-              design you expect it to break — that sentence is what's marked.</span></div>
-          </div>
-          <div class="substage">
-            <div class="substage-mins">10 min</div>
-            <div class="substage-what"><strong>Write your divergence log.</strong>
-              <span>What changed between your plan and your finished program, and why, pointing at
-              the commits where it happened.</span></div>
-          </div>
-          <div class="substage">
-            <div class="substage-mins">30 min</div>
-            <div class="substage-what"><strong>Answer the two modifications you received</strong>
-              <span>— one written by a pod member, one set for the whole class. 15 minutes each,
-              on your own program, offline.</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="stage is-home">
-        <div class="stage-when">Days 5–7<span class="stage-mins">at home</span></div>
-        <div class="stage-body">
-          <div class="stage-title">Write two short evaluations</div>
-          <div class="stage-note">Of two other people in your pod, on a structured form. Every
-            rating needs one sentence quoting what you actually saw.</div>
-        </div>
-      </div>
-
-      <div class="stage is-home">
-        <div class="stage-when">By week 8<span class="stage-mins">if needed</span></div>
-        <div class="stage-body">
-          <div class="stage-title">Re-sit, on request</div>
-          <div class="stage-note">One re-sit of the day-5 session is available to anyone who asks.
-            You don't have to give a reason.</div>
-        </div>
-      </div>
-
+  <section id="rationale">
+    <h2><span class="sec-num">I.</span>Rationale</h2>
+    <p>A working program, taken by itself, no longer demonstrates that the student who submitted it
+      can analyse a problem, develop an algorithm, and account for the decisions taken along the
+      way. These abilities are what Learning Outcomes 1 to 4 require, and they are what this
+      activity is designed to make observable.</p>
+    <p>The activity is therefore structured as an <strong>audit</strong>. The student implements the
+      machine problem in his or her own time, and thereafter explains and defends that work under
+      supervision. The faculty-in-charge forms a judgment from the whole set of evidence gathered,
+      and not from the submitted program alone.</p>
+    <div class="affirm">
+      <div class="affirm-label">In brief</div>
+      <p>You shall build the exercise at home. Everything you claim <em>about</em> what you built,
+        you shall write in the room.</p>
     </div>
   </section>
 
-  <section>
-    <h2>How the marks work</h2>
-    <p class="muted">This component is worth <strong>25% of your final grade</strong>.</p>
-
-    <div class="marksbar" role="img" aria-label="Response 35 percent, program 25 percent, plan and divergence log 20 percent, modification you wrote 12 percent, your evaluations 8 percent">
-      <div style="flex:35; background:#00703c;">35</div>
-      <div style="flex:25; background:#005229;">25</div>
-      <div style="flex:20; background:#1ea256;">20</div>
-      <div style="flex:12; background:#b08d57;">12</div>
-      <div style="flex:8;  background:#6f552c;">8</div>
-    </div>
-
-    <div class="marks">
-      <div class="mark is-room">
-        <div class="mark-pct">35%</div>
-        <div>Your two responses to the modifications</div>
-        <div class="mark-where">In the room</div>
-      </div>
-      <div class="mark">
-        <div class="mark-pct">25%</div>
-        <div>Your working program — requirements met, coding standards observed</div>
-        <div class="mark-where">At home</div>
-      </div>
-      <div class="mark is-room">
-        <div class="mark-pct">20%</div>
-        <div>Your plan and divergence log, read against your commits</div>
-        <div class="mark-where">In the room</div>
-      </div>
-      <div class="mark is-room">
-        <div class="mark-pct">12%</div>
-        <div>The modification you wrote for a pod member</div>
-        <div class="mark-where">In the room</div>
-      </div>
-      <div class="mark">
-        <div class="mark-pct">8%</div>
-        <div>The quality of the two evaluations you write</div>
-        <div class="mark-where">At home</div>
-      </div>
-    </div>
-
-    <p class="muted"><strong>Two-thirds of this component is written in the room</strong>, on your
-      own program. That is deliberate: those are the parts nobody else can write for you.</p>
+  <section id="coverage">
+    <h2><span class="sec-num">II.</span>Coverage and Weight</h2>
+    <ol class="clauses">
+      <li>This activity shall cover the machine problem assigned in <strong>Week 6</strong>,
+        Elementary Matrix Operations, and shall be assessed against Learning Outcomes 1 to 4.</li>
+      <li>The activity shall constitute <strong>twenty-five percent (25%)</strong> of the final
+        grade, in lieu of the corresponding portion of the Machine Problems component.</li>
+      <li>A <strong>dry run</strong> shall be conducted in Week 3. The dry run shall not be graded.
+        Attendance during the dry run is nonetheless required, as the mechanics shall not be
+        explained again in Week 6.</li>
+      <li>This activity is separate from, and does not replace, the Practical Examination in
+        Week 12 nor the Term Project.</li>
+    </ol>
   </section>
 
-  <section>
-    <h2>What gets read</h2>
-    <p class="muted">Published in advance on purpose. Nothing here is looked at that you weren't
-      told about.</p>
-    <ul class="plain">
-      <li>Your plan, and your divergence log against it.</li>
-      <li>Your commit history — how the work was spread out, and where the rework actually went.</li>
-      <li>Your submitted program.</li>
-      <li>The modification you wrote, and the sentence saying what you expected it to break.</li>
-      <li>Your two responses.</li>
-      <li>What two people in your pod observed about your work.</li>
+  <section id="terms">
+    <h2><span class="sec-num">III.</span>Definition of Terms</h2>
+    <p class="muted tight">For purposes of these mechanics, the following terms shall be understood
+      as defined hereunder.</p>
+    <dl class="terms">
+      <div><dt>Audit Team</dt>
+        <dd>A group of six (6) students, fixed for the duration of the term, within which the
+          activity is conducted. The Audit Team is distinct from the Project Team.</dd></div>
+      <div><dt>Team Leader</dt>
+        <dd>The member designated to coordinate the Audit Team and to review the completeness and
+          quality of the evidence it produces. The Team Leader is evaluated by the faculty-in-charge.</dd></div>
+      <div><dt>Deputy</dt>
+        <dd>The member designated to assume the duties of the Team Leader in the latter's absence,
+          and to review the Team Leader's own submissions.</dd></div>
+      <div><dt>Plan</dt>
+        <dd>A written outline, prepared before coding begins, of how the student intends to
+          approach the machine problem. Once submitted, the Plan is locked and may no longer be
+          revised.</dd></div>
+      <div><dt>Divergence Log</dt>
+        <dd>A written account of what changed between the Plan and the finished program, and why,
+          with reference to the student's own commits.</dd></div>
+      <div><dt>Modification</dt>
+        <dd>A written change to the conditions of a machine problem, formulated by one student and
+          answered by another. A Modification shall alter a <em>constraint</em> of the problem and
+          not merely a value within it.</dd></div>
+      <div><dt>Peer Modification</dt>
+        <dd>The Modification formulated by an assigned member of the student's Audit Team.</dd></div>
+      <div><dt>Common Modification</dt>
+        <dd>A single Modification prepared by the faculty-in-charge and answered by the entire
+          class, so that one comparable measure is obtained for every student.</dd></div>
+      <div><dt>Response</dt>
+        <dd>The student's written answer to a Modification, prepared under supervision and
+          pertaining to his or her own submitted program.</dd></div>
+      <div><dt>Supervised Session</dt>
+        <dd>A timed laboratory period, conducted without internet access, during which the
+          Modification, the Divergence Log, and the Responses are written.</dd></div>
+    </dl>
+  </section>
+
+  <section id="teams">
+    <h2><span class="sec-num">IV.</span>Composition of the Audit Teams</h2>
+    <ol class="clauses">
+      <li>The class shall be divided into Audit Teams of six (6) members each. Assignment to teams
+        shall be made by the faculty-in-charge and shall be posted on Canvas before Week 3.</li>
+      <li>No Audit Team shall reproduce an existing Project Team. This is intended to keep the two
+        sets of working relationships independent of each other.</li>
+      <li>Each Audit Team shall have one (1) Team Leader and one (1) Deputy, both designated by the
+        faculty-in-charge. The duties of the Team Leader are set out in Section XI.</li>
+      <li>Within each Audit Team, the assignment of who formulates a Modification for whom, and who
+        evaluates whom, shall follow a ring published together with the team lists. Reciprocal
+        pairings are not permitted: the member who formulates your Modification is not the member
+        for whom you formulate one.</li>
+      <li>Each member shall, in the course of the activity, formulate one (1) Peer Modification,
+        receive one (1) Peer Modification and one (1) Common Modification, evaluate two (2) other
+        members, and be evaluated by two (2) other members.</li>
+    </ol>
+  </section>
+
+  <section id="mechanics">
+    <h2><span class="sec-num">V.</span>Mechanics</h2>
+
+    <h3>A. Phase 1 — The Plan (Day 0, fifteen (15) minutes, supervised)</h3>
+    <ol class="clauses">
+      <li>The machine problem shall be released during the regular session. Within the same session,
+        each student shall be given fifteen (15) minutes to prepare the Plan.</li>
+      <li>The Plan shall not exceed one (1) page and shall be written in bullet form. It shall state
+        how the student intends to decompose the problem, what data structures are to be used, and
+        <strong>which parts the student expects to be difficult</strong>.</li>
+      <li>The Plan shall be submitted and locked at the end of the fifteen (15) minutes.</li>
+    </ol>
+    <div class="note">
+      <div class="note-label">Please take note</div>
+      <p>A prediction of difficulty that later turns out to be mistaken is <em>not</em> penalised.
+        On the contrary, a mistaken prediction that is afterwards accounted for in the Divergence
+        Log is credited more highly than a cautious prediction that says nothing. You are advised
+        to write what you honestly expect, and not what appears safe.</p>
+    </div>
+
+    <h3>B. Phase 2 — Implementation (Days 1 to 4, at home)</h3>
+    <ol class="clauses">
+      <li>The student shall implement the machine problem individually and at his or her own pace.
+        This phase is not timed.</li>
+      <li>Work shall be committed to the student's own repository <strong>progressively</strong>,
+        as the implementation proceeds, and not in a single commit upon completion.</li>
+      <li>The completed program shall be pushed on or before the end of Day 4. The submission is
+        governed by the late-submission policy in the course syllabus.</li>
+    </ol>
+
+    <h3>C. Phase 3 — The Supervised Session (Day 5, sixty (60) minutes)</h3>
+    <ol class="clauses">
+      <li>The session shall be conducted in one (1) sitting of sixty (60) minutes, in four (4) parts
+        and in the following order:
+        <ul>
+          <li><strong>Eight (8) minutes.</strong> Read the program of the member assigned to you.</li>
+          <li><strong>Twelve (12) minutes.</strong> Formulate one (1) Peer Modification of that
+            member's exercise, and state in a single sentence which part of their design you expect
+            it to break. That sentence is the portion that is graded.</li>
+          <li><strong>Ten (10) minutes.</strong> Write your Divergence Log, referring to your own
+            commit history. The Modifications are distributed during this interval.</li>
+          <li><strong>Thirty (30) minutes.</strong> Answer the two (2) Modifications you have
+            received — one from a member of your Audit Team and one from the faculty-in-charge —
+            at fifteen (15) minutes each.</li>
+        </ul>
+      </li>
+      <li>Each Response shall address the following four (4) points, in order:
+        <ul>
+          <li>What breaks in your program under the Modification, and why;</li>
+          <li>The minimum change that would address it;</li>
+          <li>The revised algorithm, expressed as pseudo-code; and</li>
+          <li>One (1) thing that could still go wrong thereafter.</li>
+        </ul>
+      </li>
+      <li>A Modification shall alter a constraint of the problem, such as an assumption regarding
+        the validity of the input, a limit on scale or memory, the shape or order of arrival of the
+        data, an additional failure condition to be handled, or the removal of an assumption the
+        original solution relied upon. Merely changing a literal value, renaming an identifier, or
+        requiring an additional line of output shall not be credited.</li>
+    </ol>
+
+    <h3>D. Phase 4 — Evaluations (Days 5 to 7, at home)</h3>
+    <ol class="clauses">
+      <li>Each student shall accomplish two (2) evaluation forms, covering the two (2) members
+        assigned under Section IV, and shall submit the same through Canvas on or before Day 7.</li>
+      <li>Every rating shall be supported by one (1) sentence citing specific evidence from the
+        work being evaluated. A rating submitted without supporting evidence shall be returned by
+        the Team Leader for completion.</li>
+      <li>The evaluations are submitted to the faculty-in-charge as evidence. <strong>No student
+        assigns a grade to another student.</strong> All marks are determined by the
+        faculty-in-charge.</li>
+    </ol>
+  </section>
+
+  <section id="criteria">
+    <h2><span class="sec-num">VI.</span>Criteria for Evaluation</h2>
+    <p class="muted tight">Each criterion shall be rated on the four-point scale used elsewhere in
+      this course — Exemplary, Satisfactory, Developing, and Beginning — and weighted as follows.</p>
+
+    <div class="tablewrap">
+      <table>
+        <caption>Distribution of marks within the activity</caption>
+        <thead>
+          <tr><th class="num">Weight</th><th>Criterion</th><th>What earns full marks</th><th>Where produced</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">35%</td>
+            <td>The two (2) Responses</td>
+            <td>The four (4) required points are addressed for both Modifications, the reasoning is
+              specific to your own program, and the proposed change is minimal and correct.</td>
+            <td>Supervised</td>
+          </tr>
+          <tr>
+            <td class="num">25%</td>
+            <td>The submitted program</td>
+            <td>The stated requirements for input, output, and functionality are satisfied, and the
+              coding standards set by the faculty-in-charge are observed.</td>
+            <td>At home</td>
+          </tr>
+          <tr>
+            <td class="num">20%</td>
+            <td>Plan and Divergence Log</td>
+            <td>The Plan is specific and names an expected difficulty; the Divergence Log accounts
+              for what actually changed and is consistent with the commit history.</td>
+            <td>Supervised</td>
+          </tr>
+          <tr>
+            <td class="num">12%</td>
+            <td>The Peer Modification you formulated</td>
+            <td>A genuine constraint is altered, and the sentence identifying the part of your
+              classmate's design expected to break is accurate and specific.</td>
+            <td>Supervised</td>
+          </tr>
+          <tr>
+            <td class="num">8%</td>
+            <td>The two (2) evaluations you accomplished</td>
+            <td>Each rating is supported by cited evidence, and the judgments are proportionate to
+              the work being evaluated.</td>
+            <td>At home</td>
+          </tr>
+          <tr class="total"><td class="num">100%</td><td colspan="3">Total for the activity</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="muted tight">Sixty-seven percent (67%) of the activity is accordingly produced under
+      supervision. This proportion is deliberate.</p>
+
+    <h3>Evidence considered by the faculty-in-charge</h3>
+    <p class="muted tight">The following shall be examined. It is published in advance so that no
+      student is assessed on anything he or she was not informed of.</p>
+    <ol class="clauses">
+      <li>The Plan, and the Divergence Log read against it;</li>
+      <li>The commit history — the manner in which the work was distributed over the period, and
+        where the rework in fact occurred;</li>
+      <li>The submitted program;</li>
+      <li>The Peer Modification formulated, together with the accompanying sentence;</li>
+      <li>The two (2) Responses; and</li>
+      <li>The observations of the two (2) members who evaluated the work.</li>
+    </ol>
+    <div class="note">
+      <div class="note-label">Regarding the commit history</div>
+      <p>The commit history is used solely to raise a question for clarification. It shall never
+        be used to determine a mark directly. There is accordingly nothing to be gained by
+        inflating the number of commits.</p>
+    </div>
+  </section>
+
+  <section id="schedule">
+    <h2><span class="sec-num">VII.</span>Schedule of Activities</h2>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>When</th><th class="num">Duration</th><th>Activity</th><th>Venue</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Week 3</td><td class="num">30 min</td><td>Dry run — the complete format on a small exercise; not graded. Worked examples returned in the following session.</td><td>Laboratory</td></tr>
+          <tr><td>Week 6, Day 0</td><td class="num">15 min</td><td>Release of the machine problem; preparation and locking of the Plan.</td><td>Laboratory</td></tr>
+          <tr><td>Week 6, Days 1–4</td><td class="num">—</td><td>Implementation, with progressive commits.</td><td>At home</td></tr>
+          <tr><td>Week 6, Day 4</td><td class="num">—</td><td>Deadline for pushing the completed program.</td><td>Canvas</td></tr>
+          <tr><td>Week 6, Day 5</td><td class="num">60 min</td><td>Supervised Session — reading, Peer Modification, Divergence Log, and the two Responses.</td><td>Laboratory</td></tr>
+          <tr><td>Week 6, Days 5–7</td><td class="num">—</td><td>Accomplishment and submission of the two evaluations.</td><td>Canvas</td></tr>
+          <tr><td>Week 6, Day 7</td><td class="num">—</td><td>Team Leader submits the team summary.</td><td>Canvas</td></tr>
+          <tr><td>On or before Week 8</td><td class="num">60 min</td><td>Re-sit of the Supervised Session, upon request.</td><td>Laboratory</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="conduct">
+    <h2><span class="sec-num">VIII.</span>Conduct of the Supervised Session</h2>
+    <ol class="clauses">
+      <li><strong>Permitted.</strong> Your own repository, opened in read-only mode; the printed or
+        on-screen copy of the machine problem; and writing materials. Answers may be written on
+        paper if preferred.</li>
+      <li><strong>Not permitted.</strong> Internet access of any kind; any artificial intelligence
+        assistant; mobile telephones, which shall be kept away for the duration of the session; and
+        any file other than your own repository.</li>
+      <li><strong>Form of the answer.</strong> Pseudo-code, flowcharts, diagrams, and bullet
+        fragments are all acceptable. Students are encouraged to use whichever conveys the
+        reasoning most directly.</li>
+      <li><strong>Not graded.</strong> Handwriting, spelling, and command of English shall not be
+        graded. Only the reasoning shall be assessed.</li>
+      <li>Any student who prefers to give the Response orally may do so, by recording it in the room
+        within the same time limit. No justification need be given for such a request.</li>
+    </ol>
+  </section>
+
+  <section id="ai">
+    <h2><span class="sec-num">IX.</span>Policy on Artificial Intelligence</h2>
+    <div class="affirm">
+      <div class="affirm-label">The principle applied</div>
+      <p>This activity is not designed to detect the use of artificial intelligence. It is designed
+        so that the question seldom needs to be asked. The portions that carry the marks are written
+        in a room without internet access, concerning a program that only you have built, and in
+        answer to a change of which you had no advance notice. Where the work is not one's own,
+        there is very little to say — and no allegation is required for that to become apparent.</p>
+    </div>
+    <ol class="clauses">
+      <li>The prevailing policy of the course and the provisions of the Student Handbook on
+        academic honesty shall apply in full to all phases of this activity.</li>
+      <li>Any member may raise a <strong>concern</strong> regarding any submission. A concern must
+        cite something specific and verifiable — for instance, an inconsistency between the
+        Divergence Log and the commit history. A general impression shall not be entertained.</li>
+      <li>No incentive, credit, or advantage of any kind attaches to the raising of a concern. A
+        concern is an observation submitted to the faculty-in-charge and nothing further.</li>
+      <li>A concern shall be resolved by a conversation of approximately five (5) minutes between
+        the student and the faculty-in-charge regarding the student's own code. In the ordinary
+        case, the matter ends there. Where it does not, the matter shall be dealt with under the
+        Student Handbook and not under these mechanics.</li>
+    </ol>
+  </section>
+
+  <section id="provisions">
+    <h2><span class="sec-num">X.</span>Other Provisions</h2>
+    <ol class="clauses">
+      <li><strong>Re-sit.</strong> Any student may request one (1) re-sit of the Supervised Session,
+        to be held on or before Week 8. No reason need be given. The request shall be made through
+        Canvas.</li>
+      <li><strong>Absence.</strong> A student who is unable to attend the Supervised Session shall
+        re-sit it. <strong>Absence shall not by itself result in a grade of zero (0.0).</strong>
+        Where no re-sit is taken, the faculty-in-charge shall record that there is insufficient
+        evidence upon which to assess the student, and no credit shall be given for the supervised
+        portions.</li>
+      <li><strong>Default of a classmate.</strong> Where the member assigned to formulate your Peer
+        Modification fails to do so, the faculty-in-charge shall issue one in its place. No student
+        shall be prejudiced by the default of another.</li>
+      <li><strong>Failure to perform an assigned role.</strong> Failure to formulate an assigned
+        Modification, or to accomplish an assigned evaluation, shall result in no credit for that
+        component for the member concerned, and shall not affect the student who was to receive it.</li>
+      <li><strong>Final determination of marks.</strong> All marks under this activity are
+        determined by the faculty-in-charge. Peer evaluations are received as evidence and are
+        subject to review; they do not of themselves constitute a grade.</li>
+      <li><strong>Reconsideration.</strong> A student who wishes to seek reconsideration of a mark
+        may do so within one (1) week of its release, during consultation hours. The evidence
+        considered in arriving at the mark shall be shown to the student.</li>
+    </ol>
+  </section>
+
+  <section id="guide" class="guide">
+    <h2><span class="sec-num">XI.</span>Guide for Team Leaders</h2>
+    <p class="muted">This section is addressed to the designated Team Leaders and Deputies. It forms
+      part of these mechanics and is published to the whole class, so that every member knows what
+      the Team Leader is and is not authorised to do.</p>
+
+    <h3>A. What the role is</h3>
+    <p>You are not a grader. You are the member who ensures that the evidence your team produces is
+      complete and properly supported before it reaches the faculty-in-charge. Your own performance
+      in that role is evaluated by the faculty-in-charge and forms part of your mark under Learning
+      Outcome 6. You are likewise audited on your own machine problem, in exactly the same manner as
+      every other member; the Deputy reviews your submissions.</p>
+
+    <h3>B. Duties, by phase</h3>
+    <ol class="clauses">
+      <li><strong>Before Day 0.</strong> Confirm that every member knows the schedule, the venue, and
+        the ring assignment. Report any member who has not been assigned a partner.</li>
+      <li><strong>On Day 4.</strong> Confirm that every member has pushed a program. Where a member
+        has not, inform the faculty-in-charge the same day — not on Day 5, when it is too late for
+        a partner to be reassigned.</li>
+      <li><strong>On Day 5.</strong> Confirm attendance at the start of the Supervised Session and
+        report any absence immediately, so that a re-sit may be arranged and the affected partner
+        given the Common Modification in place of the Peer Modification.</li>
+      <li><strong>On Days 6 to 7.</strong> Review the ten (10) evaluation forms produced by your team
+        for evidence quality, and return any that fall short. Guidance follows in Section D.</li>
+      <li><strong>On Day 7.</strong> Submit the team summary — one (1) page, on the prescribed form,
+        stating that the review was carried out, listing any evaluations returned and whether they
+        were corrected, and noting any matter the faculty-in-charge ought to be aware of.</li>
+    </ol>
+
+    <h3>C. Your checklist for the week</h3>
+    <ul class="checklist">
+      <li>All six (6) members know the schedule and their ring assignment.</li>
+      <li>All six (6) Plans were submitted and locked on Day 0.</li>
+      <li>All six (6) programs were pushed by Day 4; exceptions reported the same day.</li>
+      <li>Attendance on Day 5 confirmed; absences reported before the session began.</li>
+      <li>All ten (10) evaluation forms received; those lacking cited evidence returned and corrected.</li>
+      <li>Team summary submitted on Day 7.</li>
+      <li>Your own artefacts reviewed by the Deputy.</li>
     </ul>
-    <p class="muted">Your commit history is only ever used to raise a question, never to set a mark
-      directly. There's nothing to gain from padding it.</p>
-  </section>
 
-  <section>
-    <h2>On AI</h2>
-    <div class="callout">
-      <div class="callout-label">The short version</div>
-      <p>This isn't built to catch you. It's built so that the question doesn't arise: the parts
-        that carry the marks are written in a room with no internet, about a program that only you
-        built, answering a change nobody warned you about. If the work isn't yours, there won't be
-        much to say — and no accusation is needed for that to show.</p>
+    <h3>D. Reviewing an evaluation form</h3>
+    <p>You are reviewing one thing only: <strong>whether each rating cites specific evidence that
+      can be checked.</strong> You are not reviewing whether you agree with the rating. A harsh
+      rating that cites evidence is acceptable and shall be forwarded; a generous rating that cites
+      nothing is not, and shall be returned.</p>
+
+    <div class="sample">
+      <div class="sample-bad">
+        <div class="sample-tag">Return this</div>
+        <q>He understood the problem well and his response was good.</q>
+        <p class="muted tight">No evidence is cited. Nothing here can be verified by anyone who was
+          not present.</p>
+      </div>
+      <div class="sample-good">
+        <div class="sample-tag">Forward this</div>
+        <q>His Response identified that the reused buffer would be overwritten once the rows arrived
+          out of order, and he pointed to the specific loop where this occurs.</q>
+        <p class="muted tight">Specific, and capable of being checked against the Response itself.</p>
+      </div>
     </div>
-    <p class="muted">Anyone can raise a concern about a submission, including about your own. It
-      costs nothing, earns nothing, and must point at something specific and checkable. It is
-      settled by a five-minute conversation about your code with the instructor, which is normally
-      the end of it.</p>
+
+    <p class="tight">When returning a form, state which rating lacks evidence and what is required.
+      Give the member until the end of Day 7. Where a member declines to correct it, forward the
+      form as submitted and note the matter in your summary; it is not for you to resolve.</p>
+
+    <h3>E. What you must not do</h3>
+    <ul class="donts">
+      <li>Do not assign, adjust, negotiate, or predict any mark. You have no such authority, and any
+        assurance you give on the matter will not bind the faculty-in-charge.</li>
+      <li>Do not determine whether a member has used artificial intelligence. Where something appears
+        inconsistent, record the specific observation in your summary and leave the matter there.</li>
+      <li>Do not perform any part of a member's work, however far behind that member may be.
+        Report it instead.</li>
+      <li>Do not change a member's rating of another member. You may return a form; you may not
+        amend one.</li>
+      <li>Do not withhold an unfavourable observation in order to protect the team. Your own mark
+        depends on the integrity of the review, not on the standing of your members.</li>
+    </ul>
+
+    <h3>F. How your own performance is assessed</h3>
+    <p>The faculty-in-charge shall assess the team summary and the quality of the evaluations your
+      team submitted after your review — specifically, whether the forms that reached the
+      faculty-in-charge cite genuine evidence, and whether the matters you raised were accurate and
+      proportionate. A short, exact summary that names one real difficulty is worth considerably
+      more than a long one that reports that all was well.</p>
   </section>
 
-  <section>
-    <h2>In the room</h2>
-    <dl class="pairs">
-      <div class="pair"><dt>You may have</dt>
-        <dd>Your own repository, open and read-only. Paper, if you prefer it.</dd></div>
-      <div class="pair"><dt>You may not have</dt>
-        <dd>The internet, any assistant, or your phone.</dd></div>
-      <div class="pair"><dt>Form of the answer</dt>
-        <dd>Pseudocode, diagrams and bullet fragments are all accepted. Write in whichever gets
-          the reasoning across fastest.</dd></div>
-      <div class="pair"><dt>Not graded</dt>
-        <dd>Handwriting, spelling, and the quality of your English. Only the reasoning is marked.
-          Ask to answer aloud into a recorder instead if that suits you better — no justification
-          needed.</dd></div>
-    </dl>
-  </section>
-
-  <section>
-    <h2>Pods, and what to do if something goes wrong</h2>
-    <dl class="pairs">
-      <div class="pair"><dt>Your pod</dt>
-        <dd>Six students, fixed for the term, with a leader and a deputy. Your pod is separate
-          from your project team.</dd></div>
-      <div class="pair"><dt>The leader's job</dt>
-        <dd>Check that everyone's work is in before each session, and send back any evaluation
-          that doesn't cite real evidence. The leader is evaluated by the instructor, not by you —
-          and is audited on their own exercise exactly like everyone else.</dd></div>
-      <div class="pair"><dt>You miss the session</dt>
-        <dd>You re-sit it. A missed session is not a zero.</dd></div>
-      <div class="pair"><dt>Nobody wrote you a modification</dt>
-        <dd>The instructor issues one. You are never penalised for someone else's default.</dd></div>
-      <div class="pair"><dt>Your file doesn't add up</dt>
-        <dd>You're asked for five minutes on your own code. That conversation usually resolves it.</dd></div>
-    </dl>
-  </section>
-
-  <section>
-    <h2>Why it's built this way</h2>
-    <p>Writing your reasoning down, in a room, under time, about a system you built — a design
-      review, an incident write-up, a code review — is the ordinary professional condition. It is
-      worth being good at for its own sake. The fact that it is also difficult to outsource is the
-      smaller half of the reason it's here.</p>
+  <section id="queries">
+    <h2><span class="sec-num">XII.</span>Queries</h2>
+    <p>Clarifications regarding these mechanics may be raised with the faculty-in-charge during
+      consultation hours, or through the course page on Canvas. Students are encouraged to raise
+      any question <strong>before</strong> the dry run in Week 3, so that the mechanics are settled
+      well in advance of the graded activity in Week 6.</p>
   </section>
 
   <footer>
     <span>LBYEC2B · Computer Fundamentals and Programming 2</span>
-    <span>Gokongwei College of Engineering</span>
-    <span>Draft mechanics — subject to confirmation</span>
+    <span>Mechanics of the Machine Problem Audit</span>
+    <span>Draft — subject to confirmation by the faculty-in-charge</span>
   </footer>
 
 </div>
