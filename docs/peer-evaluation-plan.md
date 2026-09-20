@@ -1,6 +1,6 @@
 # Assessment as audit — an AI-resistant design for LBYEC2B
 
-Status: draft v5, for discussion. Nothing here is committed to the syllabus yet.
+Status: draft v6, for discussion. Nothing here is committed to the syllabus yet.
 Course: LBYEC2B, Computer Fundamentals and Programming 2 (1 unit, 13 weeks).
 
 **Organising goal.** Assess whether a student's capability against the learning
@@ -21,8 +21,11 @@ scales with the real figure.
 > standing pods of six. **v5 implements the decision to run a single round**,
 > and spends the saved effort on recovering what repetition would have bought:
 > two independent probes per student, two evaluators, a mandatory ungraded dry
-> run in week 3, and a stated re-sit right — see §5.1.2. The v1 critique is
-> condensed into Appendix A.
+> run in week 3, and a stated re-sit right — see §5.1.2. **v6 cuts supervised
+> time from 95 minutes to 75** by sending peer evaluations home and replacing
+> one authored probe with a calibrated instructor bank probe — §5.2.1 gives the
+> rule used to decide what stays in the room. The v1 critique is condensed into
+> Appendix A.
 
 ---
 
@@ -97,9 +100,10 @@ Now every data point in the design, placed:
 | 2 | Commit history: cadence, granularity, churn distribution | 3 | control | A control test, never a substantive one. See the Goodhart warning in §7. |
 | 3 | Divergence log, **written in-session, 10 min**, each claim citing a commit | 2, corroborated by 1 and 2 | LO2, LO3 | Written from your own commit log in the room. Very hard to fabricate under time. |
 | 4 | Working program, requirements met, standards observed | 6 for capability, 1 for requirements | LO1 | Output. AI-substitutable, so it evidences *requirement satisfaction*, not capability. Both still matter. |
-| 5 | Modification authored for a peer, **in-session, 20 min** | 4, observed | LO2 | Timed and observed, so it is real work rather than a five-minute afterthought. |
+| 5 | Modification authored for a peer, **in-session, 12 min** | 4, observed | LO2 | Timed and observed, so it is real work rather than a five-minute afterthought. |
+| 5b | Common bank probe, written by the instructor | n/a — it is the instrument | LO2, LO3 | Calibrated: one probe every student answers against their own design, so responses are comparable class-wide. |
 | 6 | **Supervised response to the peer's modification** | 2 | LO2, LO3 | The substantive test. The single highest-value artefact. |
-| 7 | Peer evaluation, with evidence quoted | 4 | LO6 (of the rater) | Evidence *for* the instructor. The peer scores nothing. |
+| 7 | Peer evaluation, with evidence quoted, take-home | 4 | LO6 (of the rater) | Evidence *for* the instructor; the peer scores nothing. Not supervised — it is a claim about someone else's work, so §5.2.1's rule does not apply. |
 | 8 | Exception-triggered oral check, 5 minutes | 1 | any | Escalation only. Interactive, so it settles matters nothing else can. |
 | 9 | Practical examination, week 12 (already in the syllabus) | 2 | LO1–LO4 | Free. An independent control total for the entire scheme — see §4.3. |
 
@@ -249,12 +253,12 @@ lets the leader form a *comparative* view across their members, and makes the
 scheduling tractable. The audit pairings **inside** the pod are still redrawn
 for the round, which preserves the anti-collusion property that mattered.
 
-**Within a pod of six, each member is probed by two others and evaluated by two
-others**, drawn so that no pair probes each other reciprocally. A simple ring
-works and is easy to publish: number the members 1–6; member *n* writes
-modifications for *n+1* and *n+2*, and evaluates *n+3* and *n+4*. Everyone
-writes two, receives two, evaluates two and is evaluated by two, and nobody
-probes someone who is probing them.
+**Within a pod of six, each member probes one other and evaluates two others**,
+drawn so that no pair probes each other reciprocally. A ring is easiest to
+publish: number the members 1–6; member *n* authors a modification for *n+1*
+and evaluates *n+2* and *n+3*. Everyone authors one probe, receives one peer
+probe plus the common bank probe, evaluates two and is evaluated by two, and
+nobody probes someone who is probing them.
 
 #### 5.1.2 One round: the decision, and how to make it hold
 
@@ -290,17 +294,16 @@ committed to across a term before any evidence about it exists.
 Reliability came from repeated measurement over *time*. With one round it has to
 come from redundancy *within* the round, and it largely can.
 
-**Two modifications, from two different peers.** This is the single most
-important change and it substitutes directly for the missing second round. Each
-student receives probes from two independent peers and answers both in the
-supervised window. Two probes means one lazy or badly-aimed modification no
-longer determines the result, and agreement between two independent probes is
-genuinely informative in a way one never is.
+**Two probes: one from a peer, one from the instructor's bank.** This is the
+single most important change and it substitutes directly for the missing second
+round. One lazy or badly-aimed modification no longer determines the result, and
+the bank probe additionally fixes a fairness problem the peer ring cannot — see
+§5.2.2 on calibration.
 
 **Two evaluators per student.** In a pod of six this costs nothing structurally:
-each member writes two short evaluations instead of one. Peer evidence is rank 4
-precisely because the observer is untrained, and two untrained observers who
-agree are worth appreciably more than one.
+each member writes two short evaluations instead of one, take-home. Peer
+evidence is rank 4 precisely because the observer is untrained, and two
+untrained observers who agree are worth appreciably more than one.
 
 **Already-redundant artefacts.** Note that the round was never a single
 measurement even before this: the plan, the divergence log, the two
@@ -412,52 +415,108 @@ compensations, both cheap:
 
 ### 5.2 Timeline
 
-Every student-authored artefact is **timed and in-session**. Only the
-implementation itself is taken home — deliberately, for the reason in §5.5.
+#### 5.2.1 The rule for what gets supervised
+
+Supervised minutes are expensive and they are the only thing in the design that
+buys AI resistance, so they should be spent on one thing and nothing else:
+
+> **Supervise the claim, not the chore.** An artefact needs the room if, and
+> only if, it is the student making a claim about *their own* capability.
+> Everything else can go home.
+
+Applied honestly, that rule cuts two items from v5's 95 minutes.
+
+- **Peer evaluations (15 min) — send them home.** An evaluation is about
+  *someone else's* work. It is rank-4 evidence whether or not a model helped
+  write it, and the thing being graded is whether the rater cited real evidence
+  — which is just as visible in a take-home form. Fifteen minutes of scarce
+  supervised time was buying nothing.
+- **Authoring the second modification (12 min) — replace it with a bank probe.**
+  See §5.2.2; this turns out to be an improvement to the assessment, not only a
+  saving.
+
+The two items that look expensive but must stay are the divergence log and the
+responses. Both are pure claim: *this is what I did and why*, and *this is what
+breaks in my design*. Send either home and the component loses its rank-2
+evidence and, with it, its point.
+
+#### 5.2.2 One peer probe and one bank probe
+
+v5 had every student author two modifications and receive two. Replace one of
+the received probes with a **pre-written instructor bank probe**, and each
+student authors only one.
+
+This halves the authoring time, but the reason to do it is **calibration**. With
+two peer probes, the difficulty of your assessment depends entirely on who drew
+your name — one student gets two sharp probes and another gets two lazy ones,
+and their marks are not comparable. A common bank probe, sat by the whole class
+against their own programs, is one measurement every student can be ranked on
+fairly. It also guarantees a floor on probe quality, which the peer ring never
+could.
+
+It stays contingent, which is what matters for §3: a bank probe such as *"the
+input file may now contain malformed rows at unknown positions"* is generic in
+its wording but can only be answered against the student's own design.
+
+So: **two probes, one peer-authored and one from the bank**, and the peer probe
+is still graded as the author's LO2 evidence.
+
+#### 5.2.3 The schedule
 
 **Week 3, the dry run** (§5.1.2b): the whole format, ungraded, on a trivial
-exercise. ~45 minutes, with worked examples returned the following session.
+exercise. **30 minutes** — abbreviated, since it only has to teach the format —
+with worked examples returned the following session.
 
-**Week 6, the graded round**, in three supervised blocks:
+**Week 6, the graded round**, in two touchpoints:
 
-| Day | Event | Block | Produces |
+| Day | Event | Supervised | Produces |
 |---|---|---|---|
 | 0 | Exercise released; pods and the probe ring published | — | — |
-| 0 | *15 min:* **write the plan**, then lock it | **A — 15 min** | 1 |
+| 0 | *15 min, appended to the release session:* **write the plan**, then lock it | **15 min** | 1 |
 | 1–4 | Implementation at home, committing as the work proceeds | — | 2, 4 |
-| 4 | Code pushed | — | 4 |
-| 5 | Automated analytical screen runs; artefacts released along the ring | — | exceptions |
-| 5 | *10 min:* **divergence log**, from your own commit log | **B — 35 min** | 3 |
-| 5 | *24 min:* **write two modifications**, 12 min each, for two different peers | ↑ | 5 |
-| 6 | *30 min, offline:* **respond to both modifications you received**, 15 min each | **C — 45 min** | **6** |
-| 6 | *15 min:* **write two evaluations**, of two other pod members | ↑ | 7 |
-| 6 | *Leader, after the session:* review the pod's evaluations, return thin ones | — | quality control |
-| 7 | Leader submits the pod summary | — | leader's LO6 evidence |
+| 4 | Code pushed; automated analytical screen runs | — | 2, exceptions |
+| 5 | *8 min:* read your assigned peer's program | **one 60-min session** | — |
+| 5 | *12 min:* **author one modification** for that peer | ↑ | 5 |
+| 5 | *10 min:* **divergence log** from your own commit log — also the buffer while modifications are distributed | ↑ | 3 |
+| 5 | *30 min, offline:* **respond to your two probes**, peer and bank, 15 min each | ↑ | **6** |
+| 5–7 | *Take-home:* write two evaluations of two pod members | — | 7 |
+| 7 | Leader reviews the pod's evaluations, returns thin ones, submits the pod summary | — | quality control, LO6 |
 | 7 | Instructor forms the file; exception orals held | — | 8, opinion |
-| ≤ wk 8 | Re-sit of block C, on request, no justification needed (§5.1.2a) | — | — |
+| ≤ wk 8 | Re-sit of the day-5 session, on request, no justification needed | — | — |
 
-**Total supervised time: ~95 minutes**, in blocks of 15, 35 and 45, plus the
-45-minute dry run in week 3. That is *less than half* the 255 minutes three
-rounds would have needed, even after doubling the probes — the strongest
-practical argument for the decision taken.
+**Total supervised time: 75 minutes** — one 15-minute tail on a session you are
+already running, and one protected 60-minute session — plus the 30-minute dry
+run. Down from 95 + 45, and against 255 for the three-round design.
 
-Every student artefact is written in the room, and the plan and divergence log
-**rise from rank 5 to rank 2** as a direct result. That remains the largest
-single improvement to the evidence base across all revisions, and it comes from
-one decision: write it in the room.
+Collapsing day 5 and day 6 into a single session is what removes the third
+touchpoint. It works because the peer's code was pushed on day 4, so the
+modification can be authored and answered in the same sitting; the divergence
+log sits between them as a natural buffer while papers are swapped.
 
-Blocks A and B are short and can be appended to otherwise normal sessions.
-**Block C is the one to protect**: it carries 35% of the component and it is now
-the only substantive test in the design. LBY courses carry laboratory contact
-hours, so ~95 minutes across week 6 should fit — **confirm it against the actual
-timetable before committing**.
+Every claim a student makes is still written in the room, and the plan and
+divergence log keep their rank-2 standing. **The 30 response minutes are the
+part to protect** — they carry 35% of the component and are the only
+substantive test in the design.
 
-**Two probes, and they stay independent.** Each student receives modifications
-from two peers who do not see each other's work (§5.1.1's ring). Where both
-probes attack the same weakness, that convergence is itself a finding worth
-recording in the file.
+#### 5.2.4 Is 75 minutes actually a lot?
 
-**Modification quality control.** Each modification must change a *constraint*,
+Worth putting against the denominator before deciding. An LBY course carrying
+three contact hours across thirteen weeks has roughly 2,340 minutes of
+laboratory time. The graded round uses 75 of them and the dry run 30.
+
+| | Minutes | Share of term contact time |
+|---|---|---|
+| Graded round | 75 | 3.2% |
+| Dry run | 30 | 1.3% |
+| **Total** | **105** | **4.5%** |
+
+Four and a half percent of contact time to place 75% of a 25% grade component
+on observed evidence is not, in the abstract, expensive. The honest caveat is
+that it is **concentrated**: 60 minutes lands in one week-6 session, which is a
+third of that session's teaching, and that is a real cost in the week it falls.
+Schedule week 6's teaching around it rather than treating it as spare capacity.
+
+**Modification quality control.** The modification must change a *constraint*,
 not a parameter: an input-validity assumption, a scale or memory bound, the
 shape or arrival order of the data, a new failure mode, or the removal of an
 assumption the original relied on. Changing a literal, renaming, or "also print
@@ -465,10 +524,11 @@ X" is out of scope and scores zero. The author must state in one sentence which
 part of the peer's design they expect to break — that sentence is the graded
 artefact, because it is a direct measurement of LO2.
 
-**Response format**, 15 minutes per modification, offline, on the student's own
+**Response format**, 15 minutes per probe, offline, on the student's own
 program. Two probes means two passes through the same four points. The
-repetition is deliberate — the second pass is the reliability check that a
-second round would otherwise have provided:
+repetition is deliberate — the peer probe tests reasoning against an
+unanticipated attack, and the bank probe gives one calibrated measurement
+comparable across the whole class:
 1. What breaks under this modification, and why.
 2. The minimal change that fixes it.
 3. The revised algorithm, as pseudocode.
@@ -659,27 +719,33 @@ Per round, for ~40 students:
 
 | Activity | Time |
 |---|---|
-| Running the week-3 dry run and returning worked examples | ~1.5 h |
-| Invigilating three blocks, ~95 min total | ~1.75 h |
+| Writing the bank probe (once, reusable across terms) | ~1 h |
+| Running the week-3 dry run and returning worked examples | ~1 h |
+| Invigilating 75 min of supervised time | ~1.25 h |
 | Analytical screen (scripted) | ~0 |
 | Grading 80 responses — 40 students × 2 probes, 4 structured points each | ~4 h |
 | Grading 40 timed plans and divergence logs, both very short | ~1 h |
-| Grading 80 authored modifications, one sentence each is what counts | ~1 h |
+| Grading 40 authored modifications, one sentence each is what counts | ~0.5 h |
 | Auditing a 20% sample of 80 peer evaluations | ~0.75 h |
 | Reading 7 pod summaries and evaluating the leaders | ~0.75 h |
 | Exception orals, assuming a 10% rate | ~0.5 h |
 | File review and opinions | ~0.75 h |
 | Re-sits, assuming a 5% uptake | ~0.25 h |
-| **Whole term** | **~12 h** |
+| **Whole term** | **~11.75 h**, of which ~1 h is one-off |
 
-About ~12 hours for the term, against ~21 for the three-round design. Note
-where the money went: doubling the probes costs ~2 hours of extra marking, and
-it is the best-value spending in the table, because it is the only thing
-standing between a single observation and a defensible mark. The dry run costs
-~1.5 hours and protects the entire result from novelty contamination. Neither
-is a candidate for cutting.
+About ~12 hours for the term, against ~21 for the three-round design, and it
+barely moved when supervised time fell from 95 minutes to 75 — which is the
+point worth noticing. **Invigilation was never the expensive part.** Marking
+the responses is, at ~4 hours, and that cost is driven by having two probes per
+student, not by how long students sat in the room.
 
-Two things further soften the total. The ~1.75 hours of invigilation are
+So the two-probe design is where the money goes, and it is the best-value line
+in the table: it is the only thing standing between a single observation and a
+defensible mark. The dry run costs ~1 hour and protects the entire result from
+novelty contamination. Neither is a candidate for cutting; trimming supervised
+minutes further would save almost nothing.
+
+Two things further soften the total. The ~1.25 hours of invigilation are
 **contact hours you are already present for**, provided the blocks fit the
 timetable — which is why §9.1 remains the first decision. And much of the
 marking displaces machine-problem marking you already do, with the supervised
@@ -729,16 +795,18 @@ be given orally into a recorder for any student who prefers it.
 ## 8. Sequencing
 
 1. **Now.** Settle the four decisions in §9 that change the design — above all
-   whether ~95 supervised minutes exist in week 6.
+   whether one protected 60-minute session exists in week 6.
 2. **Before the term.** Publish the evidence table (§2) and the demonstrability
    rule (§3) to students; these are teaching artefacts, not fine print. Write
-   the modification bank. Script the analytical screen. Build the one-page file
+   the bank probe (§5.2.2) and the default modification bank. Script the
+   analytical screen. Build the one-page file
    template and the evaluation form. Form pods and appoint leaders and deputies.
-3. **Week 3 — the dry run.** Ungraded, full format, small exercise. Return
+3. **Week 3 — the dry run.** Ungraded, full format, small exercise, 30 min. Return
    worked examples of a strong modification and a strong response. This also
    shakes out your invigilation and machine-lockdown problems while they are
    still free to fix.
-4. **Week 6 — the graded round.** Three blocks, ~95 minutes.
+4. **Week 6 — the graded round.** A 15-minute tail on the release session and
+   one protected 60-minute session.
 5. **Weeks 7–8.** Marking, exception orals, re-sits, files closed.
 6. **Week 12 — validate.** Run §4.3 against the practical examination. With one
    round this is *more* important, not less: it is the only external check on
@@ -760,14 +828,15 @@ advisable.
 
 Five that change the design:
 
-1. **Can ~95 supervised minutes be scheduled in week 6** (blocks of 15, 35 and
-   45) **plus ~45 minutes in week 3 for the dry run?** This is the binding
-   constraint on the whole architecture, since 75% of the component is timed
-   observed work and there is no second round to fall back on. If only one
-   block is available, protect block C and revert the plan, divergence log and
-   evaluations to take-home — which costs them their rank-2 standing and shifts
-   the §6.1 weights back toward the program. If no block is available, the
-   recording fallback becomes primary and the weight should drop further.
+1. **Can one protected 60-minute session be scheduled in week 6**, plus a
+   15-minute tail on the release session and 30 minutes in week 3? This is the
+   binding constraint on the whole architecture, since 75% of the component is
+   timed observed work and there is no second round to fall back on. If the
+   60 minutes cannot be protected, cut in this order: the 8-minute code-reading
+   slot, then the authored modification (leaving the bank probe alone as the
+   sole probe, which costs the LO2 authoring evidence), then the divergence log.
+   **Never cut the 30 response minutes** — at that point the recording fallback
+   becomes primary and the weight should drop further.
 2. **Is commit history mandatory and inspectable for machine problems?** §4.1 is
    the cheap engine, and it does not run without it.
 3. **Is the bounty withdrawn?** The audit frame and a contingent fee are
