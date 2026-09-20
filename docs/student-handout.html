@@ -178,11 +178,11 @@
     <div class="hd">Activity details — completed by the faculty-in-charge for each audited exercise</div>
     <dl>
       <div><dt>Exercise audited</dt><dd></dd></div>
+      <div><dt>Mode</dt><dd>A — single sitting &nbsp;/&nbsp; B — multi-day</dd></div>
       <div><dt>Learning outcomes</dt><dd></dd></div>
       <div><dt>Weight of the activity</dt><dd></dd></div>
-      <div><dt>Day 0 — release</dt><dd></dd></div>
-      <div><dt>Day 4 — code due</dt><dd></dd></div>
-      <div><dt>Day 5 — session</dt><dd></dd></div>
+      <div><dt>Session, Mode A</dt><dd></dd></div>
+      <div><dt>Days 0 / 4 / 5, Mode B</dt><dd></dd></div>
       <div><dt>Re-sit deadline</dt><dd></dd></div>
     </dl>
   </div>
@@ -191,10 +191,10 @@
     <h2><b>I.</b>Rationale and Coverage</h2>
     <p>A working program no longer shows, by itself, that the student who submitted it can analyse
       a problem and develop an algorithm. An audited exercise is therefore conducted differently:
-      you implement it in your own time, and thereafter explain and defend that work under
-      supervision.</p>
-    <div class="box"><b>In brief.</b> You shall build the exercise at home. Everything you claim
-      <em>about</em> what you built, you shall write in the room.</div>
+      you implement it, and thereafter explain and defend that work under supervision — in a
+      single sitting where the exercise allows, otherwise across the week.</p>
+    <div class="box"><b>In brief.</b> Everything you claim <em>about</em> what you built, you
+      shall write in the room.</div>
     <p class="sm muted">These mechanics are <strong>standing</strong> and apply, without
       modification, to every exercise the faculty-in-charge nominates for audit. Only the panel
       above changes from one activity to the next. The weight of each audited activity is taken
@@ -210,7 +210,7 @@
       <div><dt>Audit Team</dt><dd>Six (6) students, fixed for the term, distinct from the Project Team.</dd></div>
       <div><dt>Team Leader</dt><dd>The member who coordinates the team and reviews its evidence. Evaluated by the faculty-in-charge.</dd></div>
       <div><dt>Plan</dt><dd>A one-page outline of your approach, written before coding and locked on submission.</dd></div>
-      <div><dt>Divergence Log</dt><dd>What changed between your Plan and your finished program, and why, citing your commits.</dd></div>
+      <div><dt>Divergence Log</dt><dd>What changed between your Plan and your finished program, and why. In Mode B it cites your commits; in Mode A it is a short note written immediately after coding.</dd></div>
       <div><dt>Modification</dt><dd>A written change to a <em>constraint</em> of the problem — not merely to a value within it.</dd></div>
       <div><dt>Response</dt><dd>Your supervised written answer to a Modification, concerning your own program.</dd></div>
     </dl>
@@ -234,31 +234,52 @@
 
   <section>
     <h2><b>IV.</b>Mechanics and Schedule</h2>
-    <p class="sm muted">Days are counted from the release of the audited exercise. The
-      corresponding calendar dates for this activity are in the panel on the first page.</p>
+    <p class="sm muted">The audit runs in one of two modes. The mode for this activity is stated in
+      the panel on the first page. Everything else in these mechanics is identical in both.</p>
+
+    <h3>Mode A — single sitting</h3>
+    <p class="sm muted">For laboratory exercises small enough to be implemented within the session.
+      The implementation is itself written in the room, under observation.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th class="n">Time</th><th>What you do — one continuous session, about two (2) hours</th></tr></thead>
+        <tbody>
+          <tr><td class="n">10 min</td><td><strong>Write the Plan</strong>, then lock it. Bullets: your decomposition, your data structures, and which parts you expect to be difficult.</td></tr>
+          <tr><td class="n">60 min</td><td><strong>Implement the exercise</strong>, in the room, offline.</td></tr>
+          <tr><td class="n">5 min</td><td><strong>Note what changed</strong> from your Plan, and why.</td></tr>
+          <tr><td class="n">8 min</td><td><strong>Read</strong> the program of the member assigned to you.</td></tr>
+          <tr><td class="n">12 min</td><td><strong>Formulate one (1) Modification</strong> of their exercise, and state in a single sentence which part of their design you expect it to break. <em>That sentence is what is graded.</em></td></tr>
+          <tr><td class="n">30 min</td><td><strong>Answer the two (2) Modifications</strong> you received, at fifteen (15) minutes each.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="box"><b>If your program does not work.</b> In Mode A you answer the Modifications
+      against the design you actually attempted, working or not. A program left incomplete within
+      the hour does not forfeit the Responses, which carry the larger weight.</div>
+
+    <h3>Mode B — multi-day</h3>
+    <p class="sm muted">For machine problems too large for one sitting. Implementation is taken
+      home, and the commit history is read against the Plan in its place. Days are counted from
+      release; calendar dates are in the panel on the first page.</p>
     <div class="tablewrap">
       <table>
         <thead><tr><th>When</th><th class="n">Time</th><th>What you do</th></tr></thead>
         <tbody>
-          <tr><td>Once per term</td><td class="n">30 min</td><td><strong>Dry run.</strong> The complete format on a small exercise, before the first audited activity. Not graded; worked examples returned after.</td></tr>
-          <tr><td>Day 0</td><td class="n">15 min</td><td><strong>Write the Plan</strong>, then lock it. One page, bullets: your decomposition, your data structures, and which parts you expect to be difficult.</td></tr>
+          <tr><td>Day 0</td><td class="n">15 min</td><td><strong>Write the Plan</strong>, then lock it.</td></tr>
           <tr><td>Days 1–4</td><td class="n">at home</td><td><strong>Implement.</strong> Commit progressively as you work, not in one commit at the end.</td></tr>
           <tr><td>Day 4</td><td class="n">—</td><td><strong>Push your program.</strong></td></tr>
-          <tr><td>Day 5</td><td class="n">60 min</td><td><strong>Supervised session</strong>, in one sitting — see below.</td></tr>
-          <tr><td>Days 5–7</td><td class="n">at home</td><td><strong>Accomplish two (2) evaluation forms</strong> via Canvas. Every rating shall cite specific evidence.</td></tr>
-          <tr><td>Re-sit deadline</td><td class="n">60 min</td><td><strong>Re-sit</strong> of the supervised session, upon request. No reason need be given.</td></tr>
+          <tr><td>Day 5</td><td class="n">60 min</td><td><strong>Supervised session:</strong> read your assigned member's program (8 min); formulate one (1) Modification (12 min); write your Divergence Log against your commits (10 min); answer the two (2) Modifications you received (30 min).</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3>The supervised session, in order</h3>
+    <h3>Common to both modes</h3>
     <div class="tablewrap">
       <table>
         <tbody>
-          <tr><td class="n">8 min</td><td>Read the program of the member assigned to you.</td></tr>
-          <tr><td class="n">12 min</td><td>Formulate one (1) Modification of their exercise, and state in a single sentence which part of their design you expect it to break. <em>That sentence is what is graded.</em></td></tr>
-          <tr><td class="n">10 min</td><td>Write your Divergence Log. Modifications are distributed during this interval.</td></tr>
-          <tr><td class="n">30 min</td><td>Answer the two (2) Modifications you received, at fifteen (15) minutes each.</td></tr>
+          <tr><td>Once per term</td><td class="n">30 min</td><td><strong>Dry run</strong> before the first audited activity. Not graded; worked examples returned after.</td></tr>
+          <tr><td>Within 2 days</td><td class="n">at home</td><td><strong>Accomplish two (2) evaluation forms</strong> via Canvas. Every rating shall cite specific evidence.</td></tr>
+          <tr><td>Re-sit deadline</td><td class="n">—</td><td><strong>Re-sit</strong> upon request. No reason need be given.</td></tr>
         </tbody>
       </table>
     </div>
@@ -283,18 +304,18 @@
 
   <section>
     <h2><b>V.</b>Criteria for Evaluation</h2>
-    <p class="sm muted">The distribution below is fixed for every audited exercise. Only the
-      weight of the activity as a whole, stated in the panel on the first page, varies.</p>
+    <p class="sm muted">The distribution is fixed for every audited exercise of the same mode.
+      Only the weight of the activity as a whole, stated in the panel on the first page, varies.</p>
     <div class="tablewrap">
       <table>
-        <thead><tr><th class="n">Weight</th><th>Criterion</th><th>Produced</th></tr></thead>
+        <thead><tr><th class="n">Mode A</th><th class="n">Mode B</th><th>Criterion</th></tr></thead>
         <tbody>
-          <tr><td class="n">35%</td><td>The two (2) Responses — all four points addressed, reasoning specific to your own program, change minimal and correct</td><td>Supervised</td></tr>
-          <tr><td class="n">25%</td><td>The submitted program — requirements satisfied, coding standards observed</td><td>At home</td></tr>
-          <tr><td class="n">20%</td><td>Plan and Divergence Log — specific, and consistent with the commit history</td><td>Supervised</td></tr>
-          <tr><td class="n">12%</td><td>The Modification you formulated — a genuine constraint altered, and an accurate sentence</td><td>Supervised</td></tr>
-          <tr><td class="n">8%</td><td>Your two (2) evaluations — each rating supported by cited evidence</td><td>At home</td></tr>
-          <tr class="total"><td class="n">100%</td><td colspan="2">Sixty-seven percent (67%) is produced under supervision. This is deliberate.</td></tr>
+          <tr><td class="n">35%</td><td class="n">35%</td><td>The two (2) Responses — all four points addressed, reasoning specific to your own program, change minimal and correct</td></tr>
+          <tr><td class="n">30%</td><td class="n">25%</td><td>The program — requirements satisfied, coding standards observed</td></tr>
+          <tr><td class="n">15%</td><td class="n">20%</td><td>Plan, with the note of what changed (Mode A) or the Divergence Log read against your commits (Mode B)</td></tr>
+          <tr><td class="n">12%</td><td class="n">12%</td><td>The Modification you formulated — a genuine constraint altered, and an accurate sentence</td></tr>
+          <tr><td class="n">8%</td><td class="n">8%</td><td>Your two (2) evaluations — each rating supported by cited evidence</td></tr>
+          <tr class="total"><td class="n">100%</td><td class="n">100%</td><td>Mode A is produced entirely under supervision apart from the evaluations; in Mode B, sixty-seven percent (67%) is.</td></tr>
         </tbody>
       </table>
     </div>
@@ -303,11 +324,12 @@
 
     <h3>Evidence examined</h3>
     <p class="sm muted">Published in advance, so that no student is assessed on anything he or she
-      was not informed of: the Plan and the Divergence Log read against it; the commit history; the
-      submitted program; the Modification you formulated; your two Responses; and the observations
-      of the two members who evaluated you.</p>
-    <p class="sm muted">The commit history is used only to raise a question for clarification, and
-      never to set a mark directly. There is nothing to be gained by inflating commits.</p>
+      was not informed of: the Plan and the account of what changed; the program; the Modification
+      you formulated; your two Responses; the observations of the two members who evaluated you;
+      and, <strong>in Mode B only</strong>, the commit history.</p>
+    <p class="sm muted">Where the commit history is examined, it is used only to raise a question
+      for clarification, and never to set a mark directly. There is nothing to be gained by
+      inflating commits.</p>
   </section>
 
   <section>
@@ -430,8 +452,9 @@
         through a classmate's default.</li>
       <li><strong>Rotate the ring</strong> so that no pairing repeats from a previous audited
         exercise, and post it with the Activity Details.</li>
-      <li><strong>Reserve the two windows</strong>: fifteen (15) minutes at release, and one
-        protected sixty-minute (60) session on Day 5.</li>
+      <li><strong>Reserve the time.</strong> Mode A: one continuous session of about two (2)
+        hours. Mode B: fifteen (15) minutes at release and a protected sixty-minute (60) session
+        on Day 5.</li>
     </ol>
 
     <h3>Choosing a suitable exercise</h3>
@@ -439,9 +462,19 @@
       can be altered</strong> — assumptions about input validity, scale, data shape or arrival
       order — so that a Modification has something real to attack. Exercises with a single
       prescribed output and no assumptions to remove will not yield a usable probe.</p>
-    <p class="sm">The exercise shall also be substantial enough to occupy several sittings, since
-      the commit history is read against the Plan. An exercise completed in one sitting leaves no
-      such record.</p>
+    <h3>Choosing the mode</h3>
+    <p class="sm"><strong>Mode A wherever the exercise fits the hour.</strong> Observing the
+      implementation directly is stronger evidence than inferring it from a commit history
+      afterwards, and the whole activity closes in a single session. Mode A suits laboratory
+      exercises and smaller machine problems.</p>
+    <p class="sm"><strong>Mode B only where the exercise genuinely cannot be completed in one
+      sitting.</strong> The commit history then stands in for the observation that Mode A gets
+      directly. Accept the weaker evidence only in exchange for the larger problem — Mode B is the
+      concession, not the default.</p>
+    <p class="sm">Note the trade in what is measured. Mode A rewards fluency and penalises the
+      student who reasons slowly; Mode B allows the deliberation that analysing a substantial
+      problem requires. Where both are used in a term, the two together give a fuller picture than
+      either alone.</p>
 
     <h3>Frequency</h3>
     <p class="sm">Any number of exercises may be audited in a term. Where more than one is
