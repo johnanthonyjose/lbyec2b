@@ -1,4 +1,4 @@
-<title>LBYEC2B — Mechanics: Machine Problem Audit</title>
+<title>LBYEC2B — Mechanics: Exercise Audit</title>
 
 <style>
   :root {
@@ -121,6 +121,19 @@
   }
   .box b { color: var(--green); }
 
+  .instance {
+    border: 1.5px dashed var(--gold); padding: 15px 18px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .instance .hd {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold-deep);
+  }
+  .instance dl { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .instance dl div { display: grid; grid-template-columns: 11rem 1fr; gap: 3px 14px; font-size: 14.5px; }
+  .instance dt { font-weight: 600; }
+  .instance dd { margin: 0; color: var(--ink-faint); border-bottom: 1px solid var(--rule-firm); min-height: 1.4em; }
+
   .guide {
     background: var(--surface); border: 1px solid var(--rule-firm); border-top: 3px solid var(--green);
     padding: clamp(18px, 4vw, 26px); display: flex; flex-direction: column; gap: 14px;
@@ -152,27 +165,43 @@
     <p class="inst">De La Salle University · Gokongwei College of Engineering · Department of
       Electronics, Computer, and Electrical Engineering</p>
     <p class="doctype">Mechanics of the Activity</p>
-    <h1>Machine Problem Audit</h1>
+    <h1>Exercise Audit</h1>
     <dl class="facts">
       <div><dt>Course</dt><dd>LBYEC2B — Computer Fundamentals and Programming 2</dd></div>
-      <div><dt>Schedule</dt><dd>Week 3, dry run · Week 6, graded</dd></div>
-      <div><dt>Weight</dt><dd>Twenty-five percent (25%) of the final grade</dd></div>
+      <div><dt>Applies to</dt><dd>Any laboratory exercise or machine problem nominated for audit</dd></div>
+      <div><dt>Instrument</dt><dd>Standing mechanics. The particulars of each activity are stated in the panel below.</dd></div>
       <div><dt>Status</dt><dd>Draft, for review</dd></div>
     </dl>
   </header>
 
+  <div class="instance">
+    <div class="hd">Activity details — completed by the faculty-in-charge for each audited exercise</div>
+    <dl>
+      <div><dt>Exercise audited</dt><dd></dd></div>
+      <div><dt>Learning outcomes</dt><dd></dd></div>
+      <div><dt>Weight of the activity</dt><dd></dd></div>
+      <div><dt>Day 0 — release</dt><dd></dd></div>
+      <div><dt>Day 4 — code due</dt><dd></dd></div>
+      <div><dt>Day 5 — session</dt><dd></dd></div>
+      <div><dt>Re-sit deadline</dt><dd></dd></div>
+    </dl>
+  </div>
+
   <section>
     <h2><b>I.</b>Rationale and Coverage</h2>
     <p>A working program no longer shows, by itself, that the student who submitted it can analyse
-      a problem and develop an algorithm. This activity is therefore conducted as an
-      <strong>audit</strong>: you implement the Week 6 machine problem in your own time, and
-      thereafter explain and defend that work under supervision.</p>
+      a problem and develop an algorithm. An audited exercise is therefore conducted differently:
+      you implement it in your own time, and thereafter explain and defend that work under
+      supervision.</p>
     <div class="box"><b>In brief.</b> You shall build the exercise at home. Everything you claim
       <em>about</em> what you built, you shall write in the room.</div>
-    <p class="sm muted">The activity covers Learning Outcomes 1 to 4 and constitutes 25% of the
-      final grade, in lieu of the corresponding portion of the Machine Problems component. A dry
-      run shall be held in Week 3. It is not graded, but attendance is required, as the mechanics
-      shall not be explained again in Week 6.</p>
+    <p class="sm muted">These mechanics are <strong>standing</strong> and apply, without
+      modification, to every exercise the faculty-in-charge nominates for audit. Only the panel
+      above changes from one activity to the next. The weight of each audited activity is taken
+      from the Machine Problems or Laboratory component, as stated in that panel.</p>
+    <p class="sm muted">A dry run shall be held once, before the first audited exercise of the
+      term. It is not graded, but attendance is required, as the mechanics shall not be explained
+      again for subsequent activities.</p>
   </section>
 
   <section>
@@ -190,13 +219,14 @@
   <section>
     <h2><b>III.</b>Audit Teams</h2>
     <ol>
-      <li>Teams of six (6) shall be posted on Canvas before Week 3. No Audit Team shall reproduce
-        an existing Project Team.</li>
+      <li>Teams of six (6) shall be posted on Canvas before the dry run and shall stand for the
+        whole term, across every audited exercise. No Audit Team shall reproduce an existing
+        Project Team.</li>
       <li>Each team shall have one (1) Team Leader and one (1) Deputy, designated by the
         faculty-in-charge.</li>
-      <li>Assignments follow a ring published with the team lists. Reciprocal pairings are not
-        permitted: the member who formulates your Modification is not the member for whom you
-        formulate one.</li>
+      <li>Assignments follow a ring published with the team lists and <strong>rotated for each
+        audited exercise</strong>. Reciprocal pairings are not permitted: the member who formulates
+        your Modification is not the member for whom you formulate one.</li>
       <li>Each member shall formulate one (1) Modification, receive two (2) — one from a teammate
         and one from the faculty-in-charge — evaluate two (2) members, and be evaluated by two (2).</li>
     </ol>
@@ -204,17 +234,19 @@
 
   <section>
     <h2><b>IV.</b>Mechanics and Schedule</h2>
+    <p class="sm muted">Days are counted from the release of the audited exercise. The
+      corresponding calendar dates for this activity are in the panel on the first page.</p>
     <div class="tablewrap">
       <table>
         <thead><tr><th>When</th><th class="n">Time</th><th>What you do</th></tr></thead>
         <tbody>
-          <tr><td>Week 3</td><td class="n">30 min</td><td><strong>Dry run.</strong> The complete format on a small exercise. Not graded; worked examples returned after.</td></tr>
-          <tr><td>Wk 6 · Day 0</td><td class="n">15 min</td><td><strong>Write the Plan</strong>, then lock it. One page, bullets: your decomposition, your data structures, and which parts you expect to be difficult.</td></tr>
+          <tr><td>Once per term</td><td class="n">30 min</td><td><strong>Dry run.</strong> The complete format on a small exercise, before the first audited activity. Not graded; worked examples returned after.</td></tr>
+          <tr><td>Day 0</td><td class="n">15 min</td><td><strong>Write the Plan</strong>, then lock it. One page, bullets: your decomposition, your data structures, and which parts you expect to be difficult.</td></tr>
           <tr><td>Days 1–4</td><td class="n">at home</td><td><strong>Implement.</strong> Commit progressively as you work, not in one commit at the end.</td></tr>
           <tr><td>Day 4</td><td class="n">—</td><td><strong>Push your program.</strong></td></tr>
-          <tr><td>Wk 6 · Day 5</td><td class="n">60 min</td><td><strong>Supervised session</strong>, in one sitting — see below.</td></tr>
+          <tr><td>Day 5</td><td class="n">60 min</td><td><strong>Supervised session</strong>, in one sitting — see below.</td></tr>
           <tr><td>Days 5–7</td><td class="n">at home</td><td><strong>Accomplish two (2) evaluation forms</strong> via Canvas. Every rating shall cite specific evidence.</td></tr>
-          <tr><td>By Week 8</td><td class="n">60 min</td><td><strong>Re-sit</strong> of the supervised session, upon request. No reason need be given.</td></tr>
+          <tr><td>Re-sit deadline</td><td class="n">60 min</td><td><strong>Re-sit</strong> of the supervised session, upon request. No reason need be given.</td></tr>
         </tbody>
       </table>
     </div>
@@ -251,6 +283,8 @@
 
   <section>
     <h2><b>V.</b>Criteria for Evaluation</h2>
+    <p class="sm muted">The distribution below is fixed for every audited exercise. Only the
+      weight of the activity as a whole, stated in the panel on the first page, varies.</p>
     <div class="tablewrap">
       <table>
         <thead><tr><th class="n">Weight</th><th>Criterion</th><th>Produced</th></tr></thead>
@@ -379,14 +413,50 @@
       more than a long one reporting that all was well.</p>
   </section>
 
-  <section>
-    <h2><b>X.</b>Queries</h2>
-    <p class="sm">Clarifications may be raised during consultation hours or through Canvas.
-      Kindly raise any question <strong>before</strong> the Week 3 dry run, so that the mechanics
-      are settled well in advance of the graded activity.</p>
+  <section class="guide">
+    <h2><b>X.</b>Annex — Setting Up an Audited Exercise</h2>
+    <p class="sm muted">For the faculty-in-charge. Nothing in Sections I to IX changes between
+      activities; only the following are prepared afresh for each one.</p>
+
+    <h3>To prepare</h3>
+    <ol>
+      <li><strong>Complete the Activity Details panel</strong> on the first page and post the
+        document to Canvas.</li>
+      <li><strong>Write the Common Modification</strong> — one probe the whole class answers
+        against their own programs. It shall be generic in wording yet answerable only with
+        reference to the student's own design, and shall alter a constraint. This is what makes
+        results comparable across the class, so it is prepared before release, not on the day.</li>
+      <li><strong>Prepare two (2) default Modifications</strong> for members left without one
+        through a classmate's default.</li>
+      <li><strong>Rotate the ring</strong> so that no pairing repeats from a previous audited
+        exercise, and post it with the Activity Details.</li>
+      <li><strong>Reserve the two windows</strong>: fifteen (15) minutes at release, and one
+        protected sixty-minute (60) session on Day 5.</li>
+    </ol>
+
+    <h3>Choosing a suitable exercise</h3>
+    <p class="sm">Not every exercise can be audited. A suitable one has <strong>constraints that
+      can be altered</strong> — assumptions about input validity, scale, data shape or arrival
+      order — so that a Modification has something real to attack. Exercises with a single
+      prescribed output and no assumptions to remove will not yield a usable probe.</p>
+    <p class="sm">The exercise shall also be substantial enough to occupy several sittings, since
+      the commit history is read against the Plan. An exercise completed in one sitting leaves no
+      such record.</p>
+
+    <h3>Frequency</h3>
+    <p class="sm">Any number of exercises may be audited in a term. Where more than one is
+      audited, the Audit Teams stand and only the ring rotates; the dry run is held once, before
+      the first.</p>
   </section>
 
-  <footer>LBYEC2B · Mechanics of the Machine Problem Audit · Draft, subject to confirmation by the
-    faculty-in-charge</footer>
+  <section>
+    <h2><b>XI.</b>Queries</h2>
+    <p class="sm">Clarifications may be raised during consultation hours or through Canvas.
+      Kindly raise any question <strong>before</strong> the dry run, so that the mechanics are
+      settled well in advance of the first audited activity.</p>
+  </section>
+
+  <footer>LBYEC2B · Standing mechanics for the Exercise Audit · Draft, subject to confirmation by
+    the faculty-in-charge</footer>
 
 </div>
