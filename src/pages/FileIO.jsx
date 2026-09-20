@@ -14,6 +14,8 @@ import { stages, stageByN, TOTAL_STAGES, TOTAL_MINUTES } from "./file-io/stages.
 import { stepsInStage, sizeOfStage, stepAt } from "./file-io/steps.jsx";
 import { resolutionById } from "./file-io/resolutions.jsx";
 import { Before, needs } from "./file-io/Before.jsx";
+import { Outcomes } from "./file-io/Outcomes.jsx";
+import { Reference } from "./file-io/Reference.jsx";
 import { ReadMark } from "./file-io/OutcomeMarks.jsx";
 
 /* Handout 03 — File I/O.
@@ -40,6 +42,8 @@ export default function FileIO() {
     storageKey: STORAGE_KEY,
     stages, stepsInStage, sizeOfStage, stepAt,
     isGateOpen: (s) => needs.every((n) => (s.ready || {})[n.id]) || !!s.skipped,
+    // A handout is also a reference. See the note on `unlocked` in the hook.
+    unlocked: true,
     extraInitial: {
       ready: {},      // { compiler: true, files: true, cwd: true }
       skipped: false  // opened the stages without confirming the three
@@ -98,6 +102,8 @@ export default function FileIO() {
         <Hero started={started} stage={stage}
           onBegin={() => scrollToId(started ? "walk" : "before")} />
 
+        <Outcomes />
+
         <Before
           ticked={ticked}
           onTick={tick}
@@ -108,22 +114,22 @@ export default function FileIO() {
           started={started}
         />
 
+        <StageMap
+          stages={stages}
+          stepsInStage={stepsInStage}
+          stage={stage}
+          step={step}
+          answers={answers}
+          isComplete={w.isComplete}
+          isOpen={w.isOpen}
+          onGoStage={w.goStage}
+          onGoStep={w.goStep}
+          eyebrow="The five stages"
+          intro="One step is shown at a time, and each stage leaves a file on your disk that the next one reads. Work through them in order the first time. After that, open any stage you want — nothing is locked. Your place is kept on this device only, and nothing here is submitted or graded."
+        />
+
         {started && current && (
           <>
-            <StageMap
-              stages={stages}
-              stepsInStage={stepsInStage}
-              stage={stage}
-              step={step}
-              answers={answers}
-              isComplete={w.isComplete}
-              isOpen={w.isOpen}
-              onGoStage={w.goStage}
-              onGoStep={w.goStep}
-              eyebrow="The five stages"
-              intro="One step is shown at a time. Each stage opens when the one before it is finished, and each one leaves a file on your disk that the next stage reads. Your place is kept on this device only — nothing here is submitted or graded."
-            />
-
             <section id="walk" className="dls-section aw-walk">
               <StageBanner stage={stageByN[stage]} />
 
@@ -151,6 +157,7 @@ export default function FileIO() {
             </section>
           </>
         )}
+        <Reference />
       </main>
 
       <SiteFooter note="Department of Electronics and Computer Engineering" />

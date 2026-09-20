@@ -984,8 +984,9 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
           <li>Output lined up in columns.</li>
         </ul>
         <p className="aw-p">
-          That is the shape of every data-handling task ahead of you. You have
-          now written it once by hand.
+          That is the shape of every data-handling task ahead of you, and you
+          have now written it once by hand. One thing is still worth doing to
+          it, and it is the last step of this handout.
         </p>
       </>
     ),
@@ -1000,6 +1001,150 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
         label: "It is missing, or the columns are out of line",
         note: <>Count the commas first: four fields need exactly three. A missing comma joins two fields into one and shifts everything after it. If the row is absent entirely, check that you saved the file. Check also that your car sits on a line of its own. If the last line had no newline, your car runs straight on to the end of the Honda.</>
       }
+    }
+  },
+  {
+    id: "S5.6",
+    stage: 5, n: 6,
+    title: "Move the read into a function",
+    action: <>Compile and run <code className="aw-code">09-modular.c</code> beside <code className="aw-code">cars.txt</code>, then compare its output with the one from step S5.2.</>,
+    body: (
+      <p className="aw-p">
+        <code className="aw-code">07-fields.c</code> works, and nothing in it is
+        wrong. <code className="aw-code">09-modular.c</code> does the same job
+        with two functions between <code className="aw-code">main</code> and the
+        file. The two programs print the same bytes. That is the point: the
+        structure changed and the behavior did not.
+      </p>
+    ),
+    media: (
+      <>
+        <p className="aw-p">
+          <code className="aw-code">readField</code> does one small thing. It
+          reads a line, and it removes the newline{" "}
+          <code className="aw-code">fgets</code> left on it. It returns 1 for a
+          line read and 0 at the end of the file.
+        </p>
+        <CodeBlock
+          file="09-modular.c"
+          from={6}
+          focus={[3]}
+          lines={[
+            "int readField(FILE *fp, char *out, int size) {",
+            "",
+            "    if (fgets(out, size, fp) == NULL) {",
+            "        return 0;               //nothing left to read",
+            "    }"
+          ]}
+          caption="The four NULL tests of 07-fields.c, now written once."
+        />
+        <CodeBlock
+          file="09-modular.c"
+          from={12}
+          focus={[2]}
+          lines={[
+            "    int n = (int) strlen(out);",
+            "    if (n > 0 && out[n - 1] == '\\n') {",
+            "        out[n - 1] = '\\0';",
+            "    }",
+            "",
+            "    return 1;"
+          ]}
+          caption="This is stripNewline from step S5.2, now living inside the only function that needs it."
+        />
+        <p className="aw-p">
+          <code className="aw-code">readCar</code> calls it four times, once per
+          field. It returns 1 only if all four were there.
+        </p>
+        <CodeBlock
+          file="09-modular.c"
+          from={23}
+          lines={[
+            "int readCar(FILE *fp, char *make, char *model,",
+            "            char *year, char *plate) {"
+          ]}
+        />
+        <CodeBlock
+          file="09-modular.c"
+          from={26}
+          focus={[0]}
+          lines={[
+            "    if (!readField(fp, make, 40))  return 0;",
+            "    if (!readField(fp, model, 40)) return 0;",
+            "    if (!readField(fp, year, 40))  return 0;",
+            "    if (!readField(fp, plate, 40)) return 0;",
+            "",
+            "    return 1;"
+          ]}
+          caption="Four fields, and an early return the moment one of them is missing."
+        />
+        <p className="aw-p">
+          That guard is the part worth keeping. A file can end half way through
+          a record. Three fields arrive and the fourth does not. The three that
+          arrived are real, and the car they belong to is not. Returning 0 means
+          the caller never sees half a car. The stray fields are dropped. They
+          are not printed beside leftovers from the record before.
+        </p>
+        <p className="aw-p">
+          What is left in <code className="aw-code">main</code> is the work
+          itself.
+        </p>
+        <CodeBlock
+          file="09-modular.c"
+          from={52}
+          focus={[0]}
+          lines={[
+            "    while (readCar(fp, make, model, year, plate)) {",
+            "        printf(\"%-12s %-16s %-6s %-10s\\n\",",
+            "               make, model, year, plate);",
+            "    }"
+          ]}
+          caption="The condition asks one question: was there another car?"
+        />
+        <p className="aw-p">
+          <code className="aw-code">main</code> now says what happens once per
+          car. It no longer says how a field is read. Each of the three pieces
+          can be changed without opening the other two.
+        </p>
+        <Terminal label="09-modular.c — identical to the output of 07-fields.c">{`MAKE         MODEL            YEAR   PLATE     
+Toyota       Corolla          1995   TVX-111   
+Toyota       Vios             2014   TJJ-100   
+Mitsubishi   Montero Sport    2018   JJT-001   
+Honda        Civic            2021   HCV-221   `}</Terminal>
+        <p className="aw-p">
+          Week 7 needs this shape in MATLAB. The Week 13 project needs it
+          too. A function is the unit a team can split and test.
+        </p>
+        <p className="aw-p">
+          That is the whole handout. You opened a file and made it say so when
+          it could not, wrote bytes and learned where they wait, read them back
+          one at a time while watching the position move, and turned a data
+          file into a table you can hand to somebody. The reference at the foot
+          of this page is the part worth keeping.
+        </p>
+      </>
+    ),
+    check: {
+      kind: "predict",
+      question: "You move the reading into readField and readCar and change nothing else. What changes in the output?",
+      options: [
+        {
+          id: "columns",
+          label: "The rows are the same, but the columns line up differently",
+          note: <>The format string moved. It did not change. It is still <code className="aw-code">%-12s %-16s %-6s %-10s</code>, in <code className="aw-code">main</code>, run once per car. Nothing about the layout depends on where the reading happens.</>
+        },
+        {
+          id: "nothing",
+          label: "Nothing — the output is identical, byte for byte",
+          correct: true,
+          note: <>Correct, and that is what makes it a refactor. Run both programs and compare the two tables. The gain is not on screen. It is that <code className="aw-code">readField</code> can now be fixed without reading <code className="aw-code">main</code>. Somebody else can write it.</>
+        },
+        {
+          id: "perline",
+          label: "Each field prints on a line of its own, since readField is called four times",
+          note: <><code className="aw-code">readField</code> reads. It prints nothing. The only <code className="aw-code">printf</code> inside the loop is in <code className="aw-code">main</code>, and it still runs once per car.</>
+        }
+      ]
     }
   }
 ];

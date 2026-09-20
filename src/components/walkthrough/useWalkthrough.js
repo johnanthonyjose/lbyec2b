@@ -32,6 +32,19 @@ export function useWalkthrough({
   sizeOfStage,
   stepAt,
   isGateOpen = () => true,
+  /* When true, every stage can be opened at any time. The stage map still
+     shows the intended order and still marks what has been finished, so a
+     first-time reader is guided exactly as before — but a reader who is not
+     reading for the first time is not held up.
+
+     Sealing stages is right for a procedure whose steps must happen in order,
+     which is what the assignment workflow is: cloning before committing is not
+     a preference. It is wrong for a handout, which also has to serve the
+     student revising the night before the practical exam and the lecturer
+     pointing at one table mid-session. Handout 03 is the second kind, and
+     locking it was the single thing that most stopped it substituting for the
+     document it replaced. */
+  unlocked = false,
   extraInitial = {}
 }) {
   const INITIAL = React.useMemo(
@@ -58,7 +71,7 @@ export function useWalkthrough({
   const doneIn = (n) => stepsInStage(n).filter((s) => answers[s.id] === "ok").length;
   const isComplete = (n) => doneIn(n) === sizeOfStage(n);
   const gateOpen = isGateOpen(saved);
-  const isOpen = (n) => (n === 1 ? gateOpen : isComplete(n - 1));
+  const isOpen = (n) => unlocked || (n === 1 ? gateOpen : isComplete(n - 1));
 
   const stage = saved.stage || 0;
   const started = stage >= 1;

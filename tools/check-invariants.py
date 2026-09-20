@@ -53,6 +53,27 @@ def main():
         pathlib.Path(sys.argv[2]).write_text(json.dumps(data, indent=1))
         for k, v in data.items(): print(f"  captured {len(v):4d}  {k}")
         return 0
+    if mode == "--subseq":
+        # A round that ADDS material shifts every later entry, so a positional
+        # compare reports the whole file as changed and hides a real edit in
+        # the noise. The question that actually matters is whether every old
+        # entry still appears, unaltered and in the same order: if the old list
+        # is a subsequence of the new one, nothing was modified or removed and
+        # everything else is an addition.
+        old = json.loads(pathlib.Path(sys.argv[2]).read_text())
+        bad = False
+        for k in data:
+            o, n = old.get(k, []), data[k]
+            it = iter(n)
+            missing = [x for x in o if not any(y == x for y in it)]
+            if missing:
+                bad = True
+                print(f"\n!! {k}: {len(missing)} entr{'y' if len(missing)==1 else 'ies'} altered or removed")
+                for x in missing[:8]: print(f"   {x!r}")
+            else:
+                print(f"  ok  {len(o):4d} -> {len(n):4d}  {k}: all originals intact, {len(n)-len(o)} added")
+        return 1 if bad else 0
+
     if mode == "--diff":
         old = json.loads(pathlib.Path(sys.argv[2]).read_text())
         bad = False

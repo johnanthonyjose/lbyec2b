@@ -17,7 +17,9 @@ import { FileMachine } from "../../components/FileMachine.jsx";
    returns zero and does nothing. Nothing else in the course behaves like that,
    so the habits that make it visible — the NULL check, perror, forward
    slashes, knowing which folder the program runs in — are taught before the
-   first byte is written rather than after the first hour is lost.
+   first byte is written rather than after the first hour is lost. Its last
+   step opens two files at once, because a program with an input and an output
+   is the ordinary case and every later program on this page is one.
 
    Stage 3 is built around the write buffer, which is the one thing in these
    three stages that cannot be seen in the source at all. It gets the
@@ -31,9 +33,9 @@ import { FileMachine } from "../../components/FileMachine.jsx";
    step body.
 
    forget.c is seventeen lines and is therefore shown whole, in one block.
-   Only 01-open.c, 02-write.c and 03-append.c are long enough to be split, and
-   they are split at step boundaries so that each fragment arrives with the
-   reason it exists.
+   01-open.c, 02-write.c, 03-append.c and 10-twofiles.c are long enough to be
+   split, and they are split at step boundaries so that each fragment arrives
+   with the reason it exists.
 
    Every byte count, every stream position and every line of terminal output
    below is transcribed from the verified program set. Nothing here was
@@ -151,7 +153,7 @@ export const steps13 = [
     id: "S1.2",
     stage: 1, n: 2,
     title: "Name what happened",
-    action: <>Read the three short paragraphs below, then say the reason in one sentence of your own.</>,
+    action: <>Read the short paragraphs below, then say the reason in one sentence of your own.</>,
     body: (
       <>
         <p className="aw-p">
@@ -167,13 +169,25 @@ export const steps13 = [
           thousand programs a day. But it means that anything a program is to
           keep must go somewhere the process does not own. That somewhere is a{" "}
           <strong>file</strong>: a named sequence of bytes on a storage device.
-          It outlives the program that wrote it. It survives the machine being
-          switched off.
+          The device is <strong>secondary storage</strong> — a hard disk or a
+          flash drive — rather than memory. That is the physical difference.
+          Memory belongs to the process. The disk does not. A file outlives the
+          program that wrote it, and it survives the machine being switched off.
         </p>
         <p className="aw-p">
-          File I/O is how you put bytes into a file and get them back out. It is
-          also what you reach for when there is more data than fits in memory at
-          once. This week the reason is the first one.
+          A file holds any kind of data. Text. Audio. Video. Images. One file
+          can hold a combination of them.
+        </p>
+        <p className="aw-p">
+          File I/O is how you put bytes into a file and get them back out. There
+          are two reasons to reach for it:
+        </p>
+        <ul className="aw-p">
+          <li>You want to keep data after the computer is switched off.</li>
+          <li>There is not enough memory to hold the data at all.</li>
+        </ul>
+        <p className="aw-p">
+          This week the reason is the first one.
         </p>
       </>
     ),
@@ -215,13 +229,20 @@ export const steps13 = [
           bytes were never meant to stand for characters.
         </p>
         <p className="aw-p">
-          That is the whole distinction. A <strong>text file</strong> is bytes
-          meant to be read as characters, organized into lines. A{" "}
-          <strong>binary file</strong> is bytes meant to be read some other way.
-          Machine instructions in an executable. Samples in an audio file.
-          Pixels in an image. The bytes are the same kind of thing in both
-          cases. Only the intended reading differs, and the file does not carry
-          that reading inside it.
+          That is the whole distinction. In a <strong>text file</strong>, every
+          byte is a character. The characters are organized into{" "}
+          <strong>lines</strong>, and you can read them yourself in any editor.
+          That is what <strong>human-readable</strong> means. In a{" "}
+          <strong>binary file</strong>, a byte can mean anything at all. The
+          application that wrote the file decides what. Machine instructions in
+          an executable. Samples in an audio file. Pixels in an image. The bytes
+          are the same kind of thing in both cases. Only the intended reading
+          differs, and the file does not carry that reading inside it.
+        </p>
+        <p className="aw-p">
+          Text files are not only <code className="aw-code">.txt</code> files. An
+          HTML page is a text file. So is an XML file. Notepad shows you all
+          three, and all three are characters in lines.
         </p>
       </>
     ),
@@ -386,10 +407,27 @@ export const steps13 = [
           <code className="aw-code">fopen</code> fails in this course.
         </p>
         <p className="aw-p">
-          If you do write a full path, use forward slashes:{" "}
-          <code className="aw-code">"c:/temp/test1.txt"</code>. Windows accepts
-          them. The same source then runs unchanged on a Mac. Two minutes on the
-          panel below can save you an hour later.
+          You can put a path in front of the name. There are two kinds.
+        </p>
+        <ul className="aw-p">
+          <li>
+            An <strong>absolute path</strong> names the file from the top of the
+            drive. <code className="aw-code">"c:/temp/test1.txt"</code> is
+            test1.txt in the temp folder on drive C. It means the same file
+            wherever the program was launched from.
+          </li>
+          <li>
+            A <strong>relative path</strong> starts from the working directory.{" "}
+            <code className="aw-code">"test.txt"</code> is one. So is{" "}
+            <code className="aw-code">"../test2.txt"</code>. The two dots mean
+            the <strong>parent directory</strong>, one folder up from the
+            working one.
+          </li>
+        </ul>
+        <p className="aw-p">
+          Use forward slashes in either kind. Windows accepts them. The same
+          source then runs unchanged on a Mac. Two minutes on the panel below
+          can save you an hour later.
         </p>
       </>
     ),
@@ -569,6 +607,131 @@ export const steps13 = [
         label: "It ran and printed nothing at all",
         note: <>Silence with a zero exit status means neither branch printed. Check that the <code className="aw-code">printf</code> sits outside the <code className="aw-code">if</code> block. Check that nothing returns before it. The resolution above is a procedure for finding where the silence begins.</>
       }
+    }
+  },
+  {
+    id: "S2.5",
+    stage: 2, n: 5,
+    title: "Open two files at once",
+    action: <>Read <code className="aw-code">10-twofiles.c</code> below rather than running it. Count the pointers, the checks and the closes.</>,
+    body: (
+      <>
+        <p className="aw-p">
+          Almost every useful program has an input and an output. That is two
+          files open at the same time. Your machine problem will have both. So
+          will your project.
+        </p>
+        <p className="aw-p">
+          <code className="aw-code">10-twofiles.c</code> reads{" "}
+          <code className="aw-code">cars.txt</code> and writes{" "}
+          <code className="aw-code">plates.txt</code>. The loop in the middle
+          uses reading calls you meet in stage 4. Ignore it for now. Look only
+          at the pointers, the checks and the closes.
+        </p>
+        <ul className="aw-p">
+          <li>
+            Each open file needs its own pointer. Two names on one line is still
+            two separate tickets.
+          </li>
+          <li>
+            Check both opens. Either one can fail on its own, for its own
+            reason.
+          </li>
+          <li>Two files open means two files to close.</li>
+        </ul>
+        <p className="aw-p">
+          Look at the second check closely. By then{" "}
+          <code className="aw-code">cars.txt</code> is already open. So that
+          branch closes the input before it returns. One open that failed is no
+          reason to abandon one that worked.
+        </p>
+      </>
+    ),
+    media: (
+      <>
+        <CodeBlock
+          file="10-twofiles.c"
+          from={9}
+          lines={[
+            "    FILE *fpIn, *fpOut;",
+            "    char line[120];",
+            "    int cars = 0;"
+          ]}
+          focus={[0]}
+        />
+        <CodeBlock
+          file="10-twofiles.c"
+          from={15}
+          lines={[
+            '    fpIn = fopen("cars.txt", "r");',
+            "",
+            "    if (fpIn == NULL) {",
+            '        perror("Could not open cars.txt for reading");',
+            "        return 1;",
+            "    }"
+          ]}
+          focus={[0]}
+        />
+        <CodeBlock
+          file="10-twofiles.c"
+          from={22}
+          lines={[
+            '    fpOut = fopen("plates.txt", "w");',
+            "",
+            "    if (fpOut == NULL) {",
+            '        perror("Could not open plates.txt for writing");',
+            "        fclose(fpIn);           //the input is open; close it",
+            "        return 1;",
+            "    }"
+          ]}
+          focus={[4]}
+        />
+        <CodeBlock
+          file="10-twofiles.c"
+          from={45}
+          lines={[
+            "    //Two files open means two files to close.",
+            "    fclose(fpIn);",
+            "    fclose(fpOut);"
+          ]}
+          focus={[1, 2]}
+        />
+        <Terminal label="Run once cars.txt exists — exit status 0">
+{`Wrote 4 plates to plates.txt`}
+        </Terminal>
+        <Terminal label="plates.txt, written by the same run">
+{`TVX-111
+TJJ-100
+JJT-001
+HCV-221`}
+        </Terminal>
+      </>
+    ),
+    why: {
+      label: "Why bother closing the input if the program is about to end?",
+      body: <>Here you could skip it. Ending the process closes every stream anyway. But <code className="aw-code">main</code> is the one place that is true. Move this code into a function of its own. The function returns while the program carries on. Then the file stays open and nothing tells you. Closing on every path is the habit that keeps working after the code moves.</>
+    },
+    check: {
+      kind: "predict",
+      question: "cars.txt opens. plates.txt then fails, so the program prints its perror line and returns 1. You delete the fclose(fpIn) from that branch. What goes wrong?",
+      options: [
+        {
+          id: "nothing-visible",
+          label: "Nothing you can see — the process ends and the file is released with it",
+          correct: true,
+          note: <>Correct, and it is the reason the habit is hard to learn. The exit cleans up after you. But this code soon becomes a function rather than a <code className="aw-code">main</code>. A function that returns cleans up nothing.</>
+        },
+        {
+          id: "locked",
+          label: "cars.txt stays locked until you restart the machine",
+          note: "Reasonable, but no. An open file is bookkeeping inside a process. When the process ends, the operating system drops that bookkeeping. No file outlives it in a locked state."
+        },
+        {
+          id: "crash",
+          label: "The program crashes on the return",
+          note: <>Nothing crashes. <code className="aw-code">fpIn</code> is a valid pointer to an open file and it is simply never used again. A leak is quiet by nature. Close on the failing path anyway.</>
+        }
+      ]
     }
   },
 

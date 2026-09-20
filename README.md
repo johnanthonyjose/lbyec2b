@@ -52,7 +52,11 @@ src/
     github-account/      handout 01's step and resolution content
     assignment-workflow/ handout 02's stages, steps, resolutions and UI
     file-io/             handout 03's stages, steps (split at the stage-4
-                         boundary for size), resolutions and page chrome
+                         boundary for size), resolutions and page chrome.
+                         Reference.jsx is the ungated half: the function
+                         tables, modes, paths and program index that make the
+                         page usable as a reference and not only a walkthrough.
+                         It is also the only part that prints.
   hooks/                 scroll progress, scroll spy, persistent state
 
 public/                  copied verbatim into the build
@@ -73,6 +77,9 @@ tools/
                          The handout's audience reads English as a second
                          language, on a phone, under deadline; the first draft
                          averaged 18 words a sentence and had to be rewritten.
+  check-codeblocks.py    checks every code excerpt on the page against the real
+                         program it names, including the line number it claims
+                         to start at
   check-invariants.py    snapshots the verified material — every line of C,
                          every program output, every ftell offset, every
                          correct answer — so a prose edit can be proved to have

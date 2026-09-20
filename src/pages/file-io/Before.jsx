@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "../../components/ds/index.js";
+import { programs, dataFiles, ASSETS } from "./programs.jsx";
 
 /* The gate in front of stage 1.
 
@@ -14,8 +15,6 @@ import { Button } from "../../components/ds/index.js";
    should not have to tick three boxes to be allowed to read, and a gate that
    cannot be passed is a gate that gets closed along with the tab. Skipping is
    recorded so the page stops asking. */
-
-const ASSETS = "assets/file-io";   // relative: vite.config.js sets base to "./"
 
 export const needs = [
   {
@@ -57,22 +56,11 @@ export const needs = [
   }
 ];
 
-/* The eight programs and three data files, offered as downloads rather than as
-   a wall of source. The programs are also printed in the steps that build them,
-   a few lines at a time, which is where a reader should meet them first. This
-   list exists so that nobody has to retype thirty lines of C from a phone. */
-const downloads = [
-  { file: "01-open.c", note: "Opens a file, and fails out loud when it cannot" },
-  { file: "02-write.c", note: "Writes the first two lines of test.txt" },
-  { file: "03-append.c", note: "Adds a third line without destroying the first two" },
-  { file: "04-readchar.c", note: "Reads one character at a time" },
-  { file: "05-readascii.c", note: "The same, printed as the numbers actually stored" },
-  { file: "06-readline.c", note: "Reads one line at a time" },
-  { file: "07-fields.c", note: "One record over four lines, printed as a table" },
-  { file: "08-csv.c", note: "The same table, read from a comma-delimited file" },
-  { file: "cars.txt", note: "Data: one field per line" },
-  { file: "cars.csv", note: "Data: the same records, comma-delimited" }
-];
+/* One entry per file, from the shared list in programs.jsx. The reference
+   section at the foot of the page indexes the same list, and two hand-kept
+   copies of it would drift. */
+const downloads = [...programs, ...dataFiles];
+
 
 export function Before({ ticked, onTick, ready, skipped, onSkip, onBegin, started }) {
   const count = needs.filter((n) => ticked[n.id]).length;

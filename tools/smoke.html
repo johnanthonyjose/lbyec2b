@@ -222,6 +222,39 @@ async function fileIO() {
   byText("button", /I have done all this before/).click(); await wait(400);
   ok("the soft gate opens Stage 1", !!D().getElementById("walk"), "walk missing");
 
+  // A handout is also a reference. These assert the second half of that, which
+  // the first version of this page failed: it taught the topic once and then
+  // locked the material away behind the checkpoints.
+  ok("the learning outcomes are on the page",
+     /learning outcomes/i.test(txt()) && /explain what a file is/i.test(txt()),
+     "no outcomes stated");
+  ok("the reference is present without starting anything",
+     !!D().getElementById("reference"), "no reference section");
+  ok("the reference carries both function tables",
+     /fprintf/.test(txt()) && /fputs/.test(txt()) && /fputc/.test(txt()) &&
+     /fscanf/.test(txt()) && /fgets/.test(txt()) && /fgetc/.test(txt()),
+     "a function table is missing");
+  ok("the reference indexes every program",
+     all(".fio-ref-prog").length >= 12, `found ${all(".fio-ref-prog").length}`);
+  ok("the stage map is visible before starting",
+     all(".aw-row").length === 5, `found ${all(".aw-row").length} rows`);
+  ok("no stage is locked",
+     all(".aw-row-lock").length === 0 &&
+     all(".aw-row-head").every(b => !b.disabled),
+     `${all(".aw-row-lock").length} padlocks, ${all(".aw-row-head").filter(b=>b.disabled).length} disabled`);
+
+  // The real test of unlocking: jump straight to the last stage from a page
+  // where nothing has been answered, the way a student revising would.
+  all(".aw-row-head")[4].click(); await wait(400);
+  ok("a reader can open the last stage without finishing the others",
+     !!D().getElementById("walk") && /Stage 5 of 5/i.test(txt()),
+     "could not reach stage 5");
+  ok("and reach the delimiter code once there",
+     /delimit/i.test(txt()) || /comma/i.test(txt()), "stage 5 content missing");
+  all(".aw-row-head")[0].click(); await wait(400);
+  ok("and go back to the beginning", /Stage 1 of 5/i.test(txt()), "did not return");
+
+
   // Accessibility properties that a build cannot check and that were all
   // genuinely wrong once. Measured on the real page rather than asserted.
   const cs = (el) => D().defaultView.getComputedStyle(el);
@@ -266,11 +299,15 @@ async function fileIO() {
   }
 
   // Walk the whole handout. Predict steps are solved by trying options in turn.
-  const SIZES = [4, 4, 4, 5, 5];
+  // Stage sizes are read off the page rather than hard-coded: steps get added
+  // to this handout, and a stale constant here would silently stop walking a
+  // stage half way and still report a pass.
   let maxDen = 0, rowCounts = new Set(), machinesDriven = 0, unsolved = 0, sawConsumedCue = false;
 
   for (let stage = 1; stage <= 5; stage++) {
-    for (let step = 1; step <= SIZES[stage - 1]; step++) {
+    const size = all(".aw-row.is-current .aw-stepchip").length;
+    ok(`stage ${stage} reports its own size`, size > 0, "no step chips rendered");
+    for (let step = 1; step <= size; step++) {
       [...txt().matchAll(/step \d+ of (\d+)/gi)].forEach(m => { maxDen = Math.max(maxDen, +m[1]); });
       rowCounts.add(all(".aw-row").length);
 
@@ -336,14 +373,19 @@ async function fileIO() {
   ok("at least three traces were driven", machinesDriven >= 3, `drove ${machinesDriven}`);
   ok("the stage map always shows exactly five rows",
      rowCounts.size === 1 && rowCounts.has(5), `row counts seen: ${[...rowCounts]}`);
-  ok("the largest step denominator shown is 5", maxDen <= 5, `saw 'of ${maxDen}'`);
+  // The rule is not a particular number, it is that a reader never sees a big
+  // one. Stages grow; "of 6" is fine, "of 24" would mean the stage structure
+  // had stopped doing its job. Eight is the same bound handout 01 works to.
+  ok("the largest step denominator stays small", maxDen <= 8, `saw 'of ${maxDen}'`);
 
+  const TOTAL_STEPS = Object.values(JSON.parse(localStorage.getItem("lbyec2b-fio")).answers)
+    .filter(v => v === "ok").length;
   const before = JSON.parse(localStorage.getItem("lbyec2b-fio"));
   await load("/file-io.html");
   const after = JSON.parse(localStorage.getItem("lbyec2b-fio"));
   ok("progress survives a reload",
      after.stage === before.stage &&
-     Object.values(after.answers).filter(v => v === "ok").length === 22,
+     Object.values(after.answers).filter(v => v === "ok").length === TOTAL_STEPS,
      `stage ${after.stage}, ${Object.values(after.answers).filter(v => v === "ok").length} completed`);
   ok("a dismissed completion panel does not return", !D().querySelector(".aw-done-scrim"), "reappeared");
 

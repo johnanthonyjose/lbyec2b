@@ -192,3 +192,138 @@
    of a line that is wider than the screen. That is only useful if the focus is
    visible. */
 .fio-code-scroll:focus-visible { outline: var(--focus-ring); outline-offset: -2px; }
+
+/* ---- learning outcomes ------------------------------------------------ */
+
+.fio-outcomes-wrap { border-bottom: 1px solid var(--border-subtle); }
+.fio-outcomes { max-width: var(--container-lg); margin: 0 auto; padding: var(--space-10) var(--space-8); }
+.fio-outcomes-lede {
+  margin: var(--space-3) 0 0; font-size: var(--text-base);
+  color: var(--text-secondary); line-height: var(--leading-relaxed);
+}
+.fio-outcomes-list {
+  margin: var(--space-5) 0 0; padding: 0 0 0 var(--space-5);
+  display: grid; gap: var(--space-3); max-width: 80ch;
+}
+.fio-outcomes-list li { color: var(--text-secondary); }
+.fio-outcome-text {
+  font-size: var(--text-base); color: var(--text-primary);
+  line-height: var(--leading-relaxed);
+}
+.fio-outcome-where {
+  display: inline-block; margin-left: var(--space-2);
+  font-size: var(--text-2xs); font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide); text-transform: uppercase;
+  color: var(--text-gold); white-space: nowrap;
+}
+
+/* ---- the reference ---------------------------------------------------- */
+
+/* Always open, never gated, and the only thing that prints. The original
+   document's two function tables were the most useful objects in it; this is
+   where they live. */
+.fio-ref-wrap { background: var(--surface-subtle); border-top: 1px solid var(--border-subtle); }
+.fio-ref { max-width: var(--container-lg); margin: 0 auto; padding: var(--space-12) var(--space-8) var(--space-16); }
+.fio-ref-lede {
+  margin: var(--space-3) 0 0; max-width: 70ch;
+  font-size: var(--text-base); color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+.fio-ref-grid {
+  margin: var(--space-8) 0 0; display: grid; gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+.fio-ref-card {
+  min-width: 0; background: var(--surface-page);
+  border: 1px solid var(--border-subtle); border-top: 3px solid var(--gold-500);
+  border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-4);
+}
+.fio-ref-card-title {
+  margin: 0; font-family: var(--font-display); font-size: var(--text-lg);
+  font-weight: var(--weight-semibold); color: var(--text-primary);
+}
+.fio-ref-card-note {
+  margin: var(--space-1) 0 var(--space-4); font-size: var(--text-xs);
+  color: var(--text-secondary); line-height: var(--leading-snug);
+}
+
+.fio-ref-scroll { overflow-x: auto; }
+.fio-ref-table { border-collapse: collapse; width: 100%; }
+.fio-ref-table th, .fio-ref-table td {
+  text-align: left; vertical-align: top; padding: var(--space-2) 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.fio-ref-table tr:first-child th, .fio-ref-table tr:first-child td { border-top: 0; }
+.fio-ref-table th {
+  font-weight: var(--weight-regular); padding-right: var(--space-4); white-space: nowrap;
+}
+.fio-ref-table th code {
+  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-accent);
+}
+.fio-ref-table td {
+  font-size: var(--text-sm); color: var(--text-secondary);
+  line-height: var(--leading-snug);
+}
+
+.fio-ref-foot {
+  margin: var(--space-4) 0 0; padding-top: var(--space-3);
+  border-top: 1px dashed var(--border-default);
+  font-size: var(--text-xs); line-height: var(--leading-relaxed); color: var(--text-secondary);
+}
+
+.fio-ref-progs { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+.fio-ref-prog {
+  display: flex; gap: var(--space-3); align-items: baseline; min-width: 0;
+  padding: var(--space-2) var(--space-2); border-radius: var(--radius-sm);
+  text-decoration: none; min-height: var(--touch-target-min);
+}
+.fio-ref-prog:hover { background: var(--surface-subtle); }
+.fio-ref-prog code {
+  flex: none; font-family: var(--font-mono); font-size: var(--text-xs);
+  font-weight: var(--weight-semibold); color: var(--text-accent);
+}
+.fio-ref-prog span {
+  font-size: var(--text-xs); color: var(--text-secondary); line-height: var(--leading-snug);
+}
+.fio-ref-print {
+  margin: var(--space-6) 0 0; font-size: var(--text-sm); color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .fio-outcomes { padding: var(--space-8) var(--space-5); }
+  .fio-ref { padding: var(--space-8) var(--space-5) var(--space-10); }
+  .fio-ref-grid { grid-template-columns: 1fr; }
+  .fio-ref-card { padding: var(--space-4); }
+  .fio-outcome-where { margin-left: 0; display: block; margin-top: var(--space-1); }
+}
+
+/* ---- print ------------------------------------------------------------ */
+
+/* What a student carries into the laboratory is the reference, not the
+   walkthrough. The stages are twenty-three screens of things to do at a
+   machine; printed they are useless and enormous. So printing the page gives
+   the outcomes and the reference, on as few sheets as possible. */
+@media print {
+  .aw-hero, .fio-before-wrap, .aw-map-wrap, .aw-walk,
+  header, footer, .dls-totop, .aw-nav { display: none !important; }
+
+  .fio-ref-wrap, .fio-outcomes-wrap {
+    background: #fff; border: 0; break-inside: auto;
+  }
+  .fio-ref { padding: 0; max-width: none; }
+  .fio-outcomes { padding: 0 0 12pt; max-width: none; }
+
+  .fio-ref-grid { display: block; }
+  .fio-ref-card {
+    break-inside: avoid; page-break-inside: avoid;
+    border: 0; border-top: 1pt solid #000; border-radius: 0;
+    padding: 6pt 0 0; margin: 0 0 10pt;
+  }
+  .fio-ref-card-title { font-size: 11pt; }
+  .fio-ref-card-note, .fio-ref-table td, .fio-ref-foot,
+  .fio-ref-prog span, .fio-ref-lede { font-size: 8pt; color: #000; }
+  .fio-ref-table th code, .fio-ref-prog code { font-size: 8pt; color: #000; }
+  .fio-ref-print { display: none; }
+  .fio-ref-prog { min-height: 0; padding: 1pt 0; }
+  a[href]::after { content: ""; }   /* no URL footnotes: these are local files */
+}

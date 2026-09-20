@@ -49,15 +49,17 @@ export const stages = [
     n: 2,
     title: "Opening a file",
     goal: "Get a FILE pointer, and make your program say so out loud when it cannot.",
-    minutes: 10,
+    minutes: 12,
     outcome: {
       name: "An honest open",
       mark: OpenMark,
       have: (
         <>
           A program that opens a file and, when it cannot, tells you exactly why
-          instead of ending in silence. This is the single habit that saves the
-          most time this week: an unchecked{" "}
+          instead of ending in silence — and that can hold an input and an
+          output open at once, which is what nearly every real program does.
+          Checking the open is the single habit that saves the most time this
+          week: an unchecked{" "}
           <code className="aw-code">fopen</code> is why a program runs, prints
           nothing, and exits as though everything were fine.
         </>
@@ -104,7 +106,7 @@ export const stages = [
     n: 5,
     title: "Data worth reading",
     goal: "Use a delimiter to store several fields per record, and turn a CSV file into a formatted table.",
-    minutes: 14,
+    minutes: 16,
     outcome: {
       name: "A table from a file",
       mark: TableMark,
