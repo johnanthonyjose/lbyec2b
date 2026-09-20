@@ -1,6 +1,5 @@
 import React from "react";
-import { Button } from "../../components/ds/index.js";
-import { stages } from "./stages.jsx";
+import { Button } from "../ds/index.js";
 
 /* The moment a stage ends.
 
@@ -9,18 +8,23 @@ import { stages } from "./stages.jsx";
    earned. It states what they now hold, so progress reads as an acquisition
    rather than a count of tasks discharged. And it is the designed place to
    stop — a reader who walks away here walks away at a clean boundary rather
-   than half way through a clone.
+   than half way through a clone, or half way through a read loop.
 
    Naming the next stage and its cost in minutes is what makes continuing feel
    small. "About six minutes" is a much easier thing to agree to than an
-   unbounded remainder. */
+   unbounded remainder.
+
+   Shared by every staged handout, so the stage list and the closing words are
+   props. `finale` carries the two things that cannot be derived — what to call
+   the end of this particular procedure, and what the reader has when it is
+   over. */
 
 const eyebrow = {
   fontSize: "var(--text-2xs)", fontWeight: 700, letterSpacing: "var(--tracking-wider)",
   textTransform: "uppercase"
 };
 
-export function StageComplete({ stage, next, onContinue, onLater, onRestart }) {
+export function StageComplete({ stage, stages, next, onContinue, onLater, onRestart, finale }) {
   const panelRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -41,7 +45,7 @@ export function StageComplete({ stage, next, onContinue, onLater, onRestart }) {
       aria-label={`Stage ${stage.n} complete: ${stage.outcome.name}`}>
       <div className="aw-done">
         <div style={{ ...eyebrow, color: "var(--gold-300)" }}>
-          {final ? "All five stages complete" : `Stage ${stage.n} of 5 complete`}
+          {final ? finale.eyebrow : `Stage ${stage.n} of ${stages.length} complete`}
         </div>
 
         {final ? (
@@ -61,13 +65,11 @@ export function StageComplete({ stage, next, onContinue, onLater, onRestart }) {
         )}
 
         <h2 className="aw-done-title">
-          {final ? "Your assignment is submitted" : stage.outcome.name}
+          {final ? finale.title : stage.outcome.name}
         </h2>
 
         <p className="aw-done-have">
-          {final
-            ? "Your code is on GitHub, it passed the check, and the link is recorded in Canvas. That is the whole workflow — every assignment this term follows the same five stages."
-            : stage.outcome.have}
+          {final ? finale.have : stage.outcome.have}
         </p>
 
         {next ? (
@@ -97,6 +99,30 @@ export function StageComplete({ stage, next, onContinue, onLater, onRestart }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/* A stage finished but already acknowledged still needs a way forward — the
+   completion panel only appears once. */
+export function StageDoneFooter({ stage, next, onContinue, allDone, onRestart }) {
+  return (
+    <div className="aw-stagedone">
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div className="aw-eyebrow" style={{ color: "var(--green-800)" }}>
+          Stage {stage.n} complete · {stage.outcome.name}
+        </div>
+        <p className="aw-stagedone-have">{stage.outcome.have}</p>
+      </div>
+      {next ? (
+        <Button variant="primary" onClick={onContinue} style={{ height: 44 }}>
+          Begin Stage {next.n}
+        </Button>
+      ) : allDone ? (
+        <button type="button" className="aw-nav-btn" onClick={onRestart}>
+          Clear my progress
+        </button>
+      ) : null}
     </div>
   );
 }

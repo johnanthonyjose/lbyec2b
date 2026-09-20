@@ -36,7 +36,8 @@ export default function CourseOverview() {
         pages={[
           { href: "index.html", label: "Home" },
           { href: "github-account.html", label: "GitHub account" },
-          { href: "assignment-workflow.html", label: "Assignment workflow" }
+          { href: "assignment-workflow.html", label: "Assignment workflow" },
+          { href: "file-io.html", label: "File I/O" }
         ]}
         sections={navSections} active={active} progressRef={progressRef} />
 

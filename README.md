@@ -21,34 +21,53 @@ index.html               hub page          -> src/main-index.jsx           -> sr
 course-overview.html     the syllabus page -> src/main-course-overview.jsx -> src/pages/CourseOverview.jsx
 github-account.html      handout 01        -> src/main-github-account.jsx  -> src/pages/GitHubAccount.jsx
 assignment-workflow.html handout 02        -> src/main-assignment-workflow.jsx -> src/pages/AssignmentWorkflow.jsx
+file-io.html             handout 03        -> src/main-file-io.jsx          -> src/pages/FileIO.jsx
 
 src/
   data/course.js         ALL course content: weeks, outcomes, rubrics, policies, references
   styles/
     dlsu/                the design system's token layer (colours, type, spacing, elevation, motion)
     site.css             site-wide utilities and the responsive rules
+    parts/               one stylesheet per component introduced by handout 03,
+                         imported from site.css. Kept separate so components
+                         can be added without editing a 1,200-line file.
   components/
     ds/                  design-system components (Button, Card, Tabs, Tag, Badge)
     figures/             figure primitives shared by the handouts
     SiteHeader/Footer    chrome shared by every page
+    walkthrough/         the staged-handout engine: stage gating, the stage map,
+                         the step frame, the completion panel and persistence.
+                         Shared by handouts 02 and 03; a new staged handout
+                         should need three data files and a shell, not a copy
+                         of this.
     Resolution.jsx       the "anticipated difficulty" modal, shared
-    SelfCheck.jsx        the two-answer checkpoint, shared
+    SelfCheck.jsx        the two-answer checkpoint — verifies what is on screen
+    PredictCheck.jsx     the prediction checkpoint — commits to an answer first
+    FileMachine.jsx      handout 03's trace visualiser: the stream position,
+                         the write buffer and EOF, which prose cannot show
     Section.jsx          the section shell and heading
     Brand.jsx            the wordmark and course mark
   pages/
     course-overview/     one file per section of the course page
     github-account/      handout 01's step and resolution content
     assignment-workflow/ handout 02's stages, steps, resolutions and UI
+    file-io/             handout 03's stages, steps (split at the stage-4
+                         boundary for size), resolutions and page chrome
   hooks/                 scroll progress, scroll spy, persistent state
 
 public/                  copied verbatim into the build
   .nojekyll              stops GitHub Pages running the files through Jekyll
   assets/img/            photographs
   assets/img/aw/         handout 02's figures, built by tools/build-aw-assets.sh
+  assets/file-io/        handout 03's sample programs and data files. Authored
+                         for this handout: the originals were hosted on
+                         workshopj.com, which no longer responds.
 
 tools/
   build-aw-assets.sh     rebuilds handout 02's figures from original/
-  smoke.sh, smoke.html   behavioural test for both handouts
+  smoke.sh, smoke.html   behavioural test for all three handouts, in real Chrome
+  render-check.mjs       renders every page, step and modal without a browser
+  check-steps.py         structural check on handout 03's step data
 
 original/                the Craft exports the handouts were ported from
 ```

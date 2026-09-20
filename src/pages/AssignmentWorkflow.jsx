@@ -3,8 +3,12 @@ import { SiteHeader } from "../components/SiteHeader.jsx";
 import { SiteFooter } from "../components/SiteFooter.jsx";
 import { Button } from "../components/ds/index.js";
 import { Resolution } from "../components/Resolution.jsx";
+import { SelfCheck } from "../components/SelfCheck.jsx";
 import { ZoomContext } from "../components/figures/index.js";
-import { usePersistentState } from "../hooks/index.js";
+import {
+  useWalkthrough, scrollToId,
+  StageMap, Step, StepNav, StageComplete, StageDoneFooter
+} from "../components/walkthrough/index.js";
 
 import { OsContext, DEFAULT_OS } from "./assignment-workflow/os.jsx";
 import { stages, stageByN, TOTAL_STAGES, TOTAL_MINUTES } from "./assignment-workflow/stages.jsx";
@@ -12,28 +16,36 @@ import { stepsInStage, sizeOfStage, stepAt } from "./assignment-workflow/steps.j
 import { resolutionById } from "./assignment-workflow/resolutions.jsx";
 import { prereqsFor } from "./assignment-workflow/prereqs.jsx";
 import { Prerequisites } from "./assignment-workflow/Prerequisites.jsx";
-import { StageMap } from "./assignment-workflow/StageMap.jsx";
-import { Step } from "./assignment-workflow/Step.jsx";
-import { StageComplete } from "./assignment-workflow/StageComplete.jsx";
+import { AppStrip } from "./assignment-workflow/AppStrip.jsx";
 import { OsToggle } from "./assignment-workflow/OsToggle.jsx";
 import { Lightbox } from "./assignment-workflow/Lightbox.jsx";
 import { RepoMark } from "./assignment-workflow/OutcomeMarks.jsx";
 
+/* The assignment-workflow handout.
+
+   The staging, persistence and gating all live in components/walkthrough now,
+   shared with the File I/O handout. What is left here is what is genuinely
+   particular to this procedure: the platform fork, the prerequisite gate in
+   front of stage 1, and the screenshot lightbox. */
+
 const STORAGE_KEY = "lbyec2b-aw";
 
-const INITIAL = {
-  v: 1,
-  os: DEFAULT_OS,    // "win" | "mac" — Windows until the reader says otherwise
-  prereq: {},        // { account: true, ... }
-  skipped: false,    // opened the stages without ticking the prerequisites
-  answers: {},       // { "S3.4": "ok" | "alt" }
-  stage: 0,          // 0 = still on the prerequisites
-  step: 1,
-  acknowledged: []   // stages whose completion panel has been dismissed
-};
-
 export default function AssignmentWorkflow() {
-  const [saved, save] = usePersistentState(STORAGE_KEY, INITIAL);
+  const w = useWalkthrough({
+    storageKey: STORAGE_KEY,
+    stages, stepsInStage, sizeOfStage, stepAt,
+    // Stage 1 opens once every prerequisite is ticked, or once the reader has
+    // said they would rather get on with it.
+    isGateOpen: (s) =>
+      prereqsFor(s.os || DEFAULT_OS).every((p) => (s.prereq || {})[p.id]) || !!s.skipped,
+    extraInitial: {
+      os: DEFAULT_OS,  // "win" | "mac" — Windows until the reader says otherwise
+      prereq: {},      // { account: true, ... }
+      skipped: false   // opened the stages without ticking the prerequisites
+    }
+  });
+
+  const { saved, save, answers, stage, step, size, current, started } = w;
 
   // The open resolution is deliberately not persisted, exactly as on the
   // GitHub-account handout: a reload should never restore a modal.
@@ -48,80 +60,36 @@ export default function AssignmentWorkflow() {
   const [zoomed, setZoomed] = React.useState(null);
 
   const os = saved.os || DEFAULT_OS;
-  const answers = saved.answers || {};
   const ticked = saved.prereq || {};
 
-  /* ---- derived state, all pure functions of what is stored ---- */
-
-  const doneIn = (n) => stepsInStage(n).filter((s) => answers[s.id] === "ok").length;
-  const isComplete = (n) => doneIn(n) === sizeOfStage(n);
-  const gateOk = prereqsFor(os).every((p) => ticked[p.id]) || !!saved.skipped;
-  const isOpen = (n) => (n === 1 ? gateOk : isComplete(n - 1));
-
-  const stage = saved.stage || 0;
-  const started = stage >= 1;
-  const size = started ? sizeOfStage(stage) : 0;
-  const step = started ? Math.min(size, Math.max(1, saved.step || 1)) : 1;
-  const current = started ? stepAt(stage, step) : null;
-
-  // The panel appears when the stage in hand is finished and has not been
-  // dismissed. Written on dismissal rather than on mount, so reloading while it
-  // is open shows it again — which is right, that reader never saw the end of it.
-  const showComplete =
-    started && isComplete(stage) && !(saved.acknowledged || []).includes(stage);
-
-  const allDone = stages.every((s) => isComplete(s.n));
-  const pct = started
-    ? Math.round(((stage - 1 + doneIn(stage) / size) / TOTAL_STAGES) * 100)
-    : 0;
-
-  /* ---- transitions ---- */
-
-  const goStage = (n) => save({ ...saved, stage: n, step: 1 });
-  const goStep = (n) => save({ ...saved, step: Math.min(size, Math.max(1, n)) });
-  const answer = (id, value) => save({ ...saved, answers: { ...answers, [id]: value } });
   const tick = (id) => save({ ...saved, prereq: { ...ticked, [id]: !ticked[id] } });
   const setOs = (value) => save({ ...saved, os: value });
 
-  const acknowledge = (extra = {}) =>
-    save({
-      ...saved,
-      acknowledged: Array.from(new Set([...(saved.acknowledged || []), stage])),
-      ...extra
-    });
-
-  // Clearing progress keeps the platform choice. That is a preference, not
-  // progress, and making someone set it again would be a small rudeness.
+  // Clearing progress keeps the platform choice.
   const restart = () => {
-    save({ ...INITIAL, os: saved.os });
+    w.restart({ os: saved.os });
     setFix(0);
-    scrollTo("before");
+    scrollToId("before");
   };
 
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) window.scrollTo({ top: el.offsetTop - 72, behavior: "smooth" });
+  const begin = () => { w.goStage(1); setTimeout(() => scrollToId("walk"), 0); };
+  const skipGate = () => {
+    save({ ...saved, skipped: true, stage: 1, step: 1 });
+    setTimeout(() => scrollToId("walk"), 0);
   };
-
-  const begin = () => { goStage(1); setTimeout(() => scrollTo("walk"), 0); };
-  const skipGate = () => { save({ ...saved, skipped: true, stage: 1, step: 1 }); setTimeout(() => scrollTo("walk"), 0); };
 
   const continueToNext = () => {
-    acknowledge({ stage: stage + 1, step: 1 });
-    setTimeout(() => scrollTo("walk"), 0);
+    w.acknowledge({ stage: stage + 1, step: 1 });
+    setTimeout(() => scrollToId("walk"), 0);
   };
 
   const returnFromFix = (to) => {
     setFix(0);
     save({ ...saved, stage: to.stage, step: to.step });
-    setTimeout(() => scrollTo("walk"), 0);
+    setTimeout(() => scrollToId("walk"), 0);
   };
 
   const fixData = fix ? resolutionById[fix] : null;
-
-  const progressLabel = started
-    ? `Stage ${stage} of ${TOTAL_STAGES} — ${doneIn(stage)} of ${size} in this stage`
-    : "Not started";
 
   return (
     <OsContext.Provider value={os}>
@@ -135,24 +103,26 @@ export default function AssignmentWorkflow() {
             { href: "index.html", label: "Home" },
             { href: "course-overview.html", label: "Course overview" },
             { href: "github-account.html", label: "GitHub account" },
-            { href: "assignment-workflow.html", label: "Assignment workflow", current: true }
+            { href: "assignment-workflow.html", label: "Assignment workflow", current: true },
+            { href: "file-io.html", label: "File I/O" }
           ]}
-          progress={pct}
-          progressLabel={progressLabel}
+          progress={w.pct}
+          progressLabel={w.progressLabel}
         />
 
         <main>
-          <Hero started={started} stage={stage} onBegin={() => scrollTo(started ? "walk" : "before")} />
+          <Hero started={started} stage={stage}
+            onBegin={() => scrollToId(started ? "walk" : "before")} />
 
           <Prerequisites
             os={os}
             onOs={setOs}
             ticked={ticked}
             onTick={tick}
-            ready={gateOk}
+            ready={w.gateOpen}
             skipped={!!saved.skipped}
             onSkip={skipGate}
-            onBegin={started ? () => { setOpenPrereq(false); scrollTo("walk"); } : begin}
+            onBegin={started ? () => { setOpenPrereq(false); scrollToId("walk"); } : begin}
             collapsed={started && !openPrereq}
             onExpand={() => setOpenPrereq(true)}
             onCollapse={started ? () => setOpenPrereq(false) : undefined}
@@ -161,13 +131,17 @@ export default function AssignmentWorkflow() {
           {started && (
             <>
               <StageMap
+                stages={stages}
+                stepsInStage={stepsInStage}
                 stage={stage}
                 step={step}
                 answers={answers}
-                isComplete={isComplete}
-                isOpen={isOpen}
-                onGoStage={goStage}
-                onGoStep={goStep}
+                isComplete={w.isComplete}
+                isOpen={w.isOpen}
+                onGoStage={w.goStage}
+                onGoStep={w.goStep}
+                eyebrow="The five stages"
+                intro="One step is shown at a time. Each stage opens when the one before it is finished. Your place is kept on this device only — nothing here is submitted or graded."
               />
 
               <section id="walk" className="dls-section aw-walk">
@@ -176,31 +150,29 @@ export default function AssignmentWorkflow() {
                 <Step
                   key={current.id}
                   step={current}
-                  answer={answers[current.id]}
-                  onAnswer={(v) => answer(current.id, v)}
+                  total={size}
                   onOpenFix={() => setFix(current.fix)}
+                  context={<AppStrip app={current.app} />}
+                  check={
+                    <SelfCheck
+                      label="Checkpoint"
+                      question={current.check.question}
+                      ok={current.check.ok}
+                      alt={current.check.alt}
+                      value={answers[current.id]}
+                      onAnswer={(v) => w.answer(current.id, v)}
+                    />
+                  }
                 />
 
-                <nav className="aw-nav" aria-label="Move between steps">
-                  <button type="button" className="aw-nav-btn" onClick={() => goStep(step - 1)}
-                    disabled={step === 1}>
-                    Previous step
-                  </button>
-                  <span className="aw-nav-count">Step {step} of {size}</span>
-                  <button type="button" className="aw-nav-btn is-primary"
-                    onClick={() => goStep(step + 1)} disabled={step === size}>
-                    Next step
-                  </button>
-                </nav>
+                <StepNav step={step} total={size} onGoStep={w.goStep} />
 
-                {/* A stage finished but already acknowledged still needs a way
-                    forward — the panel only appears once. */}
-                {isComplete(stage) && !showComplete && (
+                {w.isComplete(stage) && !w.showComplete && (
                   <StageDoneFooter
                     stage={stageByN[stage]}
                     next={stageByN[stage + 1]}
-                    onContinue={() => { goStage(stage + 1); setTimeout(() => scrollTo("walk"), 0); }}
-                    allDone={allDone}
+                    onContinue={() => { w.goStage(stage + 1); setTimeout(() => scrollToId("walk"), 0); }}
+                    allDone={w.allDone}
                     onRestart={restart}
                   />
                 )}
@@ -220,13 +192,19 @@ export default function AssignmentWorkflow() {
           />
         )}
 
-        {showComplete && (
+        {w.showComplete && (
           <StageComplete
             stage={stageByN[stage]}
+            stages={stages}
             next={stageByN[stage + 1]}
             onContinue={continueToNext}
-            onLater={() => acknowledge()}
+            onLater={() => w.acknowledge()}
             onRestart={restart}
+            finale={{
+              eyebrow: "All five stages complete",
+              title: "Your assignment is submitted",
+              have: "Your code is on GitHub, it passed the check, and the link is recorded in Canvas. That is the whole workflow — every assignment this term follows the same five stages."
+            }}
           />
         )}
         {zoomed && <Lightbox figure={zoomed} onClose={() => setZoomed(null)} />}
@@ -287,28 +265,6 @@ function StageBanner({ stage, os, onOs }) {
         <p className="aw-stagebanner-goal">{stage.goal}</p>
       </div>
       <OsToggle os={os} onChange={onOs} />
-    </div>
-  );
-}
-
-function StageDoneFooter({ stage, next, onContinue, allDone, onRestart }) {
-  return (
-    <div className="aw-stagedone">
-      <div style={{ minWidth: 0, flex: 1 }}>
-        <div className="aw-eyebrow" style={{ color: "var(--green-800)" }}>
-          Stage {stage.n} complete · {stage.outcome.name}
-        </div>
-        <p className="aw-stagedone-have">{stage.outcome.have}</p>
-      </div>
-      {next ? (
-        <Button variant="primary" onClick={onContinue} style={{ height: 44 }}>
-          Begin Stage {next.n}
-        </Button>
-      ) : allDone ? (
-        <button type="button" className="aw-nav-btn" onClick={onRestart}>
-          Clear my progress
-        </button>
-      ) : null}
     </div>
   );
 }

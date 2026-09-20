@@ -1,32 +1,48 @@
 import React from "react";
-import { stages } from "./stages.jsx";
-import { stepsInStage } from "./steps.jsx";
 
 /* Five rows. Never thirty.
 
-   This component is where the page keeps its promise. The GitHub-account
-   handout lays all seven of its steps out at once, which is fine at seven. Laid
-   out the same way, this procedure would open with a wall of thirty titles —
-   and a reader who counts thirty decides it is too long before starting.
+   This component is where a staged handout keeps its promise. The
+   GitHub-account handout lays all seven of its steps out at once, which is fine
+   at seven. Laid out the same way, a thirty-step procedure would open with a
+   wall of titles — and a reader who counts thirty decides it is too long before
+   starting.
 
-   So the map shows the five stages, and only the stage in hand expands to its
-   own steps. A finished stage collapses to one line naming what it produced. A
+   So the map shows the stages, and only the stage in hand expands to its own
+   steps. A finished stage collapses to one line naming what it produced. A
    stage not yet reached shows its title and its cost in minutes but no steps at
    all, so the road ahead is legible without being heavy.
 
-   The step chips inside the open stage are numbered within the stage: the
-   largest number this component can render is seven. */
+   The step chips inside the open stage are numbered within the stage, so the
+   largest number this component can render is the length of the longest stage.
 
-export function StageMap({ stage, step, answers, isComplete, isOpen, onGoStage, onGoStep }) {
+   It is shared by every staged handout and therefore takes its stages and its
+   step lookup as props rather than importing them. The class names stay on the
+   `aw-` prefix they were born with — renaming ninety-five selectors across a
+   shipped stylesheet would be churn with no reader-visible benefit, and the
+   same decision was already taken for the `gh-` utilities. */
+
+export function StageMap({
+  stages,
+  stepsInStage,
+  stage,
+  step,
+  answers,
+  isComplete,
+  isOpen,
+  onGoStage,
+  onGoStep,
+  eyebrow,
+  intro
+}) {
   return (
     <section className="aw-map-wrap" aria-label="Stages">
       <div className="dls-section aw-map-inner">
-        <div className="aw-eyebrow">The five stages</div>
-        <p className="aw-map-intro">
-          One step is shown at a time. Each stage opens when the one before it is
-          finished. Your place is kept on this device only — nothing here is
-          submitted or graded.
-        </p>
+        {/* A heading rather than a styled div, so the map is reachable when
+            navigating by heading. .aw-eyebrow sets its own size and weight, so
+            nothing about it changes visually. */}
+        <h2 className="aw-eyebrow">{eyebrow}</h2>
+        <p className="aw-map-intro">{intro}</p>
 
         <ol className="aw-map">
           {stages.map((s) => {

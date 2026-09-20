@@ -51,7 +51,8 @@ export default function GitHubAccount() {
           { href: "index.html", label: "Home" },
           { href: "course-overview.html", label: "Course overview" },
           { href: "github-account.html", label: "GitHub account", current: true },
-          { href: "assignment-workflow.html", label: "Assignment workflow" }
+          { href: "assignment-workflow.html", label: "Assignment workflow" },
+          { href: "file-io.html", label: "File I/O" }
         ]}
         progress={pct}
         progressLabel={allDone ? "Seven of seven steps confirmed" : `${doneCount} of ${TOTAL} steps confirmed`}

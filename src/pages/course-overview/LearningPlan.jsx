@@ -119,6 +119,15 @@ export function LearningPlan({ showFilters = true }) {
                       <Detail label="Due" value={w.due} />
                       <Detail label="Environment" value={w.env} />
                     </div>
+                    {/* A week that has a handout of its own says so here, so the
+                        plan is a way into the material rather than only a
+                        description of it. */}
+                    {w.handout && (
+                      <a className="dls-link-quiet" href={w.handout.href} style={{
+                        display: "inline-block", marginTop: 16, fontSize: "var(--text-sm)",
+                        fontWeight: "var(--weight-semibold)", color: "var(--text-accent)"
+                      }}>{w.handout.label} →</a>
+                    )}
                   </div>
                 </div>
               )}

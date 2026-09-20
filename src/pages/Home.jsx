@@ -31,6 +31,13 @@ const pages = [
     ready: true
   },
   {
+    href: "file-io.html",
+    eyebrow: "Week 3",
+    title: "Making a program remember",
+    body: "Handout 03. File input and output in C: opening a file and failing honestly rather than silently, writing with fprintf, reading back a character and a line at a time with the stream position shown as it moves, and turning a comma-delimited data file into a formatted table. Five stages, with the sample programs to download.",
+    ready: true
+  },
+  {
     href: null,
     eyebrow: "Schedule",
     title: "Weekly schedule",
@@ -55,7 +62,8 @@ export default function Home() {
       <SiteHeader pages={[
           { href: "course-overview.html", label: "Course overview" },
           { href: "github-account.html", label: "GitHub account" },
-          { href: "assignment-workflow.html", label: "Assignment workflow" }
+          { href: "assignment-workflow.html", label: "Assignment workflow" },
+          { href: "file-io.html", label: "File I/O" }
         ]} />
 
       <main>

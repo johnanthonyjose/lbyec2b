@@ -3,7 +3,7 @@
 <body style="font:13px/1.5 ui-monospace,monospace;padding:20px">
 <pre id="out">running…</pre>
 <script>
-/* Behavioural smoke test for the two handouts.
+/* Behavioural smoke test for the three handouts.
 
    The repo carries no test runner, and both handouts are stateful enough that
    "it builds" proves very little — the assignment workflow alone has thirty
@@ -189,9 +189,179 @@ async function githubAccount() {
      "the workflow page's figure treatment leaked into handout 01");
 }
 
+
+/* ── File I/O, handout 03 ────────────────────────────────────────────────
+
+   The two things worth driving here that no other handout has are the
+   prediction checkpoint and the FileMachine. A PredictCheck deliberately does
+   not expose which option is correct anywhere in the DOM, so this walks the
+   options the way a student does — one at a time until the box reports itself
+   solved — which incidentally proves the contract that matters most: a wrong
+   answer must never lock the reader out of the right one. */
+async function fileIO() {
+  results.push("", "── file i/o ──");
+  localStorage.removeItem("lbyec2b-fio");
+  await load("/file-io.html");
+
+  ok("starts on the readiness gate", !D().getElementById("walk"), "walk rendered early");
+  ok("publishes minutes, never a step count",
+     /about \d+ minutes/i.test(txt()) && !/\b22\b/.test(txt()), "a step total appeared");
+  ok("offers the sample programs as downloads", all(".fio-dl").length >= 10,
+     `found ${all(".fio-dl").length} downloads`);
+  ok("does not offer test.txt, which stage 3 writes",
+     !all(".fio-dl-name").some(n => /^test\.txt$/.test(n.textContent.trim())),
+     "test.txt was offered");
+
+  // Every download must actually resolve; a 404 here is an evening lost.
+  const hrefs = all(".fio-dl").map(a => a.getAttribute("href"));
+  const codes = await Promise.all(hrefs.map(h =>
+    fetch("/" + h.replace(/^\.?\//, "")).then(r => r.status).catch(() => 0)));
+  ok("every sample file actually downloads", codes.every(c => c === 200),
+     `statuses ${[...new Set(codes)].join(",")}`);
+
+  byText("button", /I have done all this before/).click(); await wait(400);
+  ok("the soft gate opens Stage 1", !!D().getElementById("walk"), "walk missing");
+
+  // Accessibility properties that a build cannot check and that were all
+  // genuinely wrong once. Measured on the real page rather than asserted.
+  const cs = (el) => D().defaultView.getComputedStyle(el);
+  const tall = (el) => el ? Math.round(parseFloat(cs(el).minHeight) || el.getBoundingClientRect().height) : 0;
+
+  ok("the copy button meets the 44px touch target",
+     tall(D().querySelector(".fio-copy")) >= 44, `${tall(D().querySelector(".fio-copy"))}px`);
+  ok("step chips have a 44px hit area",
+     tall(D().querySelector(".aw-steps li")) >= 44, `${tall(D().querySelector(".aw-steps li"))}px`);
+  ok("code blocks are reachable by keyboard when they scroll",
+     all(".fio-code-scroll").length > 0 && all(".fio-code-scroll").every(e => e.tabIndex === 0),
+     "a scroll container was not focusable");
+  ok("the step title sits under the stage title, not beside it",
+     D().querySelector(".aw-step-title")?.tagName === "H3",
+     `step title is ${D().querySelector(".aw-step-title")?.tagName}`);
+  ok("the stage map is reachable by heading",
+     D().querySelector(".aw-map-inner h2.aw-eyebrow") !== null, "no heading on the stage map");
+
+
+  // One deliberate wrong prediction, checked properly, before walking the rest.
+  let firstPredict = null;
+  for (let i = 0; i < 6 && !firstPredict; i++) {
+    if (all(".pc-choice").length) { firstPredict = true; break; }
+    const n = byText("button", /^Next step$/); if (n && !n.disabled) { n.click(); await wait(200); }
+  }
+  if (firstPredict) {
+    const before = all(".pc-choice").length;
+    all(".pc-choice")[0].click(); await wait(200);
+    const solved = !!D().querySelector(".pc-box.is-solved");
+    ok("a prediction reveals a note either way", !!D().querySelector(".pc-note"), "no note revealed");
+    ok("nothing is scored or marked wrong",
+       !/\bincorrect\b|\bwrong answer\b|\byour score\b/i.test(txt()), "the page scored the answer");
+    ok("every option stays selectable after answering",
+       all(".pc-choice").length === before &&
+       all(".pc-choice").every(b => !b.disabled), "an option was locked");
+    if (!solved) {
+      const stored = JSON.parse(localStorage.getItem("lbyec2b-fio")).answers;
+      ok("a wrong prediction is stored but does not count",
+         Object.values(stored).length > 0 && !Object.values(stored).includes("ok"),
+         `stored ${JSON.stringify(stored)}`);
+    }
+  }
+
+  // Walk the whole handout. Predict steps are solved by trying options in turn.
+  const SIZES = [4, 4, 4, 5, 5];
+  let maxDen = 0, rowCounts = new Set(), machinesDriven = 0, unsolved = 0, sawConsumedCue = false;
+
+  for (let stage = 1; stage <= 5; stage++) {
+    for (let step = 1; step <= SIZES[stage - 1]; step++) {
+      [...txt().matchAll(/step \d+ of (\d+)/gi)].forEach(m => { maxDen = Math.max(maxDen, +m[1]); });
+      rowCounts.add(all(".aw-row").length);
+
+      // Drive the FileMachine wherever one appears.
+      const fm = D().querySelector(".fm");
+      if (fm) {
+        const countOf = () => (D().querySelector(".fm-count") || {}).textContent || "";
+        const posOf = () => (D().querySelector(".fm-bytes") || {}).textContent || "";
+        const first = countOf(), firstBytes = posOf();
+        const next = [...fm.querySelectorAll(".fm-btn")].find(b => /Next/.test(b.textContent));
+        if (next && !next.disabled) {
+          next.click(); await wait(140);
+          if (countOf() !== first) machinesDriven++;
+          const reset = [...fm.querySelectorAll(".fm-btn")].find(b => /Reset/.test(b.textContent));
+          if (reset && !reset.disabled) { reset.click(); await wait(140); }
+          ok(`the trace on stage ${stage} step ${step} resets to its first call`,
+             countOf() === first && posOf() === firstBytes, "reset did not restore the first frame");
+        }
+      }
+
+      const consumed = D().querySelector(".fm-b.is-consumed");
+      if (consumed && !sawConsumedCue) {
+        sawConsumedCue = true;
+        ok("consumed bytes are not marked by colour alone",
+           cs(consumed).textDecorationLine.includes("underline"),
+           `text-decoration-line: ${cs(consumed).textDecorationLine}`);
+      }
+
+      if (all(".pc-choice").length) {
+        const opts = all(".pc-choice").length;
+        for (let i = 0; i < opts; i++) {
+          all(".pc-choice")[i].click(); await wait(90);
+          if (D().querySelector(".pc-box.is-solved")) break;
+        }
+        if (!D().querySelector(".pc-box.is-solved")) unsolved++;
+      } else if (all(".gh-ans").length) {
+        all(".gh-ans")[0].click(); await wait(90);
+      }
+
+      const n = byText("button", /^Next step$/);
+      if (n && !n.disabled) { n.click(); await wait(150); }
+    }
+
+    await wait(700);
+    const dlg = D().querySelector('.aw-done-scrim[role="dialog"]');
+    ok(`stage ${stage} completion panel appears`, !!dlg, "no panel");
+    if (!dlg) return;
+    ok(`stage ${stage} completion panel is visible, not just present`,
+       opacity(D().querySelector(".aw-done")) === 1, `opacity ${opacity(D().querySelector(".aw-done"))}`);
+
+    if (stage < 5) {
+      byText("button", new RegExp(`Begin Stage ${stage + 1}`)).click(); await wait(400);
+    } else {
+      ok("the final panel shows all five outcomes",
+         dlg.querySelectorAll(".aw-done-marks li").length === 5, "not five marks");
+      ok("the finale names what the reader ends up with",
+         /formatted table|reads a data file/i.test(dlg.innerText), "no closing artefact named");
+      byText("button", /^Close$/).click(); await wait(300);
+    }
+  }
+
+  ok("every prediction has a reachable correct answer", unsolved === 0, `${unsolved} never solved`);
+  ok("at least three traces were driven", machinesDriven >= 3, `drove ${machinesDriven}`);
+  ok("the stage map always shows exactly five rows",
+     rowCounts.size === 1 && rowCounts.has(5), `row counts seen: ${[...rowCounts]}`);
+  ok("the largest step denominator shown is 5", maxDen <= 5, `saw 'of ${maxDen}'`);
+
+  const before = JSON.parse(localStorage.getItem("lbyec2b-fio"));
+  await load("/file-io.html");
+  const after = JSON.parse(localStorage.getItem("lbyec2b-fio"));
+  ok("progress survives a reload",
+     after.stage === before.stage &&
+     Object.values(after.answers).filter(v => v === "ok").length === 22,
+     `stage ${after.stage}, ${Object.values(after.answers).filter(v => v === "ok").length} completed`);
+  ok("a dismissed completion panel does not return", !D().querySelector(".aw-done-scrim"), "reappeared");
+
+  // The two handouts must not share storage, or finishing one would unlock the other.
+  ok("keeps its progress separate from handout 02",
+     localStorage.getItem("lbyec2b-fio") !== localStorage.getItem("lbyec2b-aw"),
+     "the two handouts share a record");
+
+  frame.style.width = "360px"; await wait(300);
+  ok("no horizontal overflow at 360px",
+     D().documentElement.scrollWidth <= 361, `scrollWidth ${D().documentElement.scrollWidth}`);
+  frame.style.width = "1100px"; await wait(150);
+}
+
 (async () => {
   await assignmentWorkflow();
   await githubAccount();
+  await fileIO();
   const pass = results.filter(r => r.startsWith("PASS")).length;
   const fail = results.filter(r => r.startsWith("FAIL")).length;
   document.getElementById("out").textContent =

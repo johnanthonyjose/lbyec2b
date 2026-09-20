@@ -1,4 +1,7 @@
 @import "./dlsu/index.css";
+@import "./parts/file-machine.css";
+@import "./parts/predict-check.css";
+@import "./parts/file-io.css";
 
 html { scroll-behavior: smooth; }
 body { margin: 0; }
@@ -85,6 +88,10 @@ a:hover { color: var(--text-link-hover); }
    ────────────────────────────────────────────────────────────────────────── */
 
 .aw-eyebrow {
+  /* margin: 0 because this class now also styles an h2 in the stage map, and
+     the browser's default heading margin would otherwise open a gap that no
+     other use of the class has. */
+  margin: 0;
   font-size: var(--text-2xs); font-weight: 700; letter-spacing: var(--tracking-wider);
   text-transform: uppercase; color: var(--text-gold);
 }
@@ -218,6 +225,9 @@ ul.aw-p, .aw-p li { color: var(--text-secondary); }
 .aw-row-lock { flex: none; color: var(--text-muted); padding-top: 4px; }
 
 .aw-steps { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0 20px 18px 60px; }
+/* The chip stays a 34px disc for the look of it, but the touch target has to
+   be 44px: these are the primary means of moving between steps on a phone. */
+.aw-steps li { display: grid; place-items: center; min-width: var(--touch-target-min); min-height: var(--touch-target-min); }
 .aw-stepchip {
   width: 34px; height: 34px; border-radius: 999px; cursor: pointer; display: grid; place-items: center;
   font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; font-feature-settings: 'tnum';

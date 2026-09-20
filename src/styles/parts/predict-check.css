@@ -1,0 +1,114 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   PredictCheck (handout 03)
+
+   Deliberately the same furniture as the SelfCheck box — one hairline card, a
+   gold eyebrow, one question, a column of full-width answers — so that the two
+   read as the same kind of pause in the page rather than two different games.
+   The only visual difference is that there can be more than two answers and
+   that each one can open a paragraph beneath itself.
+
+   Nothing in here encodes right or wrong. A chosen option is tinted only once
+   the container carries .is-solved, at which point the chosen option is by
+   definition the correct one, so no rule ever has to colour a mistake.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.pc-box {
+  margin: var(--space-6) 0 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-page);
+}
+
+.pc-eyebrow {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-gold);
+}
+
+.pc-question {
+  margin: var(--space-3) 0 var(--space-4);
+  font-size: var(--text-md);
+  line-height: var(--leading-snug);
+  color: var(--text-primary);
+  max-width: 62ch;
+}
+
+.pc-options {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 560px;
+}
+
+.pc-option {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* The control itself. Left-aligned because the labels are sentences rather
+   than words, and min-height rather than a fixed height so that a label which
+   wraps to three lines on a 360px screen still has its full padding. */
+.pc-choice {
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background: var(--surface-page);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  min-height: var(--touch-target-min);
+  transition: var(--transition-control);
+}
+
+.pc-choice:hover { border-color: var(--border-strong); }
+
+/* Before the prediction is confirmed, "chosen" means only that this is the
+   answer on record. It is marked by weight and a stronger hairline, not by a
+   colour that would be read as a verdict. */
+.pc-choice.is-chosen {
+  border-color: var(--border-strong);
+  background: var(--surface-subtle);
+  font-weight: var(--weight-semibold);
+}
+
+.pc-box.is-solved .pc-choice.is-chosen {
+  border-color: var(--green-700);
+  background: var(--green-50);
+}
+
+/* The revealed note. Indented under its own option by a left rule so that,
+   when every note is open at once, it stays obvious which answer each
+   paragraph belongs to. */
+.pc-note {
+  margin: 0 0 var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border-subtle);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+  max-width: 68ch;
+}
+
+.pc-box.is-solved .pc-choice.is-chosen + .pc-note {
+  border-left-color: var(--green-700);
+  color: var(--text-primary);
+}
+
+/* Wide material inside a note — a path, a printf format, a line of C — scrolls
+   inside the note rather than pushing the page sideways. */
+.pc-note code,
+.pc-note pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .pc-box { padding: var(--space-4) var(--space-4); }
+  .pc-note { padding-left: var(--space-3); }
+}

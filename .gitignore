@@ -13,3 +13,7 @@ _import/
 # *_png_preview.png sidecars, and large binaries are far easier to add to git
 # history than to take back out. Delete this line if the sources should ship.
 original/
+
+# Claude Code's scratch worktrees. A full second checkout of this repo, not
+# source; committing it would nest the tree inside itself.
+.claude/
