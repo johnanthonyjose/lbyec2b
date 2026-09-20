@@ -236,6 +236,18 @@ async function fileIO() {
      "a function table is missing");
   ok("the reference indexes every program",
      all(".fio-ref-prog").length >= 12, `found ${all(".fio-ref-prog").length}`);
+  ok("exercises are set at the end of the lecture",
+     !!D().getElementById("exercises") && all(".fio-ex-item").length >= 6,
+     `${all(".fio-ex-item").length} exercises`);
+  ok("nothing marks or stores the exercises",
+     !D().querySelector("#exercises button") && !D().querySelector("#exercises input"),
+     "an exercise carries a control, which implies it is assessed here");
+  ok("references are given, including the standard",
+     !!D().getElementById("further") &&
+     /kernighan/i.test(txt()) && /9899/.test(txt()) && /man 3 fopen/.test(txt()),
+     "a reference class is missing");
+  ok("the stream model is taught, not assumed",
+     /\bstream\b/i.test(txt()), "the word stream never appears");
   ok("the stage map is visible before starting",
      all(".aw-row").length === 5, `found ${all(".aw-row").length} rows`);
   ok("no stage is locked",

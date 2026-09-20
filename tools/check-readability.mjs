@@ -18,8 +18,18 @@ import { renderToString } from "react-dom/server";
 import React from "react";
 
 const VERBOSE = process.argv.includes("--verbose");
-const CEILING = 18;          // hard ceiling per the rewrite brief
-const TARGET_MEAN = 12;      // target average
+/* Revised. The first target — under 12 words a sentence — was set after the
+   handout came back as textbook prose, and hitting it produced the opposite
+   fault: a quick-start guide with the intellectual content stripped out along
+   with the long sentences. Sentence length was never the real variable.
+
+   The band below is what an academic register looks like when it is still
+   readable: long enough to carry a qualified technical claim, short enough
+   that a second-language reader is not parsing three clauses at once. A mean
+   UNDER the floor now fails, because that is the failure we actually shipped. */
+const FLOOR_MEAN = 13;
+const TARGET_MEAN = 18;
+const CEILING = 30;          // a sentence past this is doing too much at once
 
 const server = await createServer({ server: { middlewareMode: true }, appType: "custom", logLevel: "warn" });
 const store = new Map();
@@ -106,7 +116,7 @@ const over = all.filter(n => n > CEILING);
 const pct = (100 * over.length / all.length);
 
 console.log(`\nsentences measured   ${all.length}`);
-console.log(`mean words/sentence  ${mean.toFixed(1)}   (target under ${TARGET_MEAN})`);
+console.log(`mean words/sentence  ${mean.toFixed(1)}   (target ${FLOOR_MEAN} to ${TARGET_MEAN})`);
 console.log(`over ${CEILING} words        ${over.length}  (${pct.toFixed(1)}%)`);
 console.log(`longest              ${longest.n} words, ${longest.id}`);
 console.log(`   "${longest.s}"`);
@@ -119,6 +129,11 @@ if (VERBOSE) {
 }
 
 await server.close();
-const ok = mean <= TARGET_MEAN + 1 && pct <= 12 && britishHits.length === 0;
-console.log(ok ? "\nReads at the briefed level.\n" : "\nStill too dense.\n");
+const tooSimple = mean < FLOOR_MEAN;
+const tooDense = mean > TARGET_MEAN || pct > 10;
+const ok = !tooSimple && !tooDense && britishHits.length === 0;
+console.log(
+  ok ? "\nReads at the briefed academic level.\n"
+     : tooSimple ? `\nToo simplified: a mean of ${mean.toFixed(1)} is a quick-start guide, not a university handout.\n`
+     : "\nStill too dense.\n");
 process.exit(ok ? 0 : 1);

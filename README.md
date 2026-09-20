@@ -74,9 +74,12 @@ tools/
   check-steps.py         structural check on handout 03's step data
   check-readability.mjs  measures the prose a student actually reads, by
                          rendering each step and counting sentence length.
-                         The handout's audience reads English as a second
-                         language, on a phone, under deadline; the first draft
-                         averaged 18 words a sentence and had to be rewritten.
+                         It enforces a BAND, 13 to 18 words, and fails in both
+                         directions: the first draft was textbook prose at 18.1,
+                         and the correction overshot to 8.8, which reads as a
+                         quick-start guide rather than a university handout.
+                         A tool that only detects one of the two failures is how
+                         the second one shipped.
   check-codeblocks.py    checks every code excerpt on the page against the real
                          program it names, including the line number it claims
                          to start at

@@ -42,8 +42,18 @@ def extract():
 
         # Which option is the right one. The id is what gets stored, so a
         # rewrite may change a label freely but never move `correct: true`.
-        for m in re.finditer(r'id:\s*"([a-z][\w-]*)",\s*\n\s*label:[\s\S]{0,600}?correct:\s*true', src):
-            out["correct"].append(m.group(1))
+        #
+        # Parsed by splitting on option boundaries rather than by one regex
+        # spanning both fields: a span-based match drifts into the NEXT option
+        # whenever a note changes length, and reports a violation that is
+        # really just prose getting longer. It did exactly that twice.
+        for chunk in re.split(r'(?=\bid:\s*"(?!S\d+\.)[a-z])', src):
+            m = re.match(r'id:\s*"([a-z][\w-]*)"', chunk)
+            if not m:
+                continue
+            body = chunk[: chunk.find('id:', 1) if chunk.find('id:', 1) != -1 else len(chunk)]
+            if re.search(r'\bcorrect:\s*true', body):
+                out["correct"].append(m.group(1))
     return out
 
 def main():

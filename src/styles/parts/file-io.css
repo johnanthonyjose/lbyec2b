@@ -327,3 +327,82 @@
   .fio-ref-prog { min-height: 0; padding: 1pt 0; }
   a[href]::after { content: ""; }   /* no URL footnotes: these are local files */
 }
+
+/* ---- exercises -------------------------------------------------------- */
+
+.fio-ex-wrap { border-top: 1px solid var(--border-subtle); }
+.fio-ex { max-width: var(--container-md); margin: 0 auto; padding: var(--space-12) var(--space-8); }
+.fio-ex-lede {
+  margin: var(--space-3) 0 0; max-width: 70ch; font-size: var(--text-base);
+  color: var(--text-secondary); line-height: var(--leading-relaxed);
+}
+.fio-ex-list { list-style: none; margin: var(--space-8) 0 0; padding: 0; display: grid; gap: var(--space-6); }
+.fio-ex-item {
+  border-top: 1px solid var(--border-subtle); padding-top: var(--space-5);
+}
+.fio-ex-head { display: flex; gap: var(--space-4); align-items: flex-start; }
+.fio-ex-n {
+  flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill);
+  display: grid; place-items: center;
+  border: 1px solid var(--border-gold); color: var(--text-gold);
+  font-family: var(--font-display); font-size: var(--text-base);
+  font-feature-settings: 'tnum';
+}
+.fio-ex-title {
+  margin: 0; font-family: var(--font-display); font-size: var(--text-lg);
+  font-weight: var(--weight-semibold); color: var(--text-primary);
+  line-height: var(--leading-snug);
+}
+.fio-ex-assesses {
+  margin: var(--space-1) 0 0; font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wide); text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.fio-ex-body {
+  margin: var(--space-3) 0 0 calc(34px + var(--space-4));
+  font-size: var(--text-base); line-height: var(--leading-relaxed);
+  color: var(--text-secondary); max-width: 72ch;
+}
+
+/* ---- references ------------------------------------------------------- */
+
+.fio-further-wrap { border-top: 1px solid var(--border-subtle); background: var(--surface-subtle); }
+.fio-further { max-width: var(--container-md); margin: 0 auto; padding: var(--space-12) var(--space-8) var(--space-16); }
+.fio-further-lede {
+  margin: var(--space-3) 0 0; max-width: 70ch; font-size: var(--text-base);
+  color: var(--text-secondary); line-height: var(--leading-relaxed);
+}
+.fio-further-groups { margin: var(--space-8) 0 0; display: grid; gap: var(--space-8); }
+.fio-further-kind {
+  margin: 0 0 var(--space-3); font-size: var(--text-2xs);
+  font-weight: var(--weight-bold); letter-spacing: var(--tracking-wider);
+  text-transform: uppercase; color: var(--text-gold);
+  padding-bottom: var(--space-2); border-bottom: 1px solid var(--border-default);
+}
+.fio-further-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); }
+.fio-further-cite {
+  margin: 0; font-size: var(--text-base); color: var(--text-primary);
+  line-height: var(--leading-snug); max-width: 78ch;
+}
+.fio-further-note {
+  margin: var(--space-2) 0 0; font-size: var(--text-sm);
+  line-height: var(--leading-relaxed); color: var(--text-secondary); max-width: 74ch;
+}
+
+@media (max-width: 640px) {
+  .fio-ex { padding: var(--space-8) var(--space-5); }
+  .fio-further { padding: var(--space-8) var(--space-5) var(--space-10); }
+  .fio-ex-body { margin-left: 0; }
+}
+
+/* The exercises and the reading list are carried into the laboratory, so they
+   print with the reference. The walkthrough still does not. */
+@media print {
+  .fio-ex-wrap, .fio-further-wrap { background: #fff; border: 0; }
+  .fio-ex, .fio-further { padding: 12pt 0 0; max-width: none; }
+  .fio-ex-item, .fio-further-group { break-inside: avoid; page-break-inside: avoid; }
+  .fio-ex-body, .fio-further-note, .fio-further-cite, .fio-ex-lede, .fio-further-lede {
+    font-size: 9pt; color: #000;
+  }
+  .fio-ex-title { font-size: 10pt; }
+}

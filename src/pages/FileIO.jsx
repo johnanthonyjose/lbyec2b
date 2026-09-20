@@ -16,6 +16,8 @@ import { resolutionById } from "./file-io/resolutions.jsx";
 import { Before, needs } from "./file-io/Before.jsx";
 import { Outcomes } from "./file-io/Outcomes.jsx";
 import { Reference } from "./file-io/Reference.jsx";
+import { Exercises } from "./file-io/Exercises.jsx";
+import { Further } from "./file-io/Further.jsx";
 import { ReadMark } from "./file-io/OutcomeMarks.jsx";
 
 /* Handout 03 — File I/O.
@@ -158,6 +160,8 @@ export default function FileIO() {
           </>
         )}
         <Reference />
+        <Exercises />
+        <Further />
       </main>
 
       <SiteFooter note="Department of Electronics and Computer Engineering" />
