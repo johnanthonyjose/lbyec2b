@@ -1,495 +1,926 @@
-<title>LBYEC2B — Mechanics: Exercise Audit</title>
+<title>LBYEC2B — The Exercise Audit</title>
 
 <style>
   :root {
     --serif: "EB Garamond", "ITC Galliard", Galliard, Georgia, "Times New Roman", serif;
     --sans: "Jost", Futura, "Century Gothic", Avenir, Arial, Helvetica, sans-serif;
+
     --green: #00703c;
     --green-mid: #005229;
+    --green-lo: #1ea256;
+    --green-pale: #97d3b0;
     --gold: #b08d57;
     --gold-deep: #6f552c;
-    --ground: #ffffff;
+
+    --ground: #fffffe;
     --surface: #f7f8f7;
     --surface-green: #e8f4ec;
-    --ink: #1e211f;
+    --ink: #1a1d1b;
     --ink-soft: #4c524e;
-    --ink-faint: #6e756f;
+    --ink-faint: #767d78;
     --rule: #e1e4e2;
-    --rule-firm: #c7ccc8;
+    --rule-firm: #c3c9c5;
+    --hatch: rgba(176,141,87,0.16);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --green: #56b87a; --green-mid: #97d3b0; --gold: #d3ba8c; --gold-deep: #e6d5b4;
-      --ground: #10130f; --surface: #181c17; --surface-green: #14241a;
-      --ink: #e7eae6; --ink-soft: #b3bab4; --ink-faint: #8b938c;
-      --rule: #2b302b; --rule-firm: #3d443d;
+      --green: #56b87a; --green-mid: #97d3b0; --green-lo: #1ea256; --green-pale: #005229;
+      --gold: #d3ba8c; --gold-deep: #e6d5b4;
+      --ground: #0f1210; --surface: #171b17; --surface-green: #15271b;
+      --ink: #e8ebe7; --ink-soft: #b4bbb5; --ink-faint: #8b938c;
+      --rule: #272c27; --rule-firm: #3c433d; --hatch: rgba(211,186,140,0.14);
     }
   }
   :root[data-theme="dark"] {
-    --green: #56b87a; --green-mid: #97d3b0; --gold: #d3ba8c; --gold-deep: #e6d5b4;
-    --ground: #10130f; --surface: #181c17; --surface-green: #14241a;
-    --ink: #e7eae6; --ink-soft: #b3bab4; --ink-faint: #8b938c;
-    --rule: #2b302b; --rule-firm: #3d443d;
+    --green: #56b87a; --green-mid: #97d3b0; --green-lo: #1ea256; --green-pale: #005229;
+    --gold: #d3ba8c; --gold-deep: #e6d5b4;
+    --ground: #0f1210; --surface: #171b17; --surface-green: #15271b;
+    --ink: #e8ebe7; --ink-soft: #b4bbb5; --ink-faint: #8b938c;
+    --rule: #272c27; --rule-firm: #3c433d; --hatch: rgba(211,186,140,0.14);
   }
   :root[data-theme="light"] {
-    --green: #00703c; --green-mid: #005229; --gold: #b08d57; --gold-deep: #6f552c;
-    --ground: #ffffff; --surface: #f7f8f7; --surface-green: #e8f4ec;
-    --ink: #1e211f; --ink-soft: #4c524e; --ink-faint: #6e756f;
-    --rule: #e1e4e2; --rule-firm: #c7ccc8;
+    --green: #00703c; --green-mid: #005229; --green-lo: #1ea256; --green-pale: #97d3b0;
+    --gold: #b08d57; --gold-deep: #6f552c;
+    --ground: #fffffe; --surface: #f7f8f7; --surface-green: #e8f4ec;
+    --ink: #1a1d1b; --ink-soft: #4c524e; --ink-faint: #767d78;
+    --rule: #e1e4e2; --rule-firm: #c3c9c5; --hatch: rgba(176,141,87,0.16);
   }
 
-  body {
-    background: var(--ground);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 15.5px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
+  body { background: var(--ground); color: var(--ink); font-family: var(--serif);
+    font-size: 18px; line-height: 1.62; -webkit-font-smoothing: antialiased; }
+
+  /* ---------- page grid: text column + margin column ---------- */
+  .page { padding: clamp(26px,5vw,54px) clamp(16px,4vw,32px) 80px;
+    display: flex; flex-direction: column; gap: 26px; }
+  .row { display: grid; grid-template-columns: minmax(0,38rem) 13rem;
+    gap: 0 30px; justify-content: center; align-items: start; }
+  .row > .note { font-family: var(--sans); font-size: 13px; line-height: 1.5;
+    color: var(--ink-faint); border-top: 2px solid var(--gold); padding-top: 7px; }
+  .row > .note b { color: var(--gold-deep); font-weight: 700; }
+  .wide { display: grid; grid-template-columns: minmax(0, 51.3rem);
+    justify-content: center; }
+  @media (max-width: 60rem) {
+    .row { grid-template-columns: minmax(0, 38rem); }
+    .row > .note { margin-top: 12px; }
   }
 
-  .sheet {
-    max-width: 42rem;
-    margin: 0 auto;
-    padding: clamp(24px, 5vw, 44px) clamp(18px, 5vw, 36px) 60px;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-  }
+  .stack { display: flex; flex-direction: column; gap: 13px; min-width: 0; }
 
-  .inst {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--gold-deep); line-height: 1.5; margin: 0;
-  }
-  .doctype {
-    font-size: 11.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--green); margin: 10px 0 0;
-  }
-  h1 {
-    font-family: var(--serif); font-size: clamp(30px, 5.4vw, 40px); font-weight: 600;
-    line-height: 1.1; letter-spacing: -0.012em; margin: 4px 0 0; color: var(--green-mid);
-  }
-  .facts {
-    margin: 16px 0 0; padding: 14px 0 0; border-top: 2px solid var(--gold);
-    display: flex; flex-direction: column; gap: 4px;
-  }
-  .facts div { display: grid; grid-template-columns: 6rem 1fr; gap: 14px; font-size: 14.5px; }
-  .facts dt { font-weight: 600; color: var(--ink-faint); }
-  .facts dd { margin: 0; color: var(--ink-soft); }
-
-  section { display: flex; flex-direction: column; gap: 13px; }
-
-  h2 {
-    font-family: var(--serif); font-size: 23px; font-weight: 600; line-height: 1.25;
-    letter-spacing: -0.008em; margin: 0; padding-bottom: 7px;
-    border-bottom: 1px solid var(--rule-firm); color: var(--ink);
-  }
-  h2 b { font-family: var(--sans); font-size: 15px; font-weight: 700; color: var(--gold); margin-right: 8px; }
-
-  h3 {
-    font-family: var(--sans); font-size: 13.5px; font-weight: 700; letter-spacing: 0.04em;
-    text-transform: uppercase; margin: 6px 0 0; color: var(--green);
-  }
-
+  /* ---------- type ---------- */
+  .inst { font-family: var(--sans); font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gold-deep); margin: 0; line-height: 1.5; }
+  h1 { font-size: clamp(34px,6vw,50px); font-weight: 600; line-height: 1.05;
+    letter-spacing: -0.016em; margin: 12px 0 0; color: var(--green-mid); }
+  .standfirst { font-size: 21px; line-height: 1.45; color: var(--ink-soft); margin: 12px 0 0;
+    max-width: 34ch; }
+  h2 { font-size: 27px; font-weight: 600; line-height: 1.2; letter-spacing: -0.01em;
+    margin: 20px 0 0; color: var(--ink); }
+  h2 b { font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--gold);
+    letter-spacing: 0.08em; display: block; margin-bottom: 3px; }
+  h3 { font-family: var(--sans); font-size: 12.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; margin: 10px 0 0; color: var(--green); }
   p { margin: 0; }
+  .sm { font-size: 16px; }
   .muted { color: var(--ink-soft); }
-  .sm { font-size: 14.5px; }
+  strong { font-weight: 600; }
 
-  ol, ul { margin: 0; padding-left: 1.5rem; display: flex; flex-direction: column; gap: 7px; }
-  li { padding-left: 2px; }
-  li::marker { color: var(--gold-deep); font-weight: 700; }
-  ul li::marker { color: var(--gold); }
-  ol ul, ol ol { margin-top: 7px; }
+  ol, ul { margin: 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 6px; }
+  li::marker { color: var(--gold); }
+  ol li::marker { font-family: var(--sans); font-size: 14px; font-weight: 700; color: var(--gold-deep); }
 
-  dl.terms { margin: 0; display: flex; flex-direction: column; gap: 7px; }
-  dl.terms div { display: grid; grid-template-columns: 11rem 1fr; gap: 4px 14px; font-size: 14.5px; }
-  dl.terms dt { font-weight: 600; }
-  dl.terms dd { margin: 0; color: var(--ink-soft); }
+  /* ---------- rule blocks ---------- */
+  .rule-block { background: var(--surface); border-left: 3px solid var(--green);
+    padding: 14px 18px; font-family: var(--sans); font-size: 14.5px; line-height: 1.55;
+    display: flex; flex-direction: column; gap: 7px; }
+  .rule-block .lbl { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--green); }
+  .rule-block ol, .rule-block ul { gap: 5px; }
 
-  .tablewrap { overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 30rem; }
-  th, td { text-align: left; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
-  thead th {
-    font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--ink-faint); border-bottom: 2px solid var(--rule-firm); padding-bottom: 6px;
-  }
-  td.n, th.n { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; color: var(--green); }
-  tr.total td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--rule-firm); }
-
-  .box {
-    background: var(--surface-green); border-left: 3px solid var(--green);
-    padding: 13px 16px; font-size: 14.5px;
-  }
-  .box b { color: var(--green); }
-
-  .instance {
-    border: 1.5px dashed var(--gold); padding: 15px 18px;
-    display: flex; flex-direction: column; gap: 9px;
-  }
-  .instance .hd {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--gold-deep);
-  }
-  .instance dl { margin: 0; display: flex; flex-direction: column; gap: 6px; }
-  .instance dl div { display: grid; grid-template-columns: 11rem 1fr; gap: 3px 14px; font-size: 14.5px; }
+  /* ---------- activity panel ---------- */
+  .instance { border: 1.5px dashed var(--gold); padding: 16px 20px; font-family: var(--sans);
+    display: flex; flex-direction: column; gap: 10px; }
+  .instance .hd { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--gold-deep); }
+  .instance dl { margin: 0; display: flex; flex-direction: column; gap: 7px; }
+  .instance dl > div { display: grid; grid-template-columns: 11rem 1fr; gap: 3px 14px; font-size: 14px; }
   .instance dt { font-weight: 600; }
-  .instance dd { margin: 0; color: var(--ink-faint); border-bottom: 1px solid var(--rule-firm); min-height: 1.4em; }
+  .instance dd { margin: 0; color: var(--ink-faint); border-bottom: 1px solid var(--rule-firm); min-height: 1.5em; }
 
-  .guide {
-    background: var(--surface); border: 1px solid var(--rule-firm); border-top: 3px solid var(--green);
-    padding: clamp(18px, 4vw, 26px); display: flex; flex-direction: column; gap: 14px;
-  }
+  /* ---------- figures ---------- */
+  figure { margin: 8px 0 0; display: flex; flex-direction: column; gap: 12px; }
+  figcaption { font-family: var(--sans); font-size: 13px; line-height: 1.55; color: var(--ink-faint); }
+  figcaption b { color: var(--green); font-weight: 700; }
 
-  .sample { display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; }
-  .sample p { padding-left: 13px; border-left: 3px solid var(--rule-firm); }
-  .sample p.ok { border-left-color: var(--green); }
-  .sample em { color: var(--ink-faint); font-style: normal; font-size: 13.5px; display: block; }
-  .tag { font-weight: 700; color: var(--gold-deep); }
-  .sample p.ok .tag { color: var(--green); }
+  .ctrl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    font-family: var(--sans); font-size: 13px; }
+  .ctrl .lab { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint); margin-right: 2px; }
+  button { font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer;
+    background: transparent; color: var(--ink-soft); border: 1px solid var(--rule-firm);
+    border-radius: 2px; padding: 5px 12px; transition: background .18s, color .18s, border-color .18s; }
+  button:hover { border-color: var(--green); color: var(--green); }
+  button[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; }
+  :root[data-theme="dark"] button[aria-pressed="true"],
+  button[aria-pressed="true"] { color: #fff; }
+  @media (prefers-color-scheme: dark) { button[aria-pressed="true"] { color: #0f1210; } }
+  :root[data-theme="light"] button[aria-pressed="true"] { color: #fff; }
+  button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
-  footer {
-    border-top: 2px solid var(--green); padding-top: 12px; font-size: 12.5px; color: var(--ink-faint);
-  }
+  /* ---------- timeline ---------- */
+  .tl { display: flex; flex-direction: column; gap: 9px; }
+  .tl-bar { display: flex; height: 54px; width: 100%; border: 1px solid var(--rule-firm);
+    background: var(--surface); overflow: hidden; }
+  .tl-seg { position: relative; border-right: 1px solid rgba(255,255,255,0.35); cursor: pointer;
+    display: grid; place-items: center; overflow: hidden; padding: 0;
+    transition: width .5s cubic-bezier(.4,0,.2,1), opacity .3s; border-radius: 0; }
+  .tl-seg:last-child { border-right: 0; }
+  .tl-seg .m { font-family: var(--sans); font-size: 12px; font-weight: 700;
+    font-variant-numeric: tabular-nums; color: #fff; pointer-events: none; white-space: nowrap; }
+  .tl-seg.home { background: var(--surface) !important;
+    background-image: repeating-linear-gradient(45deg, var(--hatch) 0 5px, transparent 5px 10px) !important; }
+  .tl-seg.home .m { color: var(--ink-faint); }
+  .tl-seg[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--gold); }
+  .tl-seg:hover { opacity: .88; }
+  .tl-axis { display: flex; font-family: var(--sans); font-size: 11px; color: var(--ink-faint);
+    justify-content: space-between; }
+  .tl-detail { background: var(--surface-green); border-left: 3px solid var(--green);
+    padding: 12px 16px; font-family: var(--sans); font-size: 14.5px; line-height: 1.55;
+    min-height: 3.4em; display: flex; flex-direction: column; gap: 4px; }
+  .tl-detail .t { font-weight: 700; color: var(--green); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-family: var(--sans); font-size: 12px;
+    color: var(--ink-faint); }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .sw { width: 14px; height: 11px; display: block; border: 1px solid var(--rule-firm); }
+  .sw.sup { background: var(--green); border-color: var(--green); }
+  .sw.hm { background-image: repeating-linear-gradient(45deg, var(--hatch) 0 5px, transparent 5px 10px); }
+
+  /* ---------- ring ---------- */
+  .ring-wrap { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,15rem);
+    gap: 18px; align-items: center; }
+  @media (max-width: 40rem) { .ring-wrap { grid-template-columns: 1fr; } }
+  .ring svg { width: 100%; height: auto; display: block; }
+  .rnode { cursor: pointer; }
+  .rnode circle { transition: fill .25s, stroke .25s; }
+  .rnode text { font-family: var(--sans); font-size: 13px; font-weight: 700; pointer-events: none; }
+  .redge { transition: opacity .35s, stroke-dashoffset .6s; }
+  .ring-key { font-family: var(--sans); font-size: 13.5px; display: flex; flex-direction: column; gap: 9px; }
+  .ring-key div { display: grid; grid-template-columns: 26px 1fr; gap: 9px; align-items: start; }
+  .ring-key i { display: block; height: 0; border-top-width: 2.5px; margin-top: 9px; }
+  .ring-key .k1 i { border-top-style: solid; border-color: var(--gold); }
+  .ring-key .k2 i { border-top-style: solid; border-color: var(--green); }
+  .ring-key .k3 i { border-top-style: dashed; border-color: var(--ink-faint); }
+  .ring-key .k4 i { border-top-style: dotted; border-color: var(--green-lo); }
+
+  /* ---------- marks bar ---------- */
+  .marks { display: flex; height: 44px; border: 1px solid var(--rule-firm); overflow: hidden; }
+  .marks div { display: grid; place-items: center; font-family: var(--sans); font-size: 12.5px;
+    font-weight: 700; color: #fff; font-variant-numeric: tabular-nums;
+    transition: width .5s cubic-bezier(.4,0,.2,1), background-color .4s; border-right: 1px solid rgba(255,255,255,.3); }
+  .marks div:last-child { border-right: 0; }
+  .marks div.home { background-color: var(--surface) !important;
+    background-image: repeating-linear-gradient(45deg, var(--hatch) 0 5px, transparent 5px 10px);
+    color: var(--ink-soft); }
+  .mtable { font-family: var(--sans); font-size: 14px; display: flex; flex-direction: column; }
+  .mtable div { display: grid; grid-template-columns: 3.1rem 1fr auto; gap: 14px;
+    padding: 8px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+  .mtable div:last-child { border-bottom: 0; }
+  .mtable .p { font-weight: 700; color: var(--green); font-variant-numeric: tabular-nums;
+    transition: color .3s; }
+  .mtable .w { font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--ink-faint); white-space: nowrap; }
+
+  /* ---------- quiz ---------- */
+  .quiz { display: flex; flex-direction: column; gap: 10px; font-family: var(--sans); }
+  .qitem { border: 1px solid var(--rule-firm); padding: 12px 14px; display: flex;
+    flex-direction: column; gap: 9px; transition: border-color .3s, background-color .3s; }
+  .qitem.right { border-color: var(--green); background: var(--surface-green); }
+  .qitem.wrong { border-color: var(--gold); background: var(--surface); }
+  .qtext { font-size: 14.5px; line-height: 1.5; }
+  .qrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .qfb { font-size: 13px; line-height: 1.5; color: var(--ink-soft); display: none; }
+  .qitem.right .qfb, .qitem.wrong .qfb { display: block; }
+  .qfb b { color: var(--green); }
+  .qitem.wrong .qfb b { color: var(--gold-deep); }
+  .qscore { font-family: var(--sans); font-size: 13px; color: var(--ink-faint); }
+
+  /* ---------- flow ---------- */
+  .flow svg { width: 100%; height: auto; display: block; }
+
+  footer { border-top: 2px solid var(--green); padding-top: 14px; font-family: var(--sans);
+    font-size: 12.5px; color: var(--ink-faint); }
 
   @media (max-width: 30rem) {
-    .facts div, dl.terms div { grid-template-columns: 1fr; gap: 2px; }
+    .instance dl > div { grid-template-columns: 1fr; gap: 2px; }
+    .tl-seg .m { font-size: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
   }
   @media print {
-    .sheet { padding: 0; gap: 20px; max-width: none; }
-    section, .guide { break-inside: avoid; }
+    .page { padding: 0; } .ctrl { display: none; }
   }
 </style>
 
-<div class="sheet">
+<div class="page">
 
-  <header>
-    <p class="inst">De La Salle University · Gokongwei College of Engineering · Department of
-      Electronics, Computer, and Electrical Engineering</p>
-    <p class="doctype">Mechanics of the Activity</p>
-    <h1>Exercise Audit</h1>
-    <dl class="facts">
-      <div><dt>Course</dt><dd>LBYEC2B — Computer Fundamentals and Programming 2</dd></div>
-      <div><dt>Applies to</dt><dd>Any laboratory exercise or machine problem nominated for audit</dd></div>
-      <div><dt>Instrument</dt><dd>Standing mechanics. The particulars of each activity are stated in the panel below.</dd></div>
-      <div><dt>Status</dt><dd>Draft, for review</dd></div>
-    </dl>
-  </header>
-
-  <div class="instance">
-    <div class="hd">Activity details — completed by the faculty-in-charge for each audited exercise</div>
-    <dl>
-      <div><dt>Exercise audited</dt><dd></dd></div>
-      <div><dt>Mode</dt><dd>A — single sitting &nbsp;/&nbsp; B — multi-day</dd></div>
-      <div><dt>Learning outcomes</dt><dd></dd></div>
-      <div><dt>Weight of the activity</dt><dd></dd></div>
-      <div><dt>Session, Mode A</dt><dd></dd></div>
-      <div><dt>Days 0 / 4 / 5, Mode B</dt><dd></dd></div>
-      <div><dt>Re-sit deadline</dt><dd></dd></div>
-    </dl>
+  <div class="row">
+    <header class="stack">
+      <p class="inst">De La Salle University · Gokongwei College of Engineering<br>
+        LBYEC2B — Computer Fundamentals and Programming 2</p>
+      <h1>The Exercise Audit</h1>
+      <p class="standfirst">A working program no longer shows that you can program. This is where
+        you show the reasoning behind yours.</p>
+    </header>
+    <div class="note"><b>How to read this.</b> The diagrams are interactive — switch modes, select
+      a member, try the classifier. The shaded blocks state the rule exactly as it will be applied.</div>
   </div>
 
-  <section>
-    <h2><b>I.</b>Rationale and Coverage</h2>
-    <p>A working program no longer shows, by itself, that the student who submitted it can analyse
-      a problem and develop an algorithm. An audited exercise is therefore conducted differently:
-      you implement it, and thereafter explain and defend that work under supervision — in a
-      single sitting where the exercise allows, otherwise across the week.</p>
-    <div class="box"><b>In brief.</b> Everything you claim <em>about</em> what you built, you
-      shall write in the room.</div>
-    <p class="sm muted">These mechanics are <strong>standing</strong> and apply, without
-      modification, to every exercise the faculty-in-charge nominates for audit. Only the panel
-      above changes from one activity to the next. The weight of each audited activity is taken
-      from the Machine Problems or Laboratory component, as stated in that panel.</p>
-    <p class="sm muted">A dry run shall be held once, before the first audited exercise of the
-      term. It is not graded, but attendance is required, as the mechanics shall not be explained
-      again for subsequent activities.</p>
-  </section>
-
-  <section>
-    <h2><b>II.</b>Definition of Terms</h2>
-    <dl class="terms">
-      <div><dt>Audit Team</dt><dd>Six (6) students, fixed for the term, distinct from the Project Team.</dd></div>
-      <div><dt>Team Leader</dt><dd>The member who coordinates the team and reviews its evidence. Evaluated by the faculty-in-charge.</dd></div>
-      <div><dt>Plan</dt><dd>A one-page outline of your approach, written before coding and locked on submission.</dd></div>
-      <div><dt>Divergence Log</dt><dd>What changed between your Plan and your finished program, and why. In Mode B it cites your commits; in Mode A it is a short note written immediately after coding.</dd></div>
-      <div><dt>Modification</dt><dd>A written change to a <em>constraint</em> of the problem — not merely to a value within it.</dd></div>
-      <div><dt>Response</dt><dd>Your supervised written answer to a Modification, concerning your own program.</dd></div>
-    </dl>
-  </section>
-
-  <section>
-    <h2><b>III.</b>Audit Teams</h2>
-    <ol>
-      <li>Teams of six (6) shall be posted on Canvas before the dry run and shall stand for the
-        whole term, across every audited exercise. No Audit Team shall reproduce an existing
-        Project Team.</li>
-      <li>Each team shall have one (1) Team Leader and one (1) Deputy, designated by the
-        faculty-in-charge.</li>
-      <li>Assignments follow a ring published with the team lists and <strong>rotated for each
-        audited exercise</strong>. Reciprocal pairings are not permitted: the member who formulates
-        your Modification is not the member for whom you formulate one.</li>
-      <li>Each member shall formulate one (1) Modification, receive two (2) — one from a teammate
-        and one from the faculty-in-charge — evaluate two (2) members, and be evaluated by two (2).</li>
-    </ol>
-  </section>
-
-  <section>
-    <h2><b>IV.</b>Mechanics and Schedule</h2>
-    <p class="sm muted">The audit runs in one of two modes. The mode for this activity is stated in
-      the panel on the first page. Everything else in these mechanics is identical in both.</p>
-
-    <h3>Mode A — single sitting</h3>
-    <p class="sm muted">For laboratory exercises small enough to be implemented within the session.
-      The implementation is itself written in the room, under observation.</p>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th class="n">Time</th><th>What you do — one continuous session, about two (2) hours</th></tr></thead>
-        <tbody>
-          <tr><td class="n">10 min</td><td><strong>Write the Plan</strong>, then lock it. Bullets: your decomposition, your data structures, and which parts you expect to be difficult.</td></tr>
-          <tr><td class="n">60 min</td><td><strong>Implement the exercise</strong>, in the room, offline.</td></tr>
-          <tr><td class="n">5 min</td><td><strong>Note what changed</strong> from your Plan, and why.</td></tr>
-          <tr><td class="n">8 min</td><td><strong>Read</strong> the program of the member assigned to you.</td></tr>
-          <tr><td class="n">12 min</td><td><strong>Formulate one (1) Modification</strong> of their exercise, and state in a single sentence which part of their design you expect it to break. <em>That sentence is what is graded.</em></td></tr>
-          <tr><td class="n">30 min</td><td><strong>Answer the two (2) Modifications</strong> you received, at fifteen (15) minutes each.</td></tr>
-        </tbody>
-      </table>
+  <div class="row">
+    <div class="instance stack">
+      <div class="hd">Activity details — completed by the faculty-in-charge for each audited exercise</div>
+      <dl>
+        <div><dt>Exercise audited</dt><dd></dd></div>
+        <div><dt>Mode</dt><dd>A — single sitting &nbsp;/&nbsp; B — multi-day</dd></div>
+        <div><dt>Learning outcomes</dt><dd></dd></div>
+        <div><dt>Weight of the activity</dt><dd></dd></div>
+        <div><dt>Date and venue</dt><dd></dd></div>
+        <div><dt>Re-sit deadline</dt><dd></dd></div>
+      </dl>
     </div>
-    <div class="box"><b>If your program does not work.</b> In Mode A you answer the Modifications
-      against the design you actually attempted, working or not. A program left incomplete within
-      the hour does not forfeit the Responses, which carry the larger weight.</div>
+    <div class="note"><b>Standing mechanics.</b> Sections I–IX apply unchanged to every audited
+      exercise. Only this panel changes from one activity to the next.</div>
+  </div>
 
-    <h3>Mode B — multi-day</h3>
-    <p class="sm muted">For machine problems too large for one sitting. Implementation is taken
-      home, and the commit history is read against the Plan in its place. Days are counted from
-      release; calendar dates are in the panel on the first page.</p>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>When</th><th class="n">Time</th><th>What you do</th></tr></thead>
-        <tbody>
-          <tr><td>Day 0</td><td class="n">15 min</td><td><strong>Write the Plan</strong>, then lock it.</td></tr>
-          <tr><td>Days 1–4</td><td class="n">at home</td><td><strong>Implement.</strong> Commit progressively as you work, not in one commit at the end.</td></tr>
-          <tr><td>Day 4</td><td class="n">—</td><td><strong>Push your program.</strong></td></tr>
-          <tr><td>Day 5</td><td class="n">60 min</td><td><strong>Supervised session:</strong> read your assigned member's program (8 min); formulate one (1) Modification (12 min); write your Divergence Log against your commits (10 min); answer the two (2) Modifications you received (30 min).</td></tr>
-        </tbody>
-      </table>
+  <!-- ===================== I ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>I</b>Why this exists</h2>
+      <p>Your program can be produced by someone or something other than you. Your account of why
+        it is built that way, written in a room, about a change you were not warned of, cannot.</p>
+      <p>So the exercise is assessed as an <strong>audit</strong>. You implement it; then you
+        explain and defend it under supervision. The faculty-in-charge forms a judgment from the
+        whole set of evidence, not from the program alone.</p>
+      <div class="rule-block">
+        <span class="lbl">The principle</span>
+        <p>Everything you claim <em>about</em> what you built, you write in the room.</p>
+      </div>
     </div>
+    <div class="note"><b>Not a detector.</b> This is not designed to catch AI use. It is designed
+      so the question seldom needs asking — where the work is not yours, there is very little to
+      say, and no allegation is needed for that to show.</div>
+  </div>
 
-    <h3>Common to both modes</h3>
-    <div class="tablewrap">
-      <table>
-        <tbody>
-          <tr><td>Once per term</td><td class="n">30 min</td><td><strong>Dry run</strong> before the first audited activity. Not graded; worked examples returned after.</td></tr>
-          <tr><td>Within 2 days</td><td class="n">at home</td><td><strong>Accomplish two (2) evaluation forms</strong> via Canvas. Every rating shall cite specific evidence.</td></tr>
-          <tr><td>Re-sit deadline</td><td class="n">—</td><td><strong>Re-sit</strong> upon request. No reason need be given.</td></tr>
-        </tbody>
-      </table>
+  <!-- ===================== II ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>II</b>The shape of the activity</h2>
+      <p>The audit runs in one of two modes. Which one applies is in the panel above. Switch
+        between them in the figure to see what actually changes.</p>
     </div>
+    <div class="note"><b>Mode A is the default.</b> Mode B exists only for exercises too large to
+      finish in one sitting.</div>
+  </div>
 
-    <h3>Each Response shall address, in order</h3>
-    <ol>
-      <li>What breaks in your program under the Modification, and why;</li>
-      <li>The minimum change that would address it;</li>
-      <li>The revised algorithm, as pseudo-code; and</li>
-      <li>One (1) thing that could still go wrong thereafter.</li>
-    </ol>
+  <div class="wide">
+    <figure>
+      <div class="ctrl">
+        <span class="lab">Mode</span>
+        <button id="mA" aria-pressed="true">A — single sitting</button>
+        <button id="mB" aria-pressed="false">B — multi-day</button>
+      </div>
+      <div class="tl">
+        <div class="tl-bar" id="tlbar" role="group" aria-label="Phases of the activity, to scale"></div>
+        <div class="tl-axis"><span id="tlstart">Start of session</span><span id="tlend">125 supervised minutes, then home</span></div>
+        <div class="tl-detail" id="tldetail"></div>
+        <div class="legend">
+          <span><i class="sw sup"></i> Written in the room, supervised</span>
+          <span><i class="sw hm"></i> Done at home — not drawn to scale</span>
+        </div>
+      </div>
+      <figcaption><b>Figure 1 — the activity, to scale.</b> Segment widths are real minutes.
+        Select any segment for what it involves. In Mode A the implementation itself happens in
+        the room; in Mode B it goes home and the commit history stands in for that observation,
+        which is weaker evidence — the reason Mode A is preferred.</figcaption>
+      </figure>
+  </div>
 
-    <div class="box"><b>On the Plan.</b> A prediction of difficulty that proves mistaken is not
-      penalised. A mistaken prediction later accounted for in your Divergence Log is credited more
-      highly than a cautious one that says nothing. Write what you honestly expect.</div>
-
-    <p class="sm muted"><strong>A valid Modification</strong> alters a constraint: an assumption
-      about input validity, a limit on scale or memory, the shape or arrival order of the data, a
-      new failure condition, or the removal of an assumption the original relied upon. Changing a
-      literal, renaming an identifier, or requiring extra output shall not be credited.</p>
-  </section>
-
-  <section>
-    <h2><b>V.</b>Criteria for Evaluation</h2>
-    <p class="sm muted">The distribution is fixed for every audited exercise of the same mode.
-      Only the weight of the activity as a whole, stated in the panel on the first page, varies.</p>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th class="n">Mode A</th><th class="n">Mode B</th><th>Criterion</th></tr></thead>
-        <tbody>
-          <tr><td class="n">35%</td><td class="n">35%</td><td>The two (2) Responses — all four points addressed, reasoning specific to your own program, change minimal and correct</td></tr>
-          <tr><td class="n">30%</td><td class="n">25%</td><td>The program — requirements satisfied, coding standards observed</td></tr>
-          <tr><td class="n">15%</td><td class="n">20%</td><td>Plan, with the note of what changed (Mode A) or the Divergence Log read against your commits (Mode B)</td></tr>
-          <tr><td class="n">12%</td><td class="n">12%</td><td>The Modification you formulated — a genuine constraint altered, and an accurate sentence</td></tr>
-          <tr><td class="n">8%</td><td class="n">8%</td><td>Your two (2) evaluations — each rating supported by cited evidence</td></tr>
-          <tr class="total"><td class="n">100%</td><td class="n">100%</td><td>Mode A is produced entirely under supervision apart from the evaluations; in Mode B, sixty-seven percent (67%) is.</td></tr>
-        </tbody>
-      </table>
+  <div class="row">
+    <div class="stack">
+      <div class="rule-block">
+        <span class="lbl">The rule</span>
+        <ol>
+          <li>A dry run of the whole format is held once per term, before the first audited
+            exercise. It is not graded; attendance is required.</li>
+          <li>In <strong>Mode A</strong>, an incomplete program does not forfeit the Responses.
+            You answer against the design you attempted, working or not.</li>
+          <li>In <strong>Mode B</strong>, commit progressively as you work, not in a single commit
+            at the end.</li>
+          <li>Evaluations are accomplished at home, within two (2) days, through Canvas.</li>
+          <li>One re-sit is available on request, no reason required.</li>
+        </ol>
+      </div>
     </div>
-    <p class="sm muted">Each criterion is rated on the four-point scale used elsewhere in this
-      course — Exemplary, Satisfactory, Developing, Beginning.</p>
+    <div class="note"><b>Absence.</b> You re-sit. Absence does not by itself result in a grade of
+      zero (0.0).</div>
+  </div>
 
-    <h3>Evidence examined</h3>
-    <p class="sm muted">Published in advance, so that no student is assessed on anything he or she
-      was not informed of: the Plan and the account of what changed; the program; the Modification
-      you formulated; your two Responses; the observations of the two members who evaluated you;
-      and, <strong>in Mode B only</strong>, the commit history.</p>
-    <p class="sm muted">Where the commit history is examined, it is used only to raise a question
-      for clarification, and never to set a mark directly. There is nothing to be gained by
-      inflating commits.</p>
-  </section>
-
-  <section>
-    <h2><b>VI.</b>Conduct of the Session</h2>
-    <ul>
-      <li><strong>Permitted.</strong> Your own repository, read-only; the machine problem; writing
-        materials. Answers may be written on paper.</li>
-      <li><strong>Not permitted.</strong> Internet access, any AI assistant, mobile telephones, or
-        any file other than your own repository.</li>
-      <li><strong>Form.</strong> Pseudo-code, flowcharts, diagrams and bullet fragments are all
-        accepted.</li>
-      <li><strong>Not graded.</strong> Handwriting, spelling and command of English. Only the
-        reasoning is assessed. You may instead record your Response aloud, within the same time
-        limit, without giving a reason.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2><b>VII.</b>Artificial Intelligence</h2>
-    <div class="box"><b>The principle applied.</b> This activity is not designed to detect the use
-      of AI. It is designed so that the question seldom needs to be asked: the portions carrying
-      the marks are written without internet access, about a program only you have built, answering
-      a change of which you had no notice. Where the work is not one's own, there is very little to
-      say — and no allegation is needed for that to become apparent.</div>
-    <ol>
-      <li>The course policy and the Student Handbook provisions on academic honesty apply in full.</li>
-      <li>Any member may raise a <strong>concern</strong>, which must cite something specific and
-        verifiable. A general impression shall not be entertained.</li>
-      <li><strong>No incentive or credit of any kind attaches to raising a concern.</strong></li>
-      <li>A concern is resolved by a conversation of about five (5) minutes with the
-        faculty-in-charge regarding your own code. Ordinarily the matter ends there.</li>
-    </ol>
-  </section>
-
-  <section>
-    <h2><b>VIII.</b>Other Provisions</h2>
-    <ol>
-      <li><strong>Absence.</strong> A student unable to attend shall re-sit. Absence shall not by
-        itself result in a grade of zero (0.0). Where no re-sit is taken, the faculty-in-charge
-        shall record insufficient evidence and no credit is given for the supervised portions.</li>
-      <li><strong>Default of a classmate.</strong> Where no Modification is formulated for you, the
-        faculty-in-charge shall issue one. No student is prejudiced by another's default.</li>
-      <li><strong>Failure to perform a role.</strong> Failure to formulate an assigned Modification
-        or accomplish an assigned evaluation results in no credit for that component, and does not
-        affect the member who was to receive it.</li>
-      <li><strong>Marks.</strong> All marks are determined by the faculty-in-charge. Peer
-        evaluations are received as evidence and are subject to review; <strong>no student assigns
-        a grade to another student.</strong></li>
-      <li><strong>Reconsideration.</strong> May be sought within one (1) week of release, during
-        consultation hours. The evidence relied upon shall be shown to the student.</li>
-    </ol>
-  </section>
-
-  <section class="guide">
-    <h2><b>IX.</b>Guide for Team Leaders</h2>
-    <p class="sm muted">Addressed to Team Leaders and Deputies, and published to the whole class so
-      that every member knows what the Team Leader may and may not do.</p>
-
-    <h3>The role</h3>
-    <p class="sm">You are <strong>not a grader</strong>. You ensure the evidence your team produces
-      is complete and properly supported before it reaches the faculty-in-charge. Your performance
-      in that role is assessed under LO6. You are audited on your own machine problem like everyone
-      else; the Deputy reviews your submissions.</p>
-
-    <h3>Duties</h3>
-    <ol>
-      <li><strong>Before Day 0.</strong> Confirm every member knows the schedule and their ring
-        assignment.</li>
-      <li><strong>Day 4.</strong> Confirm every member has pushed. Report any who have not
-        <em>the same day</em> — not on Day 5, when it is too late to reassign a partner.</li>
-      <li><strong>Day 5.</strong> Confirm attendance at the start; report absences immediately.</li>
-      <li><strong>Days 6–7.</strong> Review the ten (10) evaluation forms for evidence quality and
-        return any that fall short.</li>
-      <li><strong>Day 7.</strong> Submit the one-page team summary: that the review was done, which
-        forms were returned and whether corrected, and anything the faculty-in-charge should know.</li>
-    </ol>
-
-    <h3>Reviewing a form</h3>
-    <p class="sm">You check one thing: <strong>whether each rating cites specific, checkable
-      evidence</strong> — not whether you agree with it. A harsh rating with evidence is forwarded;
-      a generous rating without evidence is returned.</p>
-    <div class="sample">
-      <p><span class="tag">Return.</span> “He understood the problem well and his response was
-        good.” <em>Nothing here can be verified by anyone who was not present.</em></p>
-      <p class="ok"><span class="tag">Forward.</span> “His Response identified that the reused
-        buffer would be overwritten once rows arrived out of order, and pointed to the loop where
-        this occurs.” <em>Specific, and checkable against the Response itself.</em></p>
+  <!-- ===================== III ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>III</b>Your team, and who you work with</h2>
+      <p>You belong to an <strong>Audit Team</strong> of six, fixed for the term and deliberately
+        not the same people as your Project Team. Within it, everyone probes one classmate and is
+        probed by a different one, so nobody can trade favours.</p>
+      <p>Select yourself in the figure to see your four relationships.</p>
     </div>
+    <div class="note"><b>Rotated each time.</b> The assignments turn by one position for every
+      audited exercise, so no pairing repeats.</div>
+  </div>
 
-    <h3>You must not</h3>
-    <ul>
-      <li>Assign, adjust, negotiate or predict any mark. Any assurance you give will not bind the
-        faculty-in-charge.</li>
-      <li>Determine whether a member used AI. Record the specific observation in your summary and
-        leave it there.</li>
-      <li>Perform any part of a member's work, however far behind they are. Report it instead.</li>
-      <li>Amend a rating. You may return a form; you may not change one.</li>
-      <li>Withhold an unfavourable observation to protect the team. Your own mark depends on the
-        integrity of the review.</li>
-    </ul>
+  <div class="wide">
+    <figure>
+      <div class="ctrl">
+        <span class="lab">You are</span>
+        <span id="ringbtns" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+      </div>
+      <div class="ring-wrap">
+        <div class="ring">
+          <svg viewBox="0 0 340 300" role="img" aria-labelledby="ringttl">
+            <title id="ringttl">Who formulates modifications for whom, and who evaluates whom, in a team of six</title>
+            <defs>
+              <marker id="ahg" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="7" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L10,4 L0,8 z" fill="var(--gold)"></path>
+              </marker>
+              <marker id="ahgr" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="7" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L10,4 L0,8 z" fill="var(--green)"></path>
+              </marker>
+              <marker id="ahd" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="6" markerHeight="5" orient="auto-start-reverse">
+                <path d="M0,0 L10,4 L0,8 z" fill="var(--ink-faint)"></path>
+              </marker>
+              <marker id="ahf" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="6" markerHeight="5" orient="auto-start-reverse">
+                <path d="M0,0 L10,4 L0,8 z" fill="var(--green-lo)"></path>
+              </marker>
+            </defs>
+            <g id="redges"></g>
+            <g id="rnodes"></g>
+            <g id="rfac"></g>
+          </svg>
+        </div>
+        <div class="ring-key">
+          <div class="k1"><i></i><span><strong>You formulate</strong> one Modification, for this member.</span></div>
+          <div class="k2"><i></i><span><strong>You receive</strong> a Modification from this member.</span></div>
+          <div class="k4"><i></i><span><strong>You also receive</strong> the Common Modification, set by the faculty-in-charge for the whole class.</span></div>
+          <div class="k3"><i></i><span><strong>You evaluate</strong> these two members, at home.</span></div>
+        </div>
+      </div>
+      <figcaption><b>Figure 2 — the ring, for a team of six.</b> Each member formulates one
+        Modification and receives two: one from a classmate, one common to the whole class. The
+        common probe is what makes results comparable — without it, your mark would depend on who
+        happened to draw your name.</figcaption>
+    </figure>
+  </div>
 
-    <p class="sm muted">A short, exact summary naming one real difficulty is worth considerably
-      more than a long one reporting that all was well.</p>
-  </section>
+  <!-- ===================== IV ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>IV</b>Writing a Modification</h2>
+      <p>This is the part most often done badly, and it carries marks of its own. A Modification
+        must change a <strong>constraint</strong> of the problem — something the original solution
+        relied on — and not merely a <strong>parameter</strong> within it.</p>
+      <p>A parameter change asks your classmate to edit a line. A constraint change asks them to
+        rethink a decision. Only the second tells anyone whether they understood their own design.</p>
+    </div>
+    <div class="note"><b>What is graded</b> is the single sentence naming which part of their
+      design you expect to break — not the length of the modification.</div>
+  </div>
 
-  <section class="guide">
-    <h2><b>X.</b>Annex — Setting Up an Audited Exercise</h2>
-    <p class="sm muted">For the faculty-in-charge. Nothing in Sections I to IX changes between
-      activities; only the following are prepared afresh for each one.</p>
+  <div class="wide">
+    <figure>
+      <div class="ctrl"><span class="lab">Try it</span>
+        <span class="qscore" id="qscore">Classify each one. 0 of 6 attempted.</span></div>
+      <div class="quiz" id="quiz"></div>
+      <figcaption><b>Figure 3 — constraint, or parameter?</b> For an exercise that reads records
+        from a file and reports a summary. A constraint change removes something the design
+        assumed; a parameter change edits a value it already handles.</figcaption>
+    </figure>
+  </div>
 
-    <h3>To prepare</h3>
-    <ol>
-      <li><strong>Complete the Activity Details panel</strong> on the first page and post the
-        document to Canvas.</li>
-      <li><strong>Write the Common Modification</strong> — one probe the whole class answers
-        against their own programs. It shall be generic in wording yet answerable only with
-        reference to the student's own design, and shall alter a constraint. This is what makes
-        results comparable across the class, so it is prepared before release, not on the day.</li>
-      <li><strong>Prepare two (2) default Modifications</strong> for members left without one
-        through a classmate's default.</li>
-      <li><strong>Rotate the ring</strong> so that no pairing repeats from a previous audited
-        exercise, and post it with the Activity Details.</li>
-      <li><strong>Reserve the time.</strong> Mode A: one continuous session of about two (2)
-        hours. Mode B: fifteen (15) minutes at release and a protected sixty-minute (60) session
-        on Day 5.</li>
-    </ol>
+  <div class="row">
+    <div class="stack">
+      <div class="rule-block">
+        <span class="lbl">The rule</span>
+        <p>A valid Modification alters an assumption about input validity, a limit on scale or
+          memory, the shape or arrival order of the data, a new failure condition, or the removal
+          of an assumption the original relied upon. Changing a literal, renaming an identifier,
+          or requiring extra output shall not be credited.</p>
+      </div>
+    </div>
+    <div class="note"><b>Twelve percent</b> of the activity is the Modification you write for
+      someone else.</div>
+  </div>
 
-    <h3>Choosing a suitable exercise</h3>
-    <p class="sm">Not every exercise can be audited. A suitable one has <strong>constraints that
-      can be altered</strong> — assumptions about input validity, scale, data shape or arrival
-      order — so that a Modification has something real to attack. Exercises with a single
-      prescribed output and no assumptions to remove will not yield a usable probe.</p>
-    <h3>Choosing the mode</h3>
-    <p class="sm"><strong>Mode A wherever the exercise fits the hour.</strong> Observing the
-      implementation directly is stronger evidence than inferring it from a commit history
-      afterwards, and the whole activity closes in a single session. Mode A suits laboratory
-      exercises and smaller machine problems.</p>
-    <p class="sm"><strong>Mode B only where the exercise genuinely cannot be completed in one
-      sitting.</strong> The commit history then stands in for the observation that Mode A gets
-      directly. Accept the weaker evidence only in exchange for the larger problem — Mode B is the
-      concession, not the default.</p>
-    <p class="sm">Note the trade in what is measured. Mode A rewards fluency and penalises the
-      student who reasons slowly; Mode B allows the deliberation that analysing a substantial
-      problem requires. Where both are used in a term, the two together give a fuller picture than
-      either alone.</p>
+  <!-- ===================== V ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>V</b>Writing a Response</h2>
+      <p>You answer two Modifications, fifteen minutes each, offline, about your own program. Each
+        answer takes the same four steps — the repetition is deliberate, since the second answer is
+        what shows the first was not a lucky guess.</p>
+      <div class="rule-block">
+        <span class="lbl">Each Response, in order</span>
+        <ol>
+          <li>What breaks in your program under this Modification, and why.</li>
+          <li>The minimum change that would address it.</li>
+          <li>The revised algorithm, as pseudo-code.</li>
+          <li>One thing that could still go wrong afterwards.</li>
+        </ol>
+      </div>
+      <p class="sm muted">Pseudo-code, flowcharts and diagrams are all accepted. Handwriting,
+        spelling and command of English are not graded — only the reasoning. You may record your
+        Response aloud instead, within the same time limit, without giving a reason.</p>
+    </div>
+    <div class="note"><b>On the Plan.</b> A prediction of difficulty that proves wrong is not
+      penalised. A wrong prediction you afterwards account for is worth more than a cautious one
+      that says nothing. Write what you honestly expect.</div>
+  </div>
 
-    <h3>Frequency</h3>
-    <p class="sm">Any number of exercises may be audited in a term. Where more than one is
-      audited, the Audit Teams stand and only the ring rotates; the dry run is held once, before
-      the first.</p>
-  </section>
+  <!-- ===================== VI ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>VI</b>Where the marks come from</h2>
+      <p>The distribution is fixed for every audited exercise of the same mode. Only the weight of
+        the activity as a whole varies, and it is in the panel on the first page.</p>
+    </div>
+    <div class="note"><b>Notice</b> what switching to Mode A does: it moves the program itself from
+      unobserved to observed work.</div>
+  </div>
 
-  <section>
-    <h2><b>XI.</b>Queries</h2>
-    <p class="sm">Clarifications may be raised during consultation hours or through Canvas.
-      Kindly raise any question <strong>before</strong> the dry run, so that the mechanics are
-      settled well in advance of the first audited activity.</p>
-  </section>
+  <div class="wide">
+    <figure>
+      <div class="ctrl">
+        <span class="lab">Mode</span>
+        <button id="wA" aria-pressed="true">A — single sitting</button>
+        <button id="wB" aria-pressed="false">B — multi-day</button>
+      </div>
+      <div class="marks" id="marksbar" role="img" aria-label="Distribution of marks"></div>
+      <div class="mtable" id="markstable"></div>
+      <div class="legend">
+        <span><i class="sw sup"></i> Produced under supervision — <b id="supshare">92%</b></span>
+        <span><i class="sw hm"></i> Produced at home</span>
+      </div>
+      <figcaption><b>Figure 4 — the distribution of marks.</b> The Responses carry the most in
+        either mode, because they are the part nobody can write for you.</figcaption>
+    </figure>
+  </div>
 
-  <footer>LBYEC2B · Standing mechanics for the Exercise Audit · Draft, subject to confirmation by
-    the faculty-in-charge</footer>
+  <div class="row">
+    <div class="stack">
+      <h3>What gets read</h3>
+      <p class="sm muted">Published in advance, so nothing is assessed that you were not told
+        about: your Plan and the account of what changed; your program; the Modification you
+        formulated; your two Responses; the observations of the two members who evaluated you;
+        and, in Mode B only, your commit history.</p>
+      <p class="sm muted">Where the commit history is read, it is used only to raise a question for
+        clarification, never to set a mark directly. There is nothing to gain by inflating commits.</p>
+    </div>
+    <div class="note"><b>No student grades another student.</b> Peer evaluations are evidence for
+      the faculty-in-charge, and are subject to review.</div>
+  </div>
+
+  <!-- ===================== VII ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>VII</b>In the room</h2>
+      <div class="rule-block">
+        <span class="lbl">Conduct of the session</span>
+        <ul>
+          <li><strong>Permitted:</strong> your own repository, read-only; the exercise; writing
+            materials. Answers may be written on paper.</li>
+          <li><strong>Not permitted:</strong> internet access, any AI assistant, mobile telephones,
+            or any file other than your own repository.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note"><b>Phones</b> are kept away for the whole session, in both modes.</div>
+  </div>
+
+  <!-- ===================== VIII ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>VIII</b>Artificial intelligence, and concerns</h2>
+      <p>The course policy and the Student Handbook provisions on academic honesty apply in full.
+        Beyond that, the mechanics do the work rather than surveillance.</p>
+      <div class="rule-block">
+        <span class="lbl">Raising a concern</span>
+        <ol>
+          <li>Any member may raise a concern, which must cite something specific and verifiable.
+            A general impression shall not be entertained.</li>
+          <li><strong>No incentive or credit of any kind attaches to raising a concern.</strong></li>
+          <li>A concern is resolved by a conversation of about five (5) minutes with the
+            faculty-in-charge about your own code. Ordinarily the matter ends there.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="note"><b>Why no reward?</b> Paying someone to find a problem destroys their
+      judgment about whether the problem is there. Concerns are unpaid for the same reason auditors
+      are not paid by result.</div>
+  </div>
+
+  <!-- ===================== IX ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>IX</b>Other provisions</h2>
+      <ol class="sm">
+        <li><strong>Default of a classmate.</strong> Where no Modification is formulated for you,
+          the faculty-in-charge issues one. No student is prejudiced by another's default.</li>
+        <li><strong>Failure to perform a role.</strong> Failure to formulate an assigned
+          Modification or accomplish an assigned evaluation earns no credit for that component, and
+          does not affect the member who was to receive it.</li>
+        <li><strong>Reconsideration.</strong> May be sought within one (1) week of release, during
+          consultation hours. The evidence relied upon shall be shown to you.</li>
+      </ol>
+    </div>
+    <div class="note"><b>Queries</b> may be raised during consultation hours or through Canvas —
+      kindly before the dry run, so the mechanics are settled in advance.</div>
+  </div>
+
+  <!-- ===================== X ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>X</b>Guide for Team Leaders</h2>
+      <p class="sm muted">Published to the whole class, so every member knows what the Team Leader
+        may and may not do.</p>
+      <p>You are <strong>not a grader</strong>. You make sure the evidence your team produces is
+        complete and properly supported before it reaches the faculty-in-charge, who evaluates you
+        on exactly that. You are audited on your own exercise like everyone else; your Deputy
+        reviews your submissions.</p>
+
+      <h3>Your week</h3>
+      <ol class="sm">
+        <li><strong>Before the session.</strong> Confirm every member knows the schedule and their
+          ring assignment.</li>
+        <li><strong>Mode B, Day 4.</strong> Confirm everyone has pushed, and report anyone who has
+          not <em>the same day</em> — not on Day 5, when it is too late to reassign a partner.</li>
+        <li><strong>At the session.</strong> Confirm attendance and report absences immediately.</li>
+        <li><strong>After.</strong> Review the ten evaluation forms for evidence quality, return
+          those that fall short, and submit the one-page team summary.</li>
+      </ol>
+
+      <h3>Reviewing a form</h3>
+      <p class="sm">You check one thing: <strong>whether each rating cites specific, checkable
+        evidence</strong> — not whether you agree with it. A harsh rating with evidence is
+        forwarded. A generous rating without evidence is returned.</p>
+      <div class="quiz">
+        <div class="qitem wrong">
+          <div class="qtext">“He understood the problem well and his response was good.”</div>
+          <div class="qfb"><b>Return.</b> Nothing here can be checked by anyone who was not present.</div>
+        </div>
+        <div class="qitem right">
+          <div class="qtext">“His Response identified that the reused buffer would be overwritten
+            once rows arrived out of order, and pointed to the loop where this occurs.”</div>
+          <div class="qfb"><b>Forward.</b> Specific, and checkable against the Response itself.</div>
+        </div>
+      </div>
+
+      <h3>You must not</h3>
+      <ul class="sm">
+        <li>Assign, adjust, negotiate or predict any mark — any assurance you give will not bind
+          the faculty-in-charge.</li>
+        <li>Decide whether a member used AI. Record the specific observation and leave it there.</li>
+        <li>Do any part of a member's work, however far behind they are. Report it instead.</li>
+        <li>Amend a rating. You may return a form; you may not change one.</li>
+        <li>Withhold an unfavourable observation to protect the team.</li>
+      </ul>
+      <p class="sm muted">A short, exact summary naming one real difficulty is worth considerably
+        more than a long one reporting that all was well.</p>
+    </div>
+    <div class="note"><b>Eight percent</b> of your own mark is the quality of your audit work — the
+      evaluations you write, and your supervision in the exercise you lead.</div>
+  </div>
+
+  <!-- ===================== annex ===================== -->
+  <div class="row">
+    <div class="stack">
+      <h2><b>Annex</b>Setting up an audited exercise</h2>
+      <p class="sm muted">For the faculty-in-charge. Nothing in Sections I–X changes between
+        activities; only the following are prepared afresh.</p>
+      <ol class="sm">
+        <li>Complete the Activity Details panel and post it to Canvas.</li>
+        <li><strong>Write the Common Modification</strong> — generic in wording, answerable only
+          against the student's own design, and altering a constraint. Prepared before release,
+          not on the day; this is what makes results comparable.</li>
+        <li>Prepare two default Modifications for members left without one.</li>
+        <li>Rotate the ring by one position from the previous audited exercise.</li>
+        <li>Reserve the time: Mode A, one continuous session of about two hours; Mode B, fifteen
+          minutes at release and a protected sixty-minute session on Day 5.</li>
+      </ol>
+      <h3>Choosing the exercise and mode</h3>
+      <p class="sm">A suitable exercise has <strong>constraints that can be altered</strong> —
+        assumptions about input validity, scale, data shape or arrival order. One with a single
+        prescribed output and nothing to remove yields no usable probe.</p>
+      <p class="sm"><strong>Mode A wherever it fits the hour.</strong> Observing the implementation
+        is stronger evidence than inferring it from a commit history afterwards. Mode B is the
+        concession for larger problems, not the default — but it allows the deliberation that
+        analysing a substantial problem needs, so the two together give a fuller picture than
+        either alone.</p>
+    </div>
+    <div class="note"><b>Frequency.</b> Any number of exercises may be audited in a term. Teams
+      stand; only the ring rotates. The dry run is held once, before the first.</div>
+  </div>
+
+  <div class="row">
+    <footer>LBYEC2B · Standing mechanics for the Exercise Audit · Draft, subject to confirmation
+      by the faculty-in-charge</footer>
+  </div>
 
 </div>
+
+<script>
+(function () {
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ================= Figure 1 — timeline ================= */
+  var MODES = {
+    A: {
+      end: "125 supervised minutes, then home", start: "Start of session",
+      segs: [
+        {m:10, sup:1, t:"Write the Plan", d:"Bullets: how you will break the problem up, what data structures you will use, and which parts you expect to be difficult. Locked when you hand it in."},
+        {m:60, sup:1, t:"Implement the exercise", d:"In the room, offline. This is what Mode A observes directly instead of inferring it later from a commit history."},
+        {m:5,  sup:1, t:"Note what changed", d:"A short note: what changed between your Plan and what you built, and why. Written immediately, while it is fresh."},
+        {m:8,  sup:1, t:"Read a classmate's program", d:"The member the ring assigns you. Read for the decisions they made, not for defects."},
+        {m:12, sup:1, t:"Formulate one Modification", d:"Change a constraint of their problem, and name in one sentence which part of their design you expect it to break. That sentence is what is graded."},
+        {m:30, sup:1, t:"Answer your two Modifications", d:"Fifteen minutes each, offline, about your own program — one probe from a classmate, one common to the class."},
+        {m:20, sup:0, t:"Two evaluations — at home", d:"Accomplished through Canvas within two days. Every rating must cite specific evidence you can point to."}
+      ]
+    },
+    B: {
+      end: "End of Day 5, then home", start: "Day 0",
+      segs: [
+        {m:15, sup:1, t:"Day 0 — write the Plan", d:"Fifteen minutes at release, then locked. Same content as Mode A, with a little more time because the problem is larger."},
+        {m:70, sup:0, t:"Days 1–4 — implement at home", d:"Commit progressively as you work, not in one commit at the end. Your commit history stands in for the observation Mode A gets directly. Not drawn to scale."},
+        {m:8,  sup:1, t:"Day 5 — read a classmate's program", d:"The supervised session begins. Read the program of the member the ring assigns you."},
+        {m:12, sup:1, t:"Day 5 — formulate one Modification", d:"Change a constraint, and name in one sentence which part of their design you expect it to break."},
+        {m:10, sup:1, t:"Day 5 — write your Divergence Log", d:"What changed between your Plan and your finished program, and why, citing the commits where it happened. Modifications are distributed during this interval."},
+        {m:30, sup:1, t:"Day 5 — answer your two Modifications", d:"Fifteen minutes each, offline, about your own program."},
+        {m:20, sup:0, t:"Two evaluations — at home", d:"Accomplished through Canvas within two days. Every rating must cite specific evidence."}
+      ]
+    }
+  };
+  var SHADE = ["#00703c","#005229","#1ea256","#00843a","#00703c","#005229"];
+  var bar = document.getElementById("tlbar"),
+      detail = document.getElementById("tldetail"),
+      tlend = document.getElementById("tlend"),
+      tlstart = document.getElementById("tlstart");
+  var mode = "A", picked = 0;
+
+  function showDetail(list, i) {
+    var s = list[i];
+    detail.innerHTML = "";
+    var t = document.createElement("span"); t.className = "t";
+    t.textContent = s.t + " — " + (s.sup ? s.m + " minutes, supervised" : "at home");
+    var d = document.createElement("span"); d.textContent = s.d;
+    detail.appendChild(t); detail.appendChild(d);
+  }
+
+  function drawTimeline() {
+    var cfg = MODES[mode], list = cfg.segs;
+    var total = list.reduce(function (a, s) { return a + s.m; }, 0);
+    if (bar.children.length !== list.length) bar.innerHTML = "";
+    list.forEach(function (s, i) {
+      var el = bar.children[i];
+      if (!el) {
+        el = document.createElement("button");
+        el.className = "tl-seg";
+        el.type = "button";
+        el.appendChild(document.createElement("span")).className = "m";
+        bar.appendChild(el);
+        el.addEventListener("click", function () { picked = i; sync(); });
+      }
+      el.className = "tl-seg" + (s.sup ? "" : " home");
+      el.style.width = (s.m / total * 100) + "%";
+      el.style.backgroundColor = s.sup ? SHADE[i % SHADE.length] : "";
+      el.setAttribute("aria-pressed", i === picked ? "true" : "false");
+      el.setAttribute("aria-label", s.t + ", " + (s.sup ? s.m + " minutes supervised" : "at home"));
+      el.title = s.t;
+      el.firstChild.textContent = s.sup ? s.m : "home";
+    });
+    tlend.textContent = cfg.end;
+    tlstart.textContent = cfg.start;
+    showDetail(list, picked);
+  }
+  function sync() { drawTimeline(); }
+
+  function setMode(m) {
+    mode = m; picked = 0;
+    document.getElementById("mA").setAttribute("aria-pressed", m === "A" ? "true" : "false");
+    document.getElementById("mB").setAttribute("aria-pressed", m === "B" ? "true" : "false");
+    document.getElementById("wA").setAttribute("aria-pressed", m === "A" ? "true" : "false");
+    document.getElementById("wB").setAttribute("aria-pressed", m === "B" ? "true" : "false");
+    drawTimeline(); drawMarks();
+  }
+  document.getElementById("mA").addEventListener("click", function () { setMode("A"); });
+  document.getElementById("mB").addEventListener("click", function () { setMode("B"); });
+  document.getElementById("wA").addEventListener("click", function () { setMode("A"); });
+  document.getElementById("wB").addEventListener("click", function () { setMode("B"); });
+
+  /* ================= Figure 2 — ring ================= */
+  var N = 6, CX = 128, CY = 150, R = 104, NR = 21;
+  var edges = document.getElementById("redges"),
+      nodes = document.getElementById("rnodes"),
+      facg  = document.getElementById("rfac");
+  var you = 0;
+
+  function pt(i) {
+    var a = -Math.PI / 2 + i * 2 * Math.PI / N;
+    return { x: CX + R * Math.cos(a), y: CY + R * Math.sin(a) };
+  }
+  function edge(i, j, colour, marker, dash, shorten) {
+    var p = pt(i), q = pt(j);
+    var dx = q.x - p.x, dy = q.y - p.y, L = Math.sqrt(dx * dx + dy * dy);
+    var ux = dx / L, uy = dy / L, pad = NR + (shorten || 5);
+    var e = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    e.setAttribute("x1", p.x + ux * pad); e.setAttribute("y1", p.y + uy * pad);
+    e.setAttribute("x2", q.x - ux * pad); e.setAttribute("y2", q.y - uy * pad);
+    e.setAttribute("stroke", colour); e.setAttribute("stroke-width", dash ? 1.6 : 2.4);
+    if (dash) e.setAttribute("stroke-dasharray", "5 4");
+    e.setAttribute("marker-end", "url(#" + marker + ")");
+    e.setAttribute("class", "redge");
+    return e;
+  }
+  function drawRing() {
+    edges.innerHTML = ""; nodes.innerHTML = ""; facg.innerHTML = "";
+    var out = (you + 1) % N, inc = (you + N - 1) % N,
+        ev1 = (you + 2) % N, ev2 = (you + 3) % N;
+
+    edges.appendChild(edge(you, ev1, "var(--ink-faint)", "ahd", true));
+    edges.appendChild(edge(you, ev2, "var(--ink-faint)", "ahd", true));
+    edges.appendChild(edge(inc, you, "var(--green)", "ahgr", false));
+    edges.appendChild(edge(you, out, "var(--gold)", "ahg", false));
+
+    // faculty node + common probe
+    var fx = 128, fy = 150;
+    var fc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    fc.setAttribute("cx", fx); fc.setAttribute("cy", fy); fc.setAttribute("r", 25);
+    fc.setAttribute("fill", "var(--ground)"); fc.setAttribute("stroke", "var(--green-lo)");
+    fc.setAttribute("stroke-width", "1.5"); fc.setAttribute("stroke-dasharray", "3 3");
+    facg.appendChild(fc);
+    var ft = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    ft.setAttribute("x", fx); ft.setAttribute("y", fy - 2); ft.setAttribute("text-anchor", "middle");
+    ft.setAttribute("fill", "var(--ink-faint)");
+    ft.setAttribute("style", "font-family:var(--sans);font-size:9.5px;font-weight:700");
+    ft.textContent = "COMMON"; facg.appendChild(ft);
+    var ft2 = ft.cloneNode(); ft2.setAttribute("y", fy + 9); ft2.textContent = "PROBE";
+    facg.appendChild(ft2);
+
+    var yp = pt(you);
+    var dx = yp.x - fx, dy = yp.y - fy, L = Math.sqrt(dx * dx + dy * dy);
+    var fe = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    fe.setAttribute("x1", fx + dx / L * 27); fe.setAttribute("y1", fy + dy / L * 27);
+    fe.setAttribute("x2", yp.x - dx / L * (NR + 5)); fe.setAttribute("y2", yp.y - dy / L * (NR + 5));
+    fe.setAttribute("stroke", "var(--green-lo)"); fe.setAttribute("stroke-width", "1.8");
+    fe.setAttribute("stroke-dasharray", "2 3"); fe.setAttribute("marker-end", "url(#ahf)");
+    fe.setAttribute("class", "redge"); facg.appendChild(fe);
+
+    for (var i = 0; i < N; i++) {
+      (function (i) {
+        var p = pt(i), isYou = i === you;
+        var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "rnode"); g.setAttribute("tabindex", "0");
+        g.setAttribute("role", "button");
+        g.setAttribute("aria-label", "Show relationships for member " + (i + 1));
+        var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        c.setAttribute("cx", p.x); c.setAttribute("cy", p.y); c.setAttribute("r", NR);
+        c.setAttribute("fill", isYou ? "var(--green)" : "var(--ground)");
+        c.setAttribute("stroke", isYou ? "var(--green)" : "var(--rule-firm)");
+        c.setAttribute("stroke-width", isYou ? 2.5 : 1.5);
+        var t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        t.setAttribute("x", p.x); t.setAttribute("y", p.y + 4.5);
+        t.setAttribute("text-anchor", "middle");
+        t.setAttribute("fill", isYou ? "#fff" : "var(--ink-soft)");
+        t.textContent = isYou ? "YOU" : (i + 1);
+        if (isYou) t.setAttribute("style", "font-family:var(--sans);font-size:11px;font-weight:700");
+        g.appendChild(c); g.appendChild(t);
+        function pick() { you = i; drawRing(); syncRingBtns(); }
+        g.addEventListener("click", pick);
+        g.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); }
+        });
+        nodes.appendChild(g);
+      })(i);
+    }
+  }
+  var ringbtns = document.getElementById("ringbtns");
+  function syncRingBtns() {
+    Array.prototype.forEach.call(ringbtns.children, function (b, i) {
+      b.setAttribute("aria-pressed", i === you ? "true" : "false");
+    });
+  }
+  for (var i = 0; i < N; i++) {
+    (function (i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = "Member " + (i + 1);
+      b.addEventListener("click", function () { you = i; drawRing(); syncRingBtns(); });
+      ringbtns.appendChild(b);
+    })(i);
+  }
+
+  /* ================= Figure 3 — classifier ================= */
+  var ITEMS = [
+    {q:"The input file may now contain rows with missing fields.", a:"c",
+     w:"Removes an assumption the design relied on — that every row is complete. The whole read-and-parse path has to be reconsidered."},
+    {q:"Print the average as well as the total.", a:"p",
+     w:"An additional output. The design already holds everything needed; this is a line to add."},
+    {q:"The file no longer fits in memory.", a:"c",
+     w:"A limit on scale. If the design loaded the file into an array, that decision no longer stands."},
+    {q:"Rename the totals variable to sum_total.", a:"p",
+     w:"An identifier. Nothing about the design changes."},
+    {q:"Records now arrive in arbitrary order, not sorted by ID.", a:"c",
+     w:"The arrival order of the data. Anything relying on sortedness — searching, grouping, running totals — must be rethought."},
+    {q:"Change the report heading to include the date.", a:"p",
+     w:"Output formatting. It tests nothing about how the program is built."}
+  ];
+  var quiz = document.getElementById("quiz"), qscore = document.getElementById("qscore");
+  var answered = 0, correct = 0;
+  ITEMS.forEach(function (it) {
+    var box = document.createElement("div"); box.className = "qitem";
+    var q = document.createElement("div"); q.className = "qtext"; q.textContent = "“" + it.q + "”";
+    var row = document.createElement("div"); row.className = "qrow";
+    var fb = document.createElement("div"); fb.className = "qfb";
+    ["Constraint", "Parameter"].forEach(function (label, idx) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = label;
+      b.addEventListener("click", function () {
+        if (box.dataset.done) return;
+        box.dataset.done = "1"; answered++;
+        var ok = (idx === 0 ? "c" : "p") === it.a;
+        if (ok) correct++;
+        box.className = "qitem " + (ok ? "right" : "wrong");
+        fb.innerHTML = "";
+        var strong = document.createElement("b");
+        strong.textContent = (it.a === "c" ? "Constraint. " : "Parameter. ");
+        fb.appendChild(strong);
+        fb.appendChild(document.createTextNode(it.w));
+        Array.prototype.forEach.call(row.children, function (x) { x.disabled = true; x.style.opacity = .55; });
+        qscore.textContent = correct + " of " + answered + " correct, " + answered + " of 6 attempted.";
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(q); box.appendChild(row); box.appendChild(fb);
+    quiz.appendChild(box);
+  });
+
+  /* ================= Figure 4 — marks ================= */
+  var WEIGHTS = {
+    A: [
+      {p:35, sup:1, t:"Your two Responses"},
+      {p:30, sup:1, t:"The program you wrote"},
+      {p:15, sup:1, t:"Plan, and the note of what changed"},
+      {p:12, sup:1, t:"The Modification you formulated"},
+      {p:8,  sup:0, t:"The two evaluations you wrote"}
+    ],
+    B: [
+      {p:35, sup:1, t:"Your two Responses"},
+      {p:25, sup:0, t:"The program you wrote"},
+      {p:20, sup:1, t:"Plan, and the Divergence Log"},
+      {p:12, sup:1, t:"The Modification you formulated"},
+      {p:8,  sup:0, t:"The two evaluations you wrote"}
+    ]
+  };
+  var mbar = document.getElementById("marksbar"),
+      mtab = document.getElementById("markstable"),
+      supshare = document.getElementById("supshare");
+  function drawMarks() {
+    var w = WEIGHTS[mode];
+    if (mbar.children.length !== w.length) { mbar.innerHTML = ""; mtab.innerHTML = ""; }
+    w.forEach(function (s, i) {
+      var el = mbar.children[i];
+      if (!el) { el = document.createElement("div"); mbar.appendChild(el); }
+      el.className = s.sup ? "" : "home";
+      el.style.width = s.p + "%";
+      el.style.backgroundColor = s.sup ? SHADE[i % SHADE.length] : "";
+      el.textContent = s.p + "%";
+      el.title = s.t;
+
+      var r = mtab.children[i];
+      if (!r) {
+        r = document.createElement("div");
+        r.appendChild(document.createElement("span")).className = "p";
+        r.appendChild(document.createElement("span"));
+        r.appendChild(document.createElement("span")).className = "w";
+        mtab.appendChild(r);
+      }
+      r.children[0].textContent = s.p + "%";
+      r.children[1].textContent = s.t;
+      r.children[2].textContent = s.sup ? "In the room" : "At home";
+      r.children[2].style.color = s.sup ? "var(--green)" : "";
+    });
+    var sup = w.reduce(function (a, s) { return a + (s.sup ? s.p : 0); }, 0);
+    supshare.textContent = sup + "%";
+  }
+
+  /* ================= init ================= */
+  drawTimeline();
+  drawRing(); syncRingBtns();
+  drawMarks();
+})();
+</script>
