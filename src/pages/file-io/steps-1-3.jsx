@@ -836,15 +836,24 @@ Appended a third line to test.txt.`}
           caption="02-write.c, one call at a time. The upper strip is what the program has issued. The buffer strip below it is where those bytes actually are until the last call."
         />
         <p className="aw-p">
-          The 27 bytes of <code className="aw-code">test.txt</code> after{" "}
-          <code className="aw-code">02-write</code>: bytes 0 to 10 are{" "}
-          <code className="aw-code">hello no. 1</code>, byte 11 is the newline,
-          and bytes 12 to 26 are{" "}
-          <code className="aw-code">where is no. 2?</code>.{" "}
-          <code className="aw-code">03-append</code> then writes 17 more, a
-          newline and <code className="aw-code">How about no. 3?</code>, at bytes
-          27 to 43. That is 44 bytes in total. There is no byte at offset 44. The
-          file ends without a trailing newline, and stage 4 depends on that.
+          Where each byte ends up. <code className="aw-code">02-write</code>{" "}
+          leaves the first 27:
+        </p>
+        <ul className="aw-p">
+          <li>bytes 0 to 10 — <code className="aw-code">hello no. 1</code></li>
+          <li>byte 11 — the newline</li>
+          <li>bytes 12 to 26 — <code className="aw-code">where is no. 2?</code></li>
+        </ul>
+        <p className="aw-p">
+          <code className="aw-code">03-append</code> then adds 17 more:
+        </p>
+        <ul className="aw-p">
+          <li>byte 27 — the newline</li>
+          <li>bytes 28 to 43 — <code className="aw-code">How about no. 3?</code></li>
+        </ul>
+        <p className="aw-p">
+          That is 44 bytes. There is no byte at offset 44. The file ends with no
+          trailing newline, and stage 4 depends on that.
         </p>
       </>
     ),

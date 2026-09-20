@@ -402,7 +402,7 @@ How about no. 3?`}</Terminal>
     ),
     why: {
       label: "Why 100, and what if a line is longer than that?",
-      body: <>The 100 is the size of the buffer. <code className="aw-code">fgets</code> never writes past it: 99 characters at most, plus the closing <code className="aw-code">\0</code>. A longer line is not lost. It is split, and the next call returns the rest without a newline in front. <code className="aw-code">gets()</code> could not be told a size, so C11 removed it.</>
+      body: <>The 100 is the size of the buffer. <code className="aw-code">fgets</code> never writes past it: 99 characters plus the closing <code className="aw-code">\0</code>. A longer line is not lost. It is split, and the next call returns the rest with no newline in front. <code className="aw-code">gets()</code> could not be told a size. C11 removed it.</>
     },
     check: {
       kind: "predict",
@@ -543,21 +543,22 @@ TVX-111`}</Terminal>
 Toyota,Corolla,1995,TVX-111`}</Terminal>
         <p className="aw-p">
           The comma is convenient. It is not safe in general. A field that
-          contains a comma gets split in the wrong place. Nothing complains. An address does it. So does a name written surname-first, or
-          a price written in some locales.
+          contains a comma gets split in the wrong place, and nothing complains.
+          An address does it. So does a name written surname-first, or a price
+          written in some locales.
         </p>
         <p className="aw-p">
           Any character that cannot appear in your data will serve instead. That
-          is why files in the wild sometimes use a tab or a semicolon instead.
-          Some use a run such as <code className="aw-code">:|:</code> that nobody
-          types by accident. The comma is used here because the rest of the world
+          is why files in the wild sometimes use a tab or a semicolon. Some use a
+          run such as <code className="aw-code">:|:</code> that nobody types by
+          accident. The comma is used here because the rest of the world
           uses it. None of these four cars contains one either.
         </p>
       </>
     ),
     why: {
       label: "Where does this go after Week 3?",
-      body: <>The pipeline you are about to build is a delimited file. Records are read one at a time and printed as a table. That is the shape of the CSV work you do in MATLAB in Week 7. It is the shape again of the team project you are measured on in Week 13. Writing it once by hand is the point.</>
+      body: <>You are about to build a pipeline: a delimited file read record by record, printed as a table. That same shape returns in MATLAB in Week 7. It returns again in your Week 13 team project. Writing it once by hand is the point.</>
     },
     check: {
       kind: "self",
@@ -683,8 +684,8 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
       <p className="aw-p">
         With a comma as the delimiter, four fields share one line.{" "}
         <code className="aw-code">fgets</code> can no longer do the separating
-        for you. One function does it instead. It reads a single item. It stops at
-        the next comma, the end of the line, or the end of the file.
+        for you. One function does it instead. It reads a single item. It stops
+        at the next comma, the end of the line, or the end of the file.
         Everything else in the program is built on it.
       </p>
     ),
@@ -723,9 +724,9 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
         />
         <p className="aw-p">
           Past that check there is something to read. Now the loop runs until the
-          item ends. Three things can end it, and they are the three things that
-          may legitimately follow an item: another field, the end of the row, or
-          the end of the file.
+          item ends. Three things can end it. A comma, the end of the
+          row, or the end of the file. Each of those may legitimately follow a
+          field.
         </p>
         <CodeBlock
           file="08-csv.c"
@@ -742,8 +743,8 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
         />
         <p className="aw-p">
           The comma and the newline are read but never stored. That is the whole
-          trick. The caller gets the item on its own. The stream is left ready for
-          the next one. The <code className="aw-code">\r</code> is dropped as it
+          trick. The caller gets the item on its own, and the stream is left
+          ready for the next one. The <code className="aw-code">\r</code> is dropped as it
           goes past, not trimmed later. So a file written on Windows behaves like
           one written on a Mac.
         </p>
@@ -847,8 +848,8 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
         />
         <p className="aw-p">
           One pass of the loop is one car. The first call decides whether there
-          is a record at all. The other three then complete it. Both stop here the same way: a file that ends with a newline,
-          and a file that does not.
+          is a record at all. The other three then complete it. A file that ends
+          with a newline and one that does not both stop here the same way.
         </p>
         <CodeBlock
           file="08-csv.c"
@@ -972,8 +973,8 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
           and stepped over.
         </p>
         <p className="aw-p">
-          You now have a program that turns a data file into a table. Five parts
-          did it.
+          You now have a program that turns a data file into a table. It has five
+          pieces.
         </p>
         <ul className="aw-p">
           <li>A file on disk.</li>

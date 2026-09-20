@@ -69,16 +69,27 @@ for (const st of steps) {
   strip(/<p class="fm-sr"[\s\S]*?<\/p>/g);              // the screen-reader sentence
   strip(/<p class="fm-status"[\s\S]*?<\/p>/g);
 
+  /* Block boundaries are sentence boundaries. A list item rarely ends in a
+     full stop, so flattening the markup first would glue a five-item list into
+     one "sentence" and score it as the longest thing on the page — penalising
+     exactly the structure the prose is supposed to use. */
   const text = html
+    .replace(/<\/(li|p|h2|h3|figcaption|dd|dt|div)>/g, "\n")
     .replace(/<[^>]+>/g, " ").replace(/<!--.*?-->/g, " ")
     .replace(/&#x27;|&rsquo;/g, "'").replace(/&quot;/g, '"')
     .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
     .replace(/&[a-z]+;|&#\d+;/g, " ")
-    .replace(/\s+/g, " ").trim();
+    .replace(/[ \t]+/g, " ").replace(/\n\s*/g, "\n").trim();
 
   for (const m of text.matchAll(BRITISH)) britishHits.push([st.id, m[0]]);
 
-  const sentences = text.split(/(?<=[.?!])\s+(?=[A-Z"'(])/)
+  /* Split on block boundaries first, then on sentence ends within a block.
+     Doing it in that order keeps each list item its own unit, and it also
+     avoids mis-splitting the handout's own data: "hello no. 1" and
+     "where is no. 2?" contain full stops that are not sentence ends, so the
+     within-block rule still requires a capital letter after the break. */
+  const sentences = text.split("\n")
+    .flatMap(block => block.split(/(?<=[.?!])\s+(?=[A-Z"'(])/))
     .map(s => s.trim()).filter(s => /[a-z]{3}/.test(s));
 
   const lens = sentences.map(s => s.split(/\s+/).filter(w => /[A-Za-z0-9]/.test(w)).length);
