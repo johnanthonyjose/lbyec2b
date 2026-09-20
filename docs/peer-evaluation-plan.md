@@ -1,6 +1,6 @@
 # Assessment as audit — an AI-resistant design for LBYEC2B
 
-Status: draft v2, for discussion. Nothing here is committed to the syllabus yet.
+Status: draft v3, for discussion. Nothing here is committed to the syllabus yet.
 Course: LBYEC2B, Computer Fundamentals and Programming 2 (1 unit, 13 weeks).
 
 **Organising goal.** Assess whether a student's capability against the learning
@@ -13,10 +13,12 @@ file.
 Working assumption: class size ~40, instructor is the sole grader. Round count
 scales with the real figure.
 
-> v1 of this document argued a peer-evaluation mechanic into shape. v2 keeps
-> those conclusions but rebuilds them on the audit frame, which is the better
-> organising idea and resolves several things v1 left in tension. The v1
-> critique of the original proposal is preserved, condensed, in Appendix A.
+> v1 argued a peer-evaluation mechanic into shape. v2 rebuilt it on the audit
+> frame. **v3 times every student-authored artefact in the room**, which is the
+> change that makes the original three-part concept work as designed: the plan
+> and the divergence log rise from rank 5 to rank 2, and 75% of the component
+> now rests on observed work. The implementation itself stays untimed and taken
+> home, for the reason in §5.5. The v1 critique is condensed into Appendix A.
 
 ---
 
@@ -87,11 +89,11 @@ Now every data point in the design, placed:
 
 | # | Data point | Rank | Tests | Notes |
 |---|---|---|---|---|
-| 1 | Locked plan, submitted pre-code, timestamped | 5 | LO2, LO3 | Weak as a claim. Its real function is to fix an **expectation** for §4. |
+| 1 | Locked plan, **written in-session, 15 min** | 2 | LO2, LO3 | Also fixes the **expectation** that §4.1 tests against. Timing it is what lifts it from rank 5. |
 | 2 | Commit history: cadence, granularity, churn distribution | 3 | control | A control test, never a substantive one. See the Goodhart warning in §7. |
-| 3 | Divergence log, each claim citing a commit | 5→3 | LO2, LO3 | Rises to rank 3 *by corroboration* against 1 and 2. This is the mechanism. |
+| 3 | Divergence log, **written in-session, 10 min**, each claim citing a commit | 2, corroborated by 1 and 2 | LO2, LO3 | Written from your own commit log in the room. Very hard to fabricate under time. |
 | 4 | Working program, requirements met, standards observed | 6 for capability, 1 for requirements | LO1 | Output. AI-substitutable, so it evidences *requirement satisfaction*, not capability. Both still matter. |
-| 5 | Modification authored for a peer | 4 | LO2 | Must be produced in-session — see §3. |
+| 5 | Modification authored for a peer, **in-session, 20 min** | 4, observed | LO2 | Timed and observed, so it is real work rather than a five-minute afterthought. |
 | 6 | **Supervised response to the peer's modification** | 2 | LO2, LO3 | The substantive test. The single highest-value artefact. |
 | 7 | Peer evaluation, with evidence quoted | 4 | LO6 (of the rater) | Evidence *for* the instructor. The peer scores nothing. |
 | 8 | Exception-triggered oral check, 5 minutes | 1 | any | Escalation only. Interactive, so it settles matters nothing else can. |
@@ -236,23 +238,32 @@ as the scheme's control total.
 
 ### 5.2 Timeline for one round
 
-| Day | Event | Produces |
-|---|---|---|
-| 0 | Exercise released in session; triads published | — |
-| 1 | **Plan due and locked** | data point 1 |
-| 1–4 | Implementation, committing as the work proceeds | data point 2 |
-| 4 | Code + divergence log due | 3, 4 |
-| 5 | Automated analytical screen runs; artefacts released to the peer | exceptions flagged |
-| 6 | *In session, 20 min, supervised:* peer writes the modification | data point 5 |
-| 7 | *In session, 25 min, supervised, offline:* response to the modification | **data point 6** |
-| 8 | Peer evaluation submitted | data point 7 |
-| 9 | Instructor forms the file; exception orals held | data point 8, opinion |
+Every student-authored artefact is now **timed and in-session**. Only the
+implementation itself is taken home — deliberately, for the reason in §5.5.
 
-**Both student-authored probes are now in-session** (days 6 and 7), which is a
-change from v1. Reason: an untimed take-home modification is rank-5 evidence
-authored by someone with an incentive to spend five minutes on it. Twenty
-supervised minutes with the peer's code in front of you makes it rank 4 and
-makes it real work. The two windows can share a single lab session.
+| Day | Event | Timed? | Produces |
+|---|---|---|---|
+| 0 | Exercise released; triads published | — | — |
+| 0 | *Same session, 15 min, supervised:* **write the plan**, then lock it | ✓ | 1 |
+| 1–4 | Implementation at home, committing as the work proceeds | ✗ | 2, 4 |
+| 4 | Code pushed | — | 4 |
+| 5 | *In session, 10 min, supervised:* **divergence log**, from your own commit log | ✓ | 3 |
+| 5 | Automated analytical screen runs; artefacts released to the peer | — | exceptions |
+| 5 | *Same session, 20 min, supervised:* **write your peer's modification** | ✓ | 5 |
+| 6 | *In session, 25 min, supervised, offline:* **respond to your modification** | ✓ | **6** |
+| 6 | *Same session, 15 min:* **write your evaluation** of the third member | ✓ | 7 |
+| 7 | Instructor forms the file; exception orals held | — | 8, opinion |
+
+Four of the five student artefacts moved in-session relative to v1, and two of
+them — the plan and the divergence log — **rise from rank 5 to rank 2** as a
+direct result. That is the largest single improvement to the evidence base in
+either revision, and it comes from one decision: write it in the room.
+
+The windows group into **two supervised blocks of roughly 45 and 40 minutes**,
+which is the practical scheduling unit. LBY courses carry laboratory contact
+hours, so both blocks should fit inside the round week's normal sessions —
+**confirm this against the actual timetable before committing**, because §9.1
+now turns on total supervised minutes rather than on one window.
 
 **Modification quality control.** The modification must change a *constraint*,
 not a parameter: an input-validity assumption, a scale or memory bound, the
@@ -320,6 +331,59 @@ is the best-written submission, it puts reward and judgement in the same hands,
 it is unbounded and maps to no learning outcome, and it destroys the willingness
 to share reasoning that LO6 and this entire mechanic depend on.
 
+### 5.5 What timing buys, and the one trap in it
+
+**The trap: timed is not the same as supervised.** A 25-minute countdown on a
+Canvas quiz taken at home buys almost nothing. Pasting a problem into a chatbot
+and reading the answer takes under a minute, so a home timer constrains only the
+honest student. Timing produces AI resistance solely in combination with
+observation, and it is the observation doing most of the work. Wherever this
+document says "timed," read **timed, in the room, on a machine without a browser
+or with the network restricted, phones away**, and for the response window,
+read-only access to the student's own repository and nothing else.
+
+Said precisely in §2's terms: timing alone does not change an artefact's rank.
+Timing *plus* observation is what moves the plan and the divergence log from
+rank 5 to rank 2.
+
+**Do not time the implementation.** This is the important negative
+recommendation, and it cuts against the instinct that more timing is more
+resistance. Turning the machine problems into timed lab exercises would:
+
+- **Destroy §4.1, the cheapest AI resistance in the design.** Multi-day work is
+  what produces a commit history with a churn distribution to compare against
+  the predicted difficulty. Compress it to two hours in a room and there is no
+  trace left to analyse. You would be trading a rank-3 evidence stream that
+  costs nothing for supervision you are already buying elsewhere.
+- **Measure the wrong thing.** Timed coding measures recall and speed. LO2 and
+  LO3 — analyse a problem, develop an algorithm — need reflection, and the
+  student who thinks for an hour before typing is the one the outcome is meant
+  to reward.
+- **Be redundant.** Week 12's practical examination already measures unaided
+  timed performance at 15%, and §4.3 already uses it as the control total.
+
+The division of labour is therefore: **implementation takes as long as it takes
+and leaves a trace; every claim the student makes about that implementation is
+made in the room.** An AI can write the program — and if it does, the student
+will have nothing to say in any of the four windows about a program they did
+not build. That is the design working as intended, and it is the concrete
+meaning of "make AI use irrelevant to the mark" from §3.
+
+**Morale cost, stated honestly.** This is twelve timed episodes across the term
+in a one-unit course, and a badly framed version of it feels like a term of
+examinations. Two mitigations. First, only the response window is high-stakes;
+the plan, divergence and evaluation windows are short and low-weight, and should
+be run and described as **working sessions, not tests** — the students are
+simply doing the work in the room instead of at home. Second, publish the point
+of it: written reasoning in the room is the normal professional condition —
+design reviews, incident write-ups, code review — and is worth practising for
+its own sake, not only because it is hard to outsource.
+
+**Absence and accommodation.** A missed window yields a *disclaimer* opinion
+(§6.2) and a re-sit, never a zero by default. Any student who reasons better
+aloud may give the response orally into a recorder in the room, on request and
+without justification.
+
 ---
 
 ## 6. Forming and recording the judgement
@@ -334,11 +398,18 @@ Averaged across the three rounds:
 
 | Sub-component | Share | Evidence | Rank | Outcome |
 |---|---|---|---|---|
-| Working program: requirements, standards | 30% | 4 | 1 for requirements | LO1 |
-| Plan + divergence log, commit-corroborated | 15% | 1, 2, 3 | 3 | LO2, LO3 |
+| Working program: requirements, standards | 25% | 4 | 1 for requirements | LO1 |
+| Plan + divergence log, timed, commit-corroborated | 20% | 1, 2, 3 | 2 | LO2, LO3 |
 | **Supervised response** | 35% | 6, informed by 7 | 2 | LO2, LO3 |
-| Modification authored (in-session) | 12% | 5 | 4 | LO2 |
+| Modification authored (timed) | 12% | 5 | 4 | LO2 |
 | Quality of the evaluation written as a rater | 8% | 7 | — | LO6 |
+
+The first two rows moved by five points relative to v2 as a consequence of
+timing. The plan and divergence log are now observed artefacts rather than
+self-representations, so they can carry more; the program, which remains
+rank 6 as capability evidence, carries less. A quarter of the component still
+rides on a program that compiles and meets its requirements, which is the floor
+LO1 requires.
 
 **Every row is scored by the instructor.** The peer contributes evidence to rows
 three and four and is scored on row five. This is the change the audit frame
@@ -350,9 +421,10 @@ someone's audit* is what makes raters take the role seriously, it is a genuine
 LO6 skill, and it is the only thing standing between you and forty perfunctory
 evaluation forms.
 
-The 35/30 split between the supervised response and the working program is the
-numeric expression of §3: demonstration outweighs output, but output still
-counts, because LO1 says implement.
+Overall, **75% of the component now rests on timed observed work and its
+corroboration, and 25% on the submitted program.** That ratio is the numeric
+expression of §3: demonstration outweighs output, but output still counts,
+because LO1 says implement.
 
 ### 6.2 The opinion
 
@@ -392,18 +464,29 @@ Per round, for ~40 students:
 
 | Activity | Time |
 |---|---|
+| Invigilating two supervised blocks, ~45 and ~40 min | ~1.5 h |
 | Analytical screen (scripted) | ~0 |
 | Grading 40 supervised responses, 4 structured points | ~2.5 h |
+| Grading 40 timed plans and divergence logs, both very short | ~1 h |
 | Auditing 8 peer evaluations | ~0.5 h |
 | Exception orals, assuming a 10% rate | ~0.5 h |
 | File review and opinions | ~0.5 h |
-| **Per round** | **~4 h** |
-| **Per term, three rounds** | **~12 h** |
+| **Per round** | **~6.5 h** |
+| **Per term, three rounds** | **~19.5 h** |
 
-Read the delta honestly rather than the total: much of this displaces machine
-problems you already grade, and the supervised responses are short and
-structured, which is why they are fast. But it is not free, and if the real
-class size is materially above 40 the correct adjustment is fewer rounds, not
+Timing everything raised this from ~12 hours to ~19.5, and that increase should
+be looked at squarely rather than waved past. Two things soften it. The ~4.5
+hours of invigilation across the term are **contact hours you are already
+present for**, not new hours, provided the blocks fit the timetable — which is
+exactly why §9.1 is the first decision. And much of the marking displaces
+machine problems you already grade, with the supervised artefacts being short
+and structured, which is why they mark quickly.
+
+The residue is real, though: call it five to seven genuinely new hours across
+the term for a one-unit course, bought in exchange for moving 75% of the
+component onto observed evidence. That is a good trade, and it is a trade. If
+the real class size is materially above 40 the correct adjustment is fewer
+rounds, not
 thinner evidence.
 
 ---
@@ -467,9 +550,13 @@ be given orally into a recorder for any student who prefers it.
 
 Four that change the design:
 
-1. **Can a supervised lab window be scheduled in weeks 4, 7 and 10?** The whole
-   architecture rests on rank-2 evidence. If not, the recording fallback becomes
-   primary and the weights in §6.1 shift toward the program.
+1. **Can roughly 85 supervised minutes be scheduled in each of weeks 4, 7 and
+   10** — two blocks of about 45 and 40 minutes? This is now the binding
+   constraint on the whole architecture, since 75% of the component is timed
+   observed work. If only one block is available, keep the 25-minute response
+   window and revert the plan, divergence log and evaluation to take-home, which
+   costs them their rank-2 standing and shifts the §6.1 weights back toward the
+   program. If no block is available, the recording fallback becomes primary.
 2. **Is commit history mandatory and inspectable for machine problems?** §4.1 is
    the cheap engine, and it does not run without it.
 3. **Is the bounty withdrawn?** The audit frame and a contingent fee are
@@ -511,7 +598,10 @@ approach list, modification, response — are untimed, unsupervised, self-author
 prose. In the §2 hierarchy they are ranks 5, 5 and 5: nothing above
 self-representation. Worse, the design moved assessment away from code, which at
 least has testable behaviour, toward prose, which has no ground truth at all.
-Fixed by §3's demonstrability rule and by moving both probes in-session.
+Fixed by §3's demonstrability rule and, in v3, by timing every student-authored
+artefact in the room — which lifts the same three artefacts the original
+proposal named from rank 5 to ranks 2, 2 and 4 without changing what they are.
+The original structure was sound; only the venue was wrong.
 
 **Why the bounty must go.** Beyond the independence argument in §1.5: no
 admissible evidence standard exists and "proven by the instructor" hides an
