@@ -648,86 +648,19 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
     ),
     media: (
       <>
-        <CodeBlock
-          file="08-csv.c"
-          from={13}
-          focus={[0]}
-          lines={[
-            "int getDelimitedItem(FILE *fp, char *out, int size) {",
-            "",
-            "    int c;",
-            "    int n = 0;      //characters stored so far"
-          ]}
-          caption="out is the buffer the item is written into and size is its capacity. The caller supplies both."
-        />
-        <ParseWalker />
+        <ParseWalker caption="The whole of getDelimitedItem, with the executing line marked as the cursor advances. out is the buffer the caller supplies and size is its capacity. Two branches do not run on this input and so never light up: line 32 discards a carriage return, which a file written on Windows will contain, and line 37 stops storing once n reaches size - 1, so an over-long field is truncated rather than allowed to run past the end of the buffer." />
         <p className="aw-p">
           The first character is read ahead of the loop so that two situations
           which look alike can be told apart: an exhausted stream, and a field
-          that is legitimately empty.
+          that is legitimately empty. The first returns{" "}
+          <code className="aw-code">-1</code>, the second{" "}
+          <code className="aw-code">0</code>.
         </p>
-        <CodeBlock
-          file="08-csv.c"
-          from={20}
-          focus={[4]}
-          lines={[
-            "    c = fgetc(fp);",
-            "",
-            "    if (c == EOF) {",
-            "        out[0] = '\\0';",
-            "        return -1;",
-            "    }"
-          ]}
-          caption="A return of -1 reports an exhausted stream, deliberately distinct from the 0 that will report a field of no characters."
-        />
-        <CodeBlock
-          file="08-csv.c"
-          from={27}
-          focus={[0]}
-          lines={[
-            "    while (c != EOF && c != ',' && c != '\\n') {",
-            "",
-            "        //A file saved on Windows ends its lines with \\r\\n. The",
-            "        //\\r is dropped here so the last item on a line does not",
-            "        //come back with an invisible character glued to it.",
-            "        if (c != '\\r') {"
-          ]}
-          caption="The loop names its terminating conditions explicitly, because each may legitimately follow a field and none is an error."
-        />
-        <CodeBlock
-          file="08-csv.c"
-          from={37}
-          focus={[0]}
-          lines={[
-            "            if (n < size - 1) {",
-            "                out[n] = (char) c;",
-            "                n = n + 1;",
-            "            }",
-            "        }"
-          ]}
-          caption="The size - 1 bound reserves room for the closing \\0. Characters beyond it are consumed but not stored, so an over-long field is truncated rather than overrunning the caller's buffer."
-        />
-        <CodeBlock
-          file="08-csv.c"
-          from={43}
-          lines={[
-            "        c = fgetc(fp);",
-            "    }"
-          ]}
-          caption="The statement most often omitted. Without it the loop tests the same value of c indefinitely and the program appears to hang."
-        />
-        <CodeBlock
-          file="08-csv.c"
-          from={46}
-          focus={[1]}
-          lines={[
-            "    //Every C string has to be closed off by hand.",
-            "    out[n] = '\\0';",
-            "",
-            "    return n;"
-          ]}
-          caption="A C string has to be closed off by hand. The return value is the length of the field, which is what lets the caller distinguish an empty field from an exhausted stream."
-        />
+        <p className="aw-p">
+          Line 43 is the statement most often left out. Without it the loop
+          tests the same value of <code className="aw-code">c</code>{" "}
+          indefinitely and the program appears to hang.
+        </p>
       </>
     ),
     why: {

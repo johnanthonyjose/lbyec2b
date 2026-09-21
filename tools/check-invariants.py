@@ -21,10 +21,22 @@ def extract():
     for f in FILES:
         src = (ROOT / f).read_text()
 
-        # Every source line shown to the reader, in order.
-        for block in re.findall(r'lines=\{\[(.*?)\]\}', src, re.S):
-            for line in re.findall(r'"((?:[^"\\]|\\.)*)"', block):
-                out["code"].append(line)
+        # Every source line shown to the reader, tagged with the step it is in.
+        #
+        # Tagging matters. Bare lines collide constantly — "    }" and the empty
+        # string occur dozens of times — and a value-keyed diff then cannot tell
+        # which instances were removed. It reported a clean, intentional
+        # deletion as "order BROKEN" and would have hidden a real reordering
+        # just as easily. The step id makes each entry unique enough to trust.
+        #
+        # Both quoting forms are matched: a source line containing a double
+        # quote is written as a single-quoted JS string.
+        for chunk in re.split(r'(?=id:\s*"S\d+\.\d+")', src):
+            m = re.match(r'id:\s*"(S\d+\.\d+)"', chunk)
+            sid = m.group(1) if m else "?"
+            for block in re.findall(r'lines=\{\[(.*?)\]\}', chunk, re.S):
+                for a, b in re.findall(r'"((?:[^"\\]|\\.)*)"|\'((?:[^\'\\]|\\.)*)\'', block):
+                    out["code"].append(f"{sid}|{a or b}")
 
         # Exact expected output.
         for t in re.finditer(r'<Terminal[^>]*>\s*\{`(.*?)`\}', src, re.S):

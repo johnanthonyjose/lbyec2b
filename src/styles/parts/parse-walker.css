@@ -5,12 +5,24 @@
    figure lives here, and every class is prefixed `pw-` so that the four
    figures on the site can never reach into each other's rules.
 
-   The whole figure is a vertical stack of panels, because on a 360px phone
-   there is only ever one column available and a layout that reflows into one
-   column is a layout with two behaviors to get right instead of one. On a wide
-   screen the panels simply get wider; the reading order never changes. */
+   The figure is four bands: the input line being consumed, then the source
+   with the executing line marked beside an explanation of that line, then the
+   buffer and the fields that have come out of it. Only the middle band is two
+   columns, and it collapses to one as soon as the source no longer fits beside
+   its explanation. The band order never changes, so the phone layout and the
+   desktop layout are the same argument read at different widths rather than
+   two layouts to keep in agreement.
+
+   --pw-cell is the width of one character cell and --pw-gap the space between
+   two of them. They are custom properties rather than literals because the
+   travelling cursor is positioned by multiplying that pitch by a cell index:
+   if the two ever disagreed the cursor would drift further from the character
+   it is pointing at with every cell, and it must stay exact at the narrow
+   width where the cells get smaller. */
 
 .pw {
+  --pw-cell: 1.75rem;
+  --pw-gap: 2px;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -42,9 +54,41 @@
   padding: 0 var(--space-2);
 }
 
-/* ---- panels ----------------------------------------------------------- */
+/* ---- bands ------------------------------------------------------------ */
 
-.pw-panel { min-width: 0; }
+.pw-band { min-width: 0; }
+
+/* The two animated bands are the input and the output of the statement marked
+   in the middle, so they are ruled off from it rather than merely stacked:
+   the reader should be able to see at a glance that the code sits between the
+   two things it is moving characters between. */
+.pw-mid,
+.pw-bot {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  min-width: 0;
+}
+
+/* The source needs roughly fifty monospaced characters before it starts
+   scrolling inside itself, and the explainer needs room for a sentence. Below
+   this width there is not enough for both, so they stack — code first, because
+   the explanation is about the line the reader has just been shown. */
+.pw-mid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+.pw-bot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .pw-mid, .pw-bot { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+}
 
 .pw-label {
   display: flex;
@@ -67,14 +111,21 @@
 }
 
 .pw-note {
-  margin: var(--space-2) 0 0;
+  margin: 0;
   font-size: var(--text-xs);
   line-height: var(--leading-relaxed);
   color: var(--text-secondary);
-  /* The sentence changes length from frame to frame. Reserving two lines stops
-     everything below it from jumping as the reader scrubs, which is the kind
-     of movement that reads as a fault rather than as an explanation. */
-  min-height: 3.2em;
+  /* The sentence changes length from frame to frame. Reserving three lines
+     stops everything below it from jumping as the reader scrubs, which is the
+     kind of movement that reads as a fault rather than as an explanation. */
+  min-height: 4.8em;
+}
+
+.pw-legend {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-2xs);
+  line-height: var(--leading-normal);
+  color: var(--text-muted);
 }
 
 /* ---- the character rows ----------------------------------------------- */
@@ -86,9 +137,18 @@
 
 .pw-row {
   display: flex;
-  gap: 2px;
+  gap: var(--pw-gap);
   width: max-content;
   padding: var(--space-2) 0 0;
+}
+
+/* The line row carries the travelling cursor, so it is a positioning context
+   and it reserves room above for the `c` tag and below for the caret. Those
+   two markers sit outside the cells on purpose: put inside, every cell would
+   have to be tall enough for a marker it usually does not have. */
+.pw-row-line {
+  position: relative;
+  padding: var(--space-4) 0 var(--space-4);
 }
 
 .pw-cell,
@@ -100,7 +160,16 @@
   align-items: center;
   justify-content: center;
   gap: 1px;
-  min-width: 1.75rem;
+  /* Exactly one pitch wide, not merely at least: the cursor's offset is a
+     multiple of this width and a cell that grew to fit its contents would put
+     every cell after it out of step with the cursor.
+
+     The site sets no box-sizing reset, so the default content-box is in force
+     and the declared width would otherwise exclude the padding and the border.
+     The cursor is measured the same way a few rules below. Two boxes that must
+     line up to the pixel have to agree about what their width means. */
+  box-sizing: border-box;
+  width: var(--pw-cell);
   padding: var(--space-1) 2px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
@@ -131,32 +200,34 @@
   opacity: .6;
 }
 
-/* The character fgetc is about to return. The heavy border and the caret below
-   carry this together, so it survives a reader who cannot separate the tints. */
+/* The character fgetc is about to return. The tint under the travelling
+   cursor, not a border of its own: two heavily bordered cells side by side
+   would compete with the cell holding c. */
 .pw-cell.is-cursor {
-  border-color: var(--green-700);
-  border-width: var(--border-width-thick);
   background: var(--surface-brand-tint);
   opacity: 1;
 }
-.pw-cell.is-cursor::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -6px;
-  width: 0; height: 0;
-  transform: translateX(-50%);
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 5px solid var(--green-700);
-}
 
-/* The character just returned by fgetc — the current value of c. */
+/* The character just returned by fgetc — the current value of c. The tag
+   above it names the variable, so the cell is identified by a word and not
+   only by its tint. */
 .pw-cell.is-read {
   border-color: var(--gold-600);
   border-width: var(--border-width-thick);
   background: var(--surface-gold-tint);
   opacity: 1;
+}
+.pw-cell.is-read::after {
+  content: "c";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  color: var(--text-gold);
 }
 
 /* The commas and the newline are what the loop tests for, so they must not
@@ -171,8 +242,12 @@
   font-weight: var(--weight-bold);
 }
 
-/* There is no byte at this position. Drawn hollow for that reason. */
+/* There is no byte at this position. Drawn hollow for that reason. It is the
+   last cell in the row, so letting it grow wider than a pitch to fit the word
+   EOF costs nothing: no cell after it has to stay aligned with the cursor. */
 .pw-cell-eof {
+  width: auto;
+  min-width: var(--pw-cell);
   border-style: dotted;
   border-color: var(--border-strong);
   background: transparent;
@@ -184,39 +259,116 @@
   color: var(--text-secondary);
 }
 
-/* ---- the buffer ------------------------------------------------------- */
+/* ---- the travelling cursor -------------------------------------------- */
 
-.pw-slot {
-  border-style: dashed;
+/* One element that moves, rather than a class that jumps from cell to cell.
+   The stream position advances through the line, and a cursor that vanishes
+   and reappears somewhere else asks the reader to find it again instead of
+   showing them the thing the figure is about.
+
+   --pw-at is the cell index, written by the component from the frame's stream
+   position. Every cell is exactly one pitch wide, so the translation lands on
+   a cell boundary at every frame and only the journey between two of them is
+   animated. The transition runs on --ex-move, which the reduced-motion rule in
+   explorable.css clamps to 1ms — the only motion budget this figure has. */
+.pw-cursor {
+  position: absolute;
+  top: var(--space-4);
+  bottom: var(--space-4);
+  left: 0;
+  /* Border-box for the same reason the cells are: this box is exactly one cell
+     wide including its own border, so it frames the cell it stands on instead
+     of overhanging the one beside it. */
+  box-sizing: border-box;
+  width: var(--pw-cell);
+  border: var(--border-width-thick) solid var(--green-700);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  pointer-events: none;
+  transform: translateX(calc(var(--pw-at, 0) * (var(--pw-cell) + var(--pw-gap))));
+  transition: transform var(--ex-move);
+  will-change: transform;
+}
+/* The caret under the box, pointing back up at the cell it belongs to. A
+   shape, so the cursor is not told from the cell under it by tint alone. */
+.pw-cursor::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0; height: 0;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--green-700);
+}
+
+/* ---- the source snippet ------------------------------------------------ */
+
+/* The anchor of the figure. The real line numbers are kept because the reader
+   has 08-csv.c open beside the handout and a line they can find in their own
+   editor is what ties the animation to the program they have to write. */
+.pw-code {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-1) 0;
+  /* As wide as its longest line so the marked row's tint runs the full width
+     of the scrolled content, but never narrower than the column. Border-box
+     because without a reset the border would otherwise be added to that 100%
+     and put a two-pixel scrollbar under a snippet that already fits. */
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
   background: var(--surface-subtle);
 }
-.pw-slot .pw-glyph { min-height: 1em; }
-
-.pw-slot.is-filled {
-  border-style: solid;
-  border-color: var(--green-700);
+.pw-code-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: 1px var(--space-2);
+  border-left: var(--rule-width-brand) solid transparent;
+  transition: background var(--ex-fade), border-color var(--ex-fade);
+}
+/* The statement executing on this frame. The arrow in the gutter carries the
+   meaning; the tint and the rule only make it easy to land on. */
+.pw-code-line.is-now {
   background: var(--surface-brand-tint);
+  border-left-color: var(--green-700);
 }
-.pw-slot.is-filled .pw-glyph {
+.pw-code-mark {
+  flex: none;
+  width: 1em;
+  font-size: var(--text-2xs);
+  line-height: var(--leading-normal);
   color: var(--text-accent);
+}
+.pw-code-n {
+  flex: none;
+  width: 2em;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  font-feature-settings: 'tnum';
+  user-select: none;
+}
+.pw-code-src {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  white-space: pre;
+}
+.pw-code-line.is-now .pw-code-src {
   font-weight: var(--weight-semibold);
+  color: var(--text-primary);
 }
 
-/* The character stored on this very frame. The lift is what makes "one letter
-   at a time" readable as motion rather than as a row that silently got longer. */
-.pw-slot.is-fresh { transform: translateY(-3px); }
+/* ---- the explainer ----------------------------------------------------- */
 
-/* The terminator. It is not a character the file contained, so it is drawn as
-   something the function added. */
-.pw-slot.is-nul {
-  border-style: solid;
-  border-color: var(--gold-600);
-  background: var(--surface-gold-tint);
-}
-.pw-slot.is-nul .pw-glyph {
-  color: var(--text-gold);
-  font-weight: var(--weight-bold);
-}
+.pw-band-why { min-width: 0; }
 
 /* ---- the variables ---------------------------------------------------- */
 
@@ -224,10 +376,11 @@
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+  margin-top: var(--space-3);
 }
 .pw-var {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--space-2);
   padding: var(--space-1) var(--space-3);
   border: 1px solid var(--border-default);
@@ -252,6 +405,14 @@
   font-weight: var(--weight-regular);
   color: var(--text-muted);
 }
+/* c is an int, and the number is the reason it has to be: EOF is -1 and no
+   byte is. The glyph alone would let the reader go on believing it is a char. */
+.pw-var-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  font-feature-settings: 'tnum';
+}
 .pw-var-ret {
   border-color: var(--border-gold);
   background: var(--surface-gold-tint);
@@ -259,6 +420,14 @@
 .pw-var-ret .pw-var-value { color: var(--text-gold); }
 
 /* ---- the four conditions ---------------------------------------------- */
+
+.pw-cond-head {
+  margin: var(--space-3) 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
 
 .pw-conds {
   list-style: none;
@@ -321,6 +490,46 @@
   color: var(--text-secondary);
 }
 
+/* ---- the buffer ------------------------------------------------------- */
+
+.pw-slot {
+  border-style: dashed;
+  background: var(--surface-subtle);
+}
+.pw-slot .pw-glyph { min-height: 1em; }
+
+.pw-slot.is-filled {
+  border-style: solid;
+  border-color: var(--green-700);
+  background: var(--surface-brand-tint);
+}
+.pw-slot.is-filled .pw-glyph {
+  color: var(--text-accent);
+  font-weight: var(--weight-semibold);
+}
+
+/* The character stored on this very frame. The lift is what makes "one letter
+   at a time" readable as motion rather than as a row that silently got longer. */
+.pw-slot.is-fresh { transform: translateY(-3px); }
+
+/* The terminator. It is not a character the file contained, so it is drawn as
+   something the function added. */
+.pw-slot.is-nul {
+  border-style: solid;
+  border-color: var(--gold-600);
+  background: var(--surface-gold-tint);
+}
+.pw-slot.is-nul .pw-glyph {
+  color: var(--text-gold);
+  font-weight: var(--weight-bold);
+}
+
+/* On the frame the function returns, the buffer's contents have become
+   somebody else's string. Fading the row is what makes the field below read as
+   having moved out of the buffer rather than having been copied from it. */
+.pw-band-buf .pw-row { transition: opacity var(--ex-fade); }
+.pw-band-buf.is-handoff .pw-row { opacity: .5; }
+
 /* ---- the completed fields --------------------------------------------- */
 
 .pw-fields {
@@ -340,15 +549,25 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   background: var(--surface-subtle);
-  transition: border-color var(--ex-fade), background var(--ex-fade),
-              transform var(--ex-move);
+  transition: border-color var(--ex-fade), background var(--ex-fade);
 }
-/* The field that arrived on this frame. This is the moment a field leaves the
-   line and becomes a string, so it is worth marking. */
+/* The field that arrived on this frame. It is a new element, so a transition
+   would have nothing to run from: the arrival is an animation instead, and it
+   travels from the direction the buffer sits in — above on a phone, to the
+   left on a wide screen — so the reader sees the string leave the buffer and
+   land in the list. --ex-move supplies both the duration and the easing, which
+   is what keeps the reduced-motion clamp in reach of it. */
+@keyframes pw-arrive {
+  from {
+    transform: translate(calc(-1 * var(--space-5)), calc(-1 * var(--space-3)));
+    opacity: 0;
+  }
+  to { transform: none; opacity: 1; }
+}
 .pw-field.is-new {
   border-color: var(--border-brand);
   background: var(--surface-brand-tint);
-  transform: translateX(3px);
+  animation: pw-arrive var(--ex-move) both;
 }
 .pw-field-name {
   flex: none;
@@ -376,10 +595,12 @@
   /* At the narrowest supported width the index numbers under each cell are the
      first thing to go: the glyph and the cursor carry the lesson, the indices
      only label it, and dropping them buys back enough room to keep the glyphs
-     at a readable size. */
-  .pw-cell, .pw-slot { min-width: 1.5rem; }
+     at a readable size. The pitch shrinks with them, and the cursor follows it
+     because both are read from the same custom property. */
+  .pw { --pw-cell: 1.5rem; }
   .pw-idx { display: none; }
   .pw-cond-flag { width: 2.8em; }
+  .pw-code-n { width: 1.7em; }
 }
 
 @media print {
@@ -390,4 +611,9 @@
   .pw-cond:not(.is-on) { color: var(--text-muted); }
   .pw-scroll { overflow: visible; }
   .pw-row { flex-wrap: wrap; width: auto; }
+  /* The cursor is placed by a translation across a single unwrapped row. Once
+     the row wraps for paper that translation points at nothing, so it is
+     withdrawn and the tinted cell reports the position instead. */
+  .pw-cursor { display: none; }
+  .pw-mid, .pw-bot { grid-template-columns: minmax(0, 1fr); }
 }
