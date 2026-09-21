@@ -28,6 +28,13 @@ import { Why } from "./Why.jsx";
    grows a branch per handout. */
 
 export function Step({ step, total, answer, onAnswer, onOpenFix, context, media, check }) {
+  /* `fix` is a single id on most steps and a list on the few that anticipate
+     several failures of one operation. Normalising here keeps every call site
+     and both handouts on one shape. */
+  const ids = step.fix == null ? [] : (Array.isArray(step.fix) ? step.fix : [step.fix]);
+  const notes = Array.isArray(step.difficulty) ? step.difficulty : [step.difficulty];
+  const fixes = ids.map((id, i) => ({ id, difficulty: notes[i] }));
+
   return (
     <article>
       <div className="aw-step-head">
@@ -56,20 +63,40 @@ export function Step({ step, total, answer, onAnswer, onOpenFix, context, media,
 
       {step.why && <Why label={step.why.label}>{step.why.body}</Why>}
 
-      {step.fix && (
-        <button type="button" className="gh-warn aw-warn" onClick={onOpenFix}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold-600)"
-            strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-            style={{ flex: "none" }}>
-            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-            <path d="M12 9v4" /><path d="M12 17h.01" />
-          </svg>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span className="aw-warn-label">If this happens</span>
-            <span className="aw-warn-text">{step.difficulty}</span>
-          </span>
-          <span className="aw-warn-cta">View resolution</span>
-        </button>
+      {/* A step may anticipate more than one failure. Opening a file is the
+          case that forced this: the same statement can return NULL because the
+          file is absent, because the path was mangled by an escape sequence, or
+          because nothing was checked and the program ended in silence. Those
+          are three diagnoses of one operation, and splitting them across three
+          steps to satisfy a single-valued field was the tail wagging the dog.
+
+          One banner, one heading, one row per difficulty, so the reader sees a
+          short list of things that go wrong here rather than three stacked
+          warnings competing for the same attention. */}
+      {fixes.length > 0 && (
+        <div className="aw-warn-group">
+          <div className="aw-warn-head">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold-600)"
+              strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+              style={{ flex: "none" }}>
+              <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <path d="M12 9v4" /><path d="M12 17h.01" />
+            </svg>
+            <span className="aw-warn-label">
+              {fixes.length === 1 ? "If this happens" : "If any of these happen"}
+            </span>
+          </div>
+
+          {fixes.map(({ id, difficulty }) => (
+            <button key={id} type="button" className="gh-warn aw-warn is-listed"
+              onClick={() => onOpenFix(id)}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span className="aw-warn-text">{difficulty}</span>
+              </span>
+              <span className="aw-warn-cta">View resolution</span>
+            </button>
+          ))}
+        </div>
       )}
 
       {check}

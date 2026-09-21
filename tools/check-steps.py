@@ -70,9 +70,13 @@ for sid, stage, n, f, ch in steps:
         if "ok:" not in ch or "alt:" not in ch:
             problems.append(f"{sid}: self check missing ok/alt")
 
-    has_fix = re.search(r'\bfix:\s*(\d+)', ch)
+    fix_ids = re.findall(r'\bfix:\s*(?:\[([^\]]*)\]|(\d+))', ch)
+    flat = []
+    for grp, single in fix_ids:
+        flat += [x.strip() for x in grp.split(",") if x.strip()] if grp else [single]
+    has_fix = flat
     if has_fix and "difficulty:" not in ch:
-        problems.append(f"{sid}: fix {has_fix.group(1)} without a difficulty line")
+        problems.append(f"{sid}: fix {','.join(has_fix)} without a difficulty line")
     if "difficulty:" in ch and not has_fix:
         problems.append(f"{sid}: difficulty without a fix")
 
@@ -86,11 +90,12 @@ for stage in sorted(by_stage):
         problems.append(f"stage {stage}: step numbers are {ns}, expected 1..{len(ns)}")
 
 # the six resolutions must each be reachable from the step they name
-EXPECT = {1: "S1.4", 2: "S1.3", 3: "S1.5", 4: "S2.4", 5: "S3.3", 6: "S3.5"}
+EXPECT = {1: "S1.2", 2: "S1.2", 3: "S1.2", 4: "S2.4", 5: "S3.3", 6: "S3.5"}
 found = {}
 for sid, stage, n, f, ch in steps:
-    m = re.search(r'\bfix:\s*(\d+)', ch)
-    if m: found[int(m.group(1))] = sid
+    for grp, single in re.findall(r'\bfix:\s*(?:\[([^\]]*)\]|(\d+))', ch):
+        for x in ([y.strip() for y in grp.split(",") if y.strip()] if grp else [single]):
+            found[int(x)] = sid
 for fid, want in EXPECT.items():
     got = found.get(fid)
     if got != want:

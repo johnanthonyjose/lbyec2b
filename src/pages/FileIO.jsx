@@ -120,7 +120,7 @@ export default function FileIO() {
                 key={current.id}
                 step={current}
                 total={size}
-                onOpenFix={() => setFix(current.fix)}
+                onOpenFix={(id) => setFix(id)}
                 media={current.media}
                 check={<Checkpoint step={current} value={answers[current.id]}
                   onAnswer={(v) => w.answer(current.id, v)} />}

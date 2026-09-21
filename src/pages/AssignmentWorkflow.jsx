@@ -151,7 +151,7 @@ export default function AssignmentWorkflow() {
                   key={current.id}
                   step={current}
                   total={size}
-                  onOpenFix={() => setFix(current.fix)}
+                  onOpenFix={(id) => setFix(id)}
                   context={<AppStrip app={current.app} />}
                   check={
                     <SelfCheck

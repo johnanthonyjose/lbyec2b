@@ -24,7 +24,7 @@ import React from "react";
 export const resolutions = [
   {
     id: 1,
-    returnTo: { stage: 1, step: 4 },
+    returnTo: { stage: 1, step: 2 },
     title: "fopen returned NULL",
     cause:
       "A NULL return means the file was not opened, and nothing you do with that FILE* afterwards will work. It is not one fault but four, and they need different repairs: the file does not exist and the mode was \"r\"; the name you passed is not the name on disk; the program is looking in a different folder from the one you are looking at; or the file is locked or read-only because another program holds it open.",
@@ -39,7 +39,7 @@ export const resolutions = [
   },
   {
     id: 2,
-    returnTo: { stage: 1, step: 3 },
+    returnTo: { stage: 1, step: 2 },
     title: "A Windows path with backslashes silently fails",
     cause:
       "In C source, a backslash inside a string begins an escape sequence. Written as \"c:\\temp\\test1.txt\", neither backslash survives: both are \\t, which is one tab character, so the path handed to fopen is c: TAB emp TAB est1.txt — fifteen characters, nothing like the path on your screen. The trap is that \\t is a perfectly valid escape, so the compiler has nothing to complain about and says nothing. fopen returns NULL, and with no NULL check the program does nothing and exits normally.",
@@ -54,7 +54,7 @@ export const resolutions = [
   },
   {
     id: 3,
-    returnTo: { stage: 1, step: 5 },
+    returnTo: { stage: 1, step: 2 },
     title: "The program runs, prints nothing, and exits normally",
     cause:
       "An exit status of zero means the program did what you told it to do. Silence means what you told it to do produced no output. File I/O is unusual among the things you have written so far in that almost every one of its failures looks like this rather than like a crash, so the first task is to narrow down where the silence begins.",

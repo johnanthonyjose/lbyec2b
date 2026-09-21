@@ -61,8 +61,6 @@
   "S4.2|}"
  ],
  "terminals": [
-  "Could not open test.txt: No such file or directory",
-  "test.txt opened for reading.",
   "Wrote 4 plates to plates.txt",
   "TVX-111\nTJJ-100\nJJT-001\nHCV-221",
   "Wrote test.txt. Open it and look before going on.\nAppended a third line to test.txt.",
@@ -109,21 +107,6 @@
    "3"
   ],
   [
-   "S1.4",
-   "1",
-   "4"
-  ],
-  [
-   "S1.5",
-   "1",
-   "5"
-  ],
-  [
-   "S1.6",
-   "1",
-   "6"
-  ],
-  [
    "S2.1",
    "2",
    "1"
@@ -142,18 +125,6 @@
    "S2.4",
    "2",
    "4"
-  ],
-  [
-   "fix",
-   "2"
-  ],
-  [
-   "fix",
-   "1"
-  ],
-  [
-   "fix",
-   "3"
   ],
   [
    "fix",
@@ -225,7 +196,6 @@
  ],
  "correct": [
   "broken",
-  "fourteen",
   "perror-line",
   "nothing-visible",
   "zero",

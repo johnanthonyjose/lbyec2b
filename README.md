@@ -37,6 +37,9 @@ src/
     SiteHeader/Footer    chrome shared by every page
     walkthrough/         the staged-handout engine: stage gating, the stage map,
                          the step frame, the completion panel and persistence.
+                         A step's `fix` takes one resolution id or a list, for
+                         the steps that anticipate several failures of a single
+                         operation.
                          Shared by handouts 02 and 03; a new staged handout
                          should need three data files and a shell, not a copy
                          of this.

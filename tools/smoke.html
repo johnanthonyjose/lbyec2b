@@ -304,7 +304,7 @@ async function fileIO() {
   // Stage sizes are read off the page rather than hard-coded: steps get added
   // to this handout, and a stale constant here would silently stop walking a
   // stage half way and still report a pass.
-  let maxDen = 0, rowCounts = new Set(), unsolved = 0, sawConsumedCue = false, sawCodeCue = false, exDriven = 0;
+  let maxDen = 0, rowCounts = new Set(), unsolved = 0, sawConsumedCue = false, sawCodeCue = false, sawFixGroup = false, exDriven = 0;
 
   for (let stage = 1; stage <= 4; stage++) {
     const size = all(".aw-row.is-current .aw-stepchip").length;
@@ -336,6 +336,27 @@ async function fileIO() {
           ok(`the figure on stage ${stage} step ${step} responds to its timeline`,
              after !== before && after.length > 0, "status did not change when scrubbed");
         }
+      }
+
+      // Stage 1 step 2 anticipates three failures of one operation and lists
+      // them under one heading. Assert the list, and that each row opens its
+      // own resolution rather than all three opening the first.
+      if (!sawFixGroup && D().querySelector(".aw-warn-group")) {
+        sawFixGroup = true;
+        const rows = all(".aw-warn-group .aw-warn");
+        ok("a step can list several anticipated failures",
+           rows.length >= 2, `found ${rows.length} difficulty rows`);
+        const seen = [];
+        for (let r = 0; r < rows.length; r++) {
+          all(".aw-warn-group .aw-warn")[r].click(); await wait(220);
+          const fixDlg = D().querySelector('[role="dialog"][aria-modal="true"]');
+          seen.push(fixDlg ? (fixDlg.getAttribute("aria-label") || "") : "");
+          D().defaultView.dispatchEvent(
+            new (D().defaultView.KeyboardEvent)("keydown", { key: "Escape", bubbles: true }));
+          await wait(220);
+        }
+        ok("each row opens its own resolution",
+           new Set(seen).size === rows.length, `opened ${new Set(seen).size} distinct`);
       }
 
       if (!sawCodeCue && D().querySelector(".fio-copy")) {

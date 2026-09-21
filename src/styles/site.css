@@ -445,3 +445,20 @@ ul.aw-p, .aw-p li { color: var(--text-secondary); }
   .aw-nav-count { order: 3; width: 100%; text-align: center; }
   .aw-done-mark svg { width: 92px; height: 92px; }
 }
+
+/* A step that anticipates several failures of one operation lists them under a
+   single heading. Three separate warning banners stacked would read as three
+   unrelated alarms; one heading and three rows reads as what it is, a short
+   list of the things that go wrong at this statement. */
+.aw-warn-group { margin: 24px 0 0; border: 1px solid var(--border-gold); border-radius: var(--radius-md); overflow: hidden; }
+.aw-warn-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 18px; background: var(--surface-gold-tint);
+  border-bottom: 1px solid var(--border-gold);
+}
+.aw-warn-group .aw-warn-label { margin: 0; }
+.aw-warn-group .aw-warn.is-listed {
+  margin: 0; border: 0; border-top: 1px solid var(--border-subtle); border-radius: 0;
+  width: 100%; background: transparent;
+}
+.aw-warn-group .aw-warn.is-listed:first-of-type { border-top: 0; }

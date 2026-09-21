@@ -9,30 +9,31 @@ import { ModeExplorer } from "../../components/explorable/ModeExplorer.jsx";
 
 /* Stages 1 to 3 of the File I/O handout: the problem, the open, the write.
 
-   The source document opened with an assertion — data in memory is lost when
-   the computer is switched off — and then moved straight on to library names.
-   An assertion is not a reason to learn anything, so stage 1 here produces no
-   file at all. It spends its six minutes making the reader watch a program of
-   their own forget a number they typed into it, because a reader who has seen
-   that has a reason for everything that follows.
+   Stage 2 — the S1.x steps below — was six steps and is now three, because
+   its own figure said so. The CodeWalk in S1.2 renders all nineteen lines of
+   01-open.c with both of its branches, and four of the former six steps were
+   commentaries on one line each of the program that figure already showed
+   whole. Merging them removed repetition and nothing else: a file and the
+   stream over it are explained once, 01-open.c is walked once, and two streams
+   at once close the stage.
 
-   Stage 2 carries more warnings than any other stage here, and deliberately
-   so. Of the six anticipated difficulties this page carries, three belong to
-   opening a file, and all three are silent: the program compiles, runs,
-   returns zero and does nothing. Nothing else in the course behaves like that,
-   so the habits that make it visible — the NULL check, perror, forward
-   slashes, knowing which directory the process runs in — are taught before the
-   first byte is written rather than after the first hour is lost. Its last
-   step opens two files at once, because a program with an input and an output
-   is the ordinary case and every later program on this page is one.
+   The three anticipated difficulties of opening a file therefore sit on one
+   step rather than on three, which is what `fix` and `difficulty` accept
+   arrays for. All three are silent: the program compiles, runs, returns zero
+   and does nothing. Nothing else in the course behaves like that, so the
+   habits that make it visible — the NULL check, perror, forward slashes,
+   knowing which directory the process runs in — are taught before the first
+   byte is written rather than after the first hour is lost. The last step
+   opens two files at once, because a program with an input and an output is
+   the ordinary case and every later program on this page is one.
 
-   Stage 2 is also where the stream model is taught, because S1.2 is where the
-   reader first meets FILE. A stream is an ordered byte sequence plus the state
-   required to traverse it; FILE is the object holding that state; fopen
-   constructs it and its layout is implementation-defined, which is why the
-   interface is a pointer. The reframing that carries the stage is that stdin,
-   stdout and stderr are FILE * streams opened before main is entered, so the
-   reader has been calling fprintf and fscanf since week one without being told.
+   S1.1 is where the reader first meets FILE, so the stream model is taught
+   there. A stream is an ordered byte sequence plus the state required to
+   traverse it; FILE is the object holding that state; fopen constructs it and
+   its layout is implementation-defined, which is why the interface is a
+   pointer. The reframing that carries the step is that stdin, stdout and
+   stderr are FILE * streams opened before main is entered, so the reader has
+   been calling fprintf and fscanf since week one without being told.
 
    Stage 3 is built around buffering, which is the one thing in these three
    stages that cannot be seen in the source at all. S2.4 therefore hands the
@@ -53,10 +54,11 @@ import { ModeExplorer } from "../../components/explorable/ModeExplorer.jsx";
    shortened. Corrections to the older course handout are student-facing noise,
    so they live in the `why` folds and in resolutions.jsx, never in a step body.
 
-   forget.c is seventeen lines and is therefore shown whole, in one block.
-   01-open.c, 02-write.c, 03-append.c and 10-twofiles.c are long enough to be
-   split, and they are split at step boundaries so that each fragment arrives
-   with the reason it exists.
+   01-open.c and 10-twofiles.c are walked whole, one figure each, because a
+   CodeWalk can hold a program of that length with every branch it takes and no
+   step here discusses a slice of either. 02-write.c and 03-append.c are still
+   split into blocks, and they are split at step boundaries so that each
+   fragment arrives with the reason it exists.
 
    Every byte count, every stream position and every line of terminal output
    below is transcribed from the verified program set. Nothing here was
@@ -69,7 +71,7 @@ export const steps12 = [
   {
     id: "S1.1",
     stage: 1, n: 1,
-    title: "Text files and binary files",
+    title: "What a file is",
     action: <>Open a compiled program — any <code className="aw-code">.exe</code>, or one of your own from a previous week — in Notepad, TextEdit or VS Code. Do not run it, and do not save it. Examine what the editor displays.</>,
     body: (
       <>
@@ -81,21 +83,51 @@ export const steps12 = [
         <p className="aw-p">
           A file is a sequence of bytes and nothing more. <strong>Text</strong>{" "}
           and <strong>binary</strong> are two <strong>contracts</strong> under
-          which a program may read that sequence. Under the text contract each
-          byte denotes a character and the characters are organized into{" "}
+          which a program may read that sequence, and nothing stored in the file
+          records which of them was meant. Under the text contract each byte
+          denotes a character and the characters are organized into{" "}
           <strong>lines</strong>; under the binary contract a byte denotes
-          whatever the writing application decided it would.
-        </p>
-        <p className="aw-p">
+          whatever the writing application decided it would.{" "}
           <code className="aw-code">fopen</code> inspects neither the name nor
           the contents, so reading a file under the wrong contract reports no
           error. Everything from here onward concerns{" "}
           <strong>text files only</strong>.
         </p>
+        <p className="aw-p">
+          The library models every file as a <strong>stream</strong>: an ordered
+          sequence of bytes together with the state required to traverse it — the{" "}
+          <strong>position</strong>, the <strong>buffering mode</strong>, and the
+          end-of-file and error <strong>indicators</strong> — held in a{" "}
+          <code className="aw-code">FILE</code> object. File access needs no
+          header beyond the <code className="aw-code">stdio.h</code> you already
+          include.
+        </p>
+        <p className="aw-p">
+          You never manipulate that object directly.{" "}
+          <code className="aw-code">fopen</code> constructs one and returns a{" "}
+          <code className="aw-code">FILE *</code> referring to it, every
+          subsequent operation takes that pointer, and{" "}
+          <code className="aw-code">fclose</code> releases it. Its layout is{" "}
+          <strong>implementation-defined</strong>, which is why the interface
+          hands you a pointer rather than a value.
+        </p>
+        <p className="aw-p">
+          You have been using streams since your first program.{" "}
+          <code className="aw-code">stdin</code>,{" "}
+          <code className="aw-code">stdout</code> and{" "}
+          <code className="aw-code">stderr</code> are streams opened before{" "}
+          <code className="aw-code">main</code> is entered, so every{" "}
+          <code className="aw-code">printf</code> you have written is{" "}
+          <code className="aw-code">fprintf(stdout, ...)</code> with the stream
+          left unnamed. Step the second figure to that call to see it.
+        </p>
       </>
     ),
     media: (
-      <ByteContract caption="The same bytes under both contracts at once. Switch the file and the text reading collapses while the binary reading stays structured, because those bytes were never characters." />
+      <>
+        <ByteContract caption="The same bytes under both contracts at once. Switch the file and the text reading collapses while the binary reading stays structured, because those bytes were never characters." />
+        <StreamDiagram caption="Four streams, one mechanism. stdin, stdout and stderr are open before main is entered, and the file you open is a fourth beside them; printf reaches the same machinery as fgetc, differing only in which stream it names." />
+      </>
     ),
     why: {
       label: "Then how does anything know what a file is?",
@@ -125,65 +157,11 @@ export const steps12 = [
     }
   },
 
-  /* ─────────────────────────────────────────────────────────────────────────
-     (continued)
-     ───────────────────────────────────────────────────────────────────────── */
   {
     id: "S1.2",
     stage: 1, n: 2,
-    title: "Streams, and the FILE object behind them",
-    action: <>Start a new file called <code className="aw-code">01-open.c</code> with <code className="aw-code">#include &lt;stdio.h&gt;</code>, <code className="aw-code">int main(void)</code>, and the declaration <code className="aw-code">FILE *fp;</code> inside it.</>,
-    body: (
-      <>
-        <p className="aw-p">
-          File access needs no header beyond the{" "}
-          <code className="aw-code">stdio.h</code> you already include. The
-          library models every file as a <strong>stream</strong>: an ordered
-          sequence of bytes together with the state required to traverse it — the{" "}
-          <strong>position</strong>, the <strong>buffering mode</strong>, and the
-          end-of-file and error <strong>indicators</strong> — held in a{" "}
-          <code className="aw-code">FILE</code> object.
-        </p>
-        <p className="aw-p">
-          You never manipulate that object directly.{" "}
-          <code className="aw-code">fopen</code> constructs one and returns a{" "}
-          <code className="aw-code">FILE *</code> referring to it, every
-          subsequent operation takes that pointer, and{" "}
-          <code className="aw-code">fclose</code> releases it. Its layout is{" "}
-          <strong>implementation-defined</strong>, which is why the interface
-          hands you a pointer rather than a value.
-        </p>
-        <p className="aw-p">
-          You have been using streams since your first program. Step the figure
-          to the <code className="aw-code">printf</code> call to see why.
-        </p>
-      </>
-    ),
-    media: (
-      <StreamDiagram caption="Four streams, one mechanism. stdin, stdout and stderr are open before main is entered, and the file you open is a fourth beside them; printf reaches the same machinery as fgetc, differing only in which stream it names." />
-    ),
-    why: {
-      label: "Why a pointer, and not a variable of type FILE?",
-      body: <>Because the bookkeeping belongs to the library rather than to you. Copying a <code className="aw-code">FILE</code> would produce an unsynchronized duplicate of private state rather than a second handle on the same stream, so a pointer guarantees one authoritative record per open stream. An older handout named <code className="aw-code">stdlib.h</code> for the file functions; the correct header is <code className="aw-code">stdio.h</code>, for reading and writing alike.</>
-    },
-    check: {
-      kind: "self",
-      question: "Does your file so far contain the stdio.h include and the FILE * declaration?",
-      ok: {
-        label: "Yes, and it compiles",
-        note: "A program that declares a pointer and does nothing further with it is legal, and it does nothing. The next step gives that pointer a stream to refer to."
-      },
-      alt: {
-        label: "The compiler complains about FILE",
-        note: <>An "unknown type name FILE" means that <code className="aw-code">stdio.h</code> is missing or misspelled, since the type is declared nowhere else. Check the spelling: <code className="aw-code">stdio</code>, not <code className="aw-code">studio</code>.</>
-      }
-    }
-  },
-  {
-    id: "S1.3",
-    stage: 1, n: 3,
-    title: "Name the file you want",
-    action: <>Add the <code className="aw-code">fopen</code> call, using the bare name <code className="aw-code">"test.txt"</code> with no path in front of it.</>,
+    title: "Opening one",
+    action: <>Write <code className="aw-code">01-open.c</code> as the figure below shows it, compile it, and run it now — before <code className="aw-code">test.txt</code> exists.</>,
     body: (
       <>
         <p className="aw-p">
@@ -192,186 +170,164 @@ export const steps12 = [
           <code className="aw-code">"r"</code> opens an existing file for reading
           and creates nothing, so this program is meant to fail first. A trailing{" "}
           <code className="aw-code">b</code> requests a binary stream instead;
-          every mode here is a text mode.
+          every mode here is a text mode. A bare name such as{" "}
+          <code className="aw-code">"test.txt"</code> is resolved against the
+          directory the program runs from, not the one its source sits in.
         </p>
         <p className="aw-p">
-          A bare name such as <code className="aw-code">"test.txt"</code> is
-          resolved against the directory the program runs from, not the one its
-          source sits in. Paths, absolute and relative, are tabulated in the
-          reference below.
+          Whichever kind of path you write, use forward slashes. A backslash in C
+          source begins an <strong>escape sequence</strong> that the compiler
+          resolves before the program runs, so the name{" "}
+          <code className="aw-code">fopen</code> receives is not always the name
+          you typed. The second figure below resolves four such paths character
+          by character. Windows accepts forward slashes, and the same source then
+          runs unchanged on macOS.
         </p>
-        <p className="aw-p">
-          Whichever kind you write, use forward slashes. A backslash in C source
-          begins an <strong>escape sequence</strong> that the compiler resolves
-          before the program runs, so the path your program asks for is not
-          always the one you typed. Windows accepts forward slashes, and the
-          same source then runs unchanged on macOS.
-        </p>
-      </>
-    ),
-    why: {
-      label: "What is wrong with \"c:\\temp\\test1.txt\"?",
-      body: <>In C source a backslash introduces an <strong>escape sequence</strong>, which the compiler resolves before your program ever runs. <code className="aw-code">\t</code> is not a backslash followed by a t; it is a single tab character. What <code className="aw-code">fopen</code> receives is therefore <code className="aw-code">c:</code>, a tab, <code className="aw-code">emp</code>, another tab, and <code className="aw-code">est1.txt</code>. Forward slashes avoid the problem entirely, and doubling each backslash also works.</>
-    },
-    media: (
-      <EscapeResolver caption="What the compiler hands to fopen. Two characters do not change, they disappear — and the worst of these four compiles without a word of warning, because a tab is a perfectly valid escape." />
-    ),
-    difficulty: "A Windows path with backslashes silently fails",
-    fix: 2,
-    check: {
-      kind: "predict",
-      question: "A classmate writes fopen(\"c:\\temp\\data.txt\", \"r\") and the program prints nothing. How many characters does the string they passed actually contain?",
-      options: [
-        {
-          id: "sixteen",
-          label: "Sixteen — exactly what they typed",
-          note: "That is what the line looks like on the screen, which is why the fault conceals itself. The compiler resolves escape sequences first, so what was typed and what is passed are different strings."
-        },
-        {
-          id: "fourteen",
-          label: "Fourteen, because each backslash pair collapsed to one character",
-          correct: true,
-          note: <>Correct. <code className="aw-code">\t</code> collapses to a tab and <code className="aw-code">\d</code> to a plain <code className="aw-code">d</code>. What reaches <code className="aw-code">fopen</code> is <code className="aw-code">c:</code>, a tab, then <code className="aw-code">empdata.txt</code>: sixteen characters typed, fourteen passed, and no such file on the drive.</>
-        },
-        {
-          id: "error",
-          label: "None — it would not compile",
-          note: <>An unrecognized escape such as <code className="aw-code">\d</code> is a warning rather than an error, so the program compiles and runs. Nothing stops you, and the failure arrives later and in silence.</>
-        }
-      ]
-    }
-  },
-  {
-    id: "S1.4",
-    stage: 1, n: 4,
-    title: "Check for NULL, and report the reason",
-    action: <>Add the NULL check with <code className="aw-code">perror</code> immediately after the <code className="aw-code">fopen</code>. Never leave a gap between them.</>,
-    body: (
-      <>
         <p className="aw-p">
           <code className="aw-code">fopen</code> reports failure by returning a
           null pointer and setting <code className="aw-code">errno</code>, the
           library variable recording the most recent error condition. It prints
-          nothing of its own, so execution continues with a pointer that refers
-          to no stream, and passing that pointer to any later call is{" "}
-          <strong>undefined behavior</strong>: the standard imposes no
-          requirement whatever on what follows.
-        </p>
-        <p className="aw-p">
-          <code className="aw-code">perror</code> renders{" "}
+          nothing of its own. <code className="aw-code">perror</code> renders{" "}
           <code className="aw-code">errno</code> into a diagnostic: your message,
           a colon, then the implementation's text for the current error, such as{" "}
           <code className="aw-code">No such file or directory</code>. That second
           half is the difference between knowing that the open failed and knowing
           why.
         </p>
+        <p className="aw-p">
+          Nothing obliges the program to notice that failure. Passing a null{" "}
+          <code className="aw-code">FILE *</code> to any later call is{" "}
+          <strong>undefined behavior</strong> rather than a diagnosed error: the
+          standard imposes no requirement whatever on what follows, so the
+          outcome may be a crash, silence, or anything else. The check has to be
+          written, because nothing will write it for you.
+        </p>
+        <p className="aw-p">
+          <code className="aw-code">fclose</code> guarantees three things in
+          order: it flushes any output still held for the stream, it releases the{" "}
+          <code className="aw-code">FILE</code> object and the resources beneath
+          it, and it leaves the pointer no longer usable. Stage 3 concerns the
+          first. Here the second matters, because a process may hold only a
+          bounded number of open streams at one time.
+        </p>
       </>
     ),
     media: (
-      <CodeWalk
-        title="One call, two outcomes"
-        notice="Line 12 is identical in both runs. Watch what fp holds on line 17."
-        caption={<>The whole of <code className="aw-code">01-open.c</code>, assembled across steps 1 to 4 of this stage and run twice from a real terminal: once in a directory with no <code className="aw-code">test.txt</code>, and once after stage 3 has written it. Comment lines are omitted from the source window; the line numbers are the file's own. Nothing at the call site distinguishes the two runs, which is precisely why the value in <code className="aw-code">fp</code> has to be tested rather than assumed.</>}
-        file="01-open.c"
-        source={[
-          { n: 1, src: "#include <stdio.h>" },
-          { n: 2, src: "" },
-          { n: 3, src: "int main(void) {" },
-          { n: 4, src: "" },
-          { n: 7, src: "    FILE *fp;" },
-          { n: 8, src: "" },
-          { n: 12, src: '    fp = fopen("test.txt", "r");' },
-          { n: 13, src: "" },
-          { n: 17, src: "    if (fp == NULL) {" },
-          { n: 18, src: '        perror("Could not open test.txt");' },
-          { n: 19, src: "        return 1;   //non-zero tells the shell the run failed" },
-          { n: 20, src: "    }" },
-          { n: 21, src: "" },
-          { n: 22, src: '    printf("test.txt opened for reading.\\n");' },
-          { n: 23, src: "" },
-          { n: 25, src: "    fclose(fp);" },
-          { n: 26, src: "" },
-          { n: 27, src: "    return 0;" },
-          { n: 28, src: "}" }
-        ]}
-        tracks={[
-          {
-            id: "missing",
-            label: "The file is missing",
-            frames: [
-              {
-                lines: [7],
-                explain: "The declaration reserves a handle. It refers to no stream yet, and its value is indeterminate.",
-                vars: { fp: "indeterminate" }
-              },
-              {
-                lines: [12],
-                explain: "fopen found no test.txt in the working directory, so it returned a null pointer and set errno.",
-                vars: { fp: "NULL", errno: "ENOENT" }
-              },
-              {
-                lines: [17],
-                explain: "The comparison is true, so control enters the block. This line is the only thing separating the two runs.",
-                vars: { fp: "NULL", errno: "ENOENT" }
-              },
-              {
-                lines: [18],
-                explain: "perror writes the message, a colon, and the library's text for the current errno to the standard error stream.",
-                vars: { fp: "NULL", errno: "ENOENT" },
-                out: ["Could not open test.txt: No such file or directory"]
-              },
-              {
-                lines: [19],
-                explain: "main returns 1, so the shell records exit status 1 and no fclose is reached, there being no stream to close.",
-                vars: { fp: "NULL" },
-                note: "Delete lines 17 to 20 and this run would carry the null pointer into fclose. That is undefined behavior, not a diagnosed error: the standard imposes no requirement on what follows, so the failure may be a crash, silence, or anything else.",
-                out: ["Could not open test.txt: No such file or directory"]
-              }
-            ]
-          },
-          {
-            id: "present",
-            label: "The file is there",
-            frames: [
-              {
-                lines: [7],
-                explain: "The same declaration, reserving the same handle. Nothing yet distinguishes this run from the other.",
-                vars: { fp: "indeterminate" }
-              },
-              {
-                lines: [12],
-                explain: "The same call, with the same arguments. This time the file exists, so fopen constructed a FILE object and returned a pointer to it.",
-                vars: { fp: "a FILE object" }
-              },
-              {
-                lines: [17],
-                explain: "The comparison is false, so the block is skipped. The value in fp, not the code, chose the branch.",
-                vars: { fp: "a FILE object" }
-              },
-              {
-                lines: [22],
-                explain: "Execution resumes after the block and the message reaches the standard output stream.",
-                vars: { fp: "a FILE object" },
-                out: ["test.txt opened for reading."]
-              },
-              {
-                lines: [25],
-                explain: "fclose releases the FILE object and the resources beneath it, after which the pointer may no longer be used.",
-                vars: { fp: "no longer usable" },
-                out: ["test.txt opened for reading."]
-              },
-              {
-                lines: [27],
-                explain: "main returns 0, so the shell records exit status 0 and the run reports success.",
-                out: ["test.txt opened for reading."]
-              }
-            ]
-          }
-        ]}
-      />
+      <>
+        <CodeWalk
+          title="One call, two outcomes"
+          notice="Line 12 is identical in both runs. Watch what fp holds on line 17."
+          caption={<>The whole of <code className="aw-code">01-open.c</code>, assembled across steps 1 to 4 of this stage and run twice from a real terminal: once in a directory with no <code className="aw-code">test.txt</code>, and once after stage 3 has written it. Comment lines are omitted from the source window; the line numbers are the file's own. Nothing at the call site distinguishes the two runs, which is precisely why the value in <code className="aw-code">fp</code> has to be tested rather than assumed.</>}
+          file="01-open.c"
+          source={[
+            { n: 1, src: "#include <stdio.h>" },
+            { n: 2, src: "" },
+            { n: 3, src: "int main(void) {" },
+            { n: 4, src: "" },
+            { n: 7, src: "    FILE *fp;" },
+            { n: 8, src: "" },
+            { n: 12, src: '    fp = fopen("test.txt", "r");' },
+            { n: 13, src: "" },
+            { n: 17, src: "    if (fp == NULL) {" },
+            { n: 18, src: '        perror("Could not open test.txt");' },
+            { n: 19, src: "        return 1;   //non-zero tells the shell the run failed" },
+            { n: 20, src: "    }" },
+            { n: 21, src: "" },
+            { n: 22, src: '    printf("test.txt opened for reading.\\n");' },
+            { n: 23, src: "" },
+            { n: 25, src: "    fclose(fp);" },
+            { n: 26, src: "" },
+            { n: 27, src: "    return 0;" },
+            { n: 28, src: "}" }
+          ]}
+          tracks={[
+            {
+              id: "missing",
+              label: "The file is missing",
+              frames: [
+                {
+                  lines: [7],
+                  explain: "The declaration reserves a handle. It refers to no stream yet, and its value is indeterminate.",
+                  vars: { fp: "indeterminate" }
+                },
+                {
+                  lines: [12],
+                  explain: "fopen found no test.txt in the working directory, so it returned a null pointer and set errno.",
+                  vars: { fp: "NULL", errno: "ENOENT" }
+                },
+                {
+                  lines: [17],
+                  explain: "The comparison is true, so control enters the block. This line is the only thing separating the two runs.",
+                  vars: { fp: "NULL", errno: "ENOENT" }
+                },
+                {
+                  lines: [18],
+                  explain: "perror writes the message, a colon, and the library's text for the current errno to the standard error stream.",
+                  vars: { fp: "NULL", errno: "ENOENT" },
+                  out: ["Could not open test.txt: No such file or directory"]
+                },
+                {
+                  lines: [19],
+                  explain: "main returns 1, so the shell records exit status 1 and no fclose is reached, there being no stream to close.",
+                  vars: { fp: "NULL" },
+                  note: "Delete lines 17 to 20 and this run would carry the null pointer into fclose. That is undefined behavior, not a diagnosed error: the standard imposes no requirement on what follows, so the failure may be a crash, silence, or anything else.",
+                  out: ["Could not open test.txt: No such file or directory"]
+                }
+              ]
+            },
+            {
+              id: "present",
+              label: "The file is there",
+              frames: [
+                {
+                  lines: [7],
+                  explain: "The same declaration, reserving the same handle. Nothing yet distinguishes this run from the other.",
+                  vars: { fp: "indeterminate" }
+                },
+                {
+                  lines: [12],
+                  explain: "The same call, with the same arguments. This time the file exists, so fopen constructed a FILE object and returned a pointer to it.",
+                  vars: { fp: "a FILE object" }
+                },
+                {
+                  lines: [17],
+                  explain: "The comparison is false, so the block is skipped. The value in fp, not the code, chose the branch.",
+                  vars: { fp: "a FILE object" }
+                },
+                {
+                  lines: [22],
+                  explain: "Execution resumes after the block and the message reaches the standard output stream.",
+                  vars: { fp: "a FILE object" },
+                  out: ["test.txt opened for reading."]
+                },
+                {
+                  lines: [25],
+                  explain: "fclose releases the FILE object and the resources beneath it, after which the pointer may no longer be used.",
+                  vars: { fp: "no longer usable" },
+                  out: ["test.txt opened for reading."]
+                },
+                {
+                  lines: [27],
+                  explain: "main returns 0, so the shell records exit status 0 and the run reports success.",
+                  out: ["test.txt opened for reading."]
+                }
+              ]
+            }
+          ]}
+        />
+        <EscapeResolver caption="What the compiler hands to fopen. Two characters do not change, they disappear — and the worst of these four compiles without a word of warning, because a tab is a perfectly valid escape." />
+      </>
     ),
-    difficulty: "fopen returned NULL",
-    fix: 1,
+    why: {
+      label: "Why a pointer, and not a variable of type FILE?",
+      body: <>Because the bookkeeping belongs to the library rather than to you. Copying a <code className="aw-code">FILE</code> would produce an unsynchronized duplicate of private state rather than a second handle on the same stream, so a pointer guarantees one authoritative record per open stream. An older handout named <code className="aw-code">stdlib.h</code> for the file functions; the correct header is <code className="aw-code">stdio.h</code>, for reading and writing alike.</>
+    },
+    difficulty: [
+      "A Windows path with backslashes silently fails",
+      "fopen returned NULL",
+      "The program runs, prints nothing, and exits normally"
+    ],
+    fix: [2, 1, 3],
     check: {
       kind: "predict",
       question: "You compile and run this now, before writing test.txt. What appears?",
@@ -396,56 +352,9 @@ export const steps12 = [
     }
   },
   {
-    id: "S1.5",
-    stage: 1, n: 5,
-    title: "Close the stream, and run it twice",
-    action: <>Add <code className="aw-code">fclose(fp)</code> and <code className="aw-code">return 0</code>, compile, and run the program now — before <code className="aw-code">test.txt</code> exists.</>,
-    body: (
-      <>
-        <p className="aw-p">
-          <code className="aw-code">fclose</code> guarantees three things in
-          order: it flushes any output still held for the stream, it releases the{" "}
-          <code className="aw-code">FILE</code> object and the resources beneath
-          it, and it leaves the pointer no longer usable. Stage 3 concerns the
-          first; here the second matters, because a process may hold only a
-          bounded number of open streams. Run the program now for the first of
-          the two outputs below, and again after stage 3 for the second.
-        </p>
-      </>
-    ),
-    media: (
-      <>
-        <Terminal label="Run in a directory with no test.txt — exit status 1">
-{`Could not open test.txt: No such file or directory`}
-        </Terminal>
-        <Terminal label="Run again after stage 3 has created it — exit status 0">
-{`test.txt opened for reading.`}
-        </Terminal>
-      </>
-    ),
-    why: {
-      label: "Why return 1 rather than 0?",
-      body: <>The value <code className="aw-code">main</code> returns is the program's <strong>exit status</strong>, which the shell retains and any calling process can read. Zero conventionally means the run succeeded. Nothing inspects the status here, but your program will soon be one stage of a pipeline, and a truthful status is what tells the next stage whether to run.</>
-    },
-    difficulty: "The program runs, prints nothing, and exits normally",
-    fix: 3,
-    check: {
-      kind: "self",
-      question: "Did you see the perror line, with a reason after the colon?",
-      ok: {
-        label: "Yes — it told me the file does not exist",
-        note: "That is the habit this stage exists to install. Your program now fails audibly."
-      },
-      alt: {
-        label: "It ran and printed nothing at all",
-        note: <>Silence together with a zero exit status means that neither branch printed anything. Check that the <code className="aw-code">printf</code> sits outside the <code className="aw-code">if</code> block, and that nothing returns before it is reached.</>
-      }
-    }
-  },
-  {
-    id: "S1.6",
-    stage: 1, n: 6,
-    title: "Open two streams at once",
+    id: "S1.3",
+    stage: 1, n: 3,
+    title: "Opening two",
     action: <>Step through <code className="aw-code">10-twofiles.c</code> in the figure below rather than running it.</>,
     body: (
       <>
