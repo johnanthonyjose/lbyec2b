@@ -99,7 +99,13 @@ for (const st of steps) {
     .replace(/&#x27;|&rsquo;/g, "'").replace(/&quot;/g, '"')
     .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
     .replace(/&[a-z]+;|&#\d+;/g, " ")
-    .replace(/[ \t]+/g, " ").replace(/\n\s*/g, "\n").trim();
+    .replace(/[ \t]+/g, " ")
+    /* Stripping an inline <code> leaves a space before the punctuation that
+       followed it, so "…%i</code>." renders here as "%i .". That space defeats
+       the sentence break below, which looks for a letter or digit immediately
+       before the stop, and silently welds two sentences into one. */
+    .replace(/\s+([.,;:?!])/g, "$1")
+    .replace(/\n\s*/g, "\n").trim();
 
   for (const m of text.matchAll(BRITISH)) britishHits.push([st.id, m[0]]);
 
@@ -108,8 +114,17 @@ for (const st of steps) {
      avoids mis-splitting the handout's own data: "hello no. 1" and
      "where is no. 2?" contain full stops that are not sentence ends, so the
      within-block rule still requires a capital letter after the break. */
+  /* A sentence may legitimately begin with a lowercase C identifier here —
+     "fgetc returns the byte...", "sscanf applies the directives..." — and
+     requiring a capital after the full stop silently glued such pairs into one
+     monster sentence, inflating both the mean and the over-ceiling count.
+
+     The break still requires WHITESPACE after the stop, which is what keeps
+     "test.txt" and "08-csv.c" intact, and still requires a letter or an
+     opening quote next, which is what keeps "hello no. 1" intact because a
+     digit follows that stop. */
   const sentences = text.split("\n")
-    .flatMap(block => block.split(/(?<=[.?!])\s+(?=[A-Z"'(])/))
+    .flatMap(block => block.split(/(?<=[A-Za-z0-9)"'\]][.?!])\s+(?=[A-Za-z"'(])/))
     .map(s => s.trim()).filter(s => /[a-z]{3}/.test(s));
 
   const lens = sentences.map(s => s.split(/\s+/).filter(w => /[A-Za-z0-9]/.test(w)).length);

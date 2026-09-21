@@ -650,7 +650,7 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
     ),
     media: (
       <>
-        <ParseWalker caption="The whole of getDelimitedItem, with the executing line marked as the cursor advances. out is the buffer the caller supplies and size is its capacity. Two branches do not run on this input and so never light up: line 32 discards a carriage return, which a file written on Windows will contain, and line 37 stops storing once n reaches size - 1, so an over-long field is truncated rather than allowed to run past the end of the buffer." />
+        <ParseWalker caption="The whole of getDelimitedItem, with the executing line marked as the cursor advances. out is the buffer the caller supplies and size is its capacity. Two branches never light up on this input. Line 32 discards a carriage return, which a file written on Windows will contain. Line 37 stops storing once n reaches size - 1, so an over-long field is truncated rather than allowed to run past the end of the buffer." />
         <p className="aw-p">
           The first character is read ahead of the loop so that two situations
           which look alike can be told apart: an exhausted stream, and a field
