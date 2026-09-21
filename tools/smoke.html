@@ -208,15 +208,15 @@ async function fileIO() {
      "a gate is still rendered");
   ok("publishes minutes, never a step count",
      /about \d+ minutes/i.test(txt()) && !/\b22\b/.test(txt()), "a step total appeared");
-  ok("the sample files are at the foot of the page",
-     !!D().getElementById("files") && all(".fio-dls-item").length >= 12,
-     `found ${all(".fio-dls-item").length} files`);
+  ok("the sample files are listed at the foot of the page",
+     !!D().getElementById("reference") && all(".fio-ref-prog").length >= 12,
+     `found ${all(".fio-ref-prog").length} files`);
   ok("does not offer test.txt, which stage 3 writes",
-     !all(".fio-dls-name").some(n => /^test\.txt$/.test(n.textContent.trim())),
+     !all(".fio-ref-prog code").some(n => /^test\.txt$/.test(n.textContent.trim())),
      "test.txt was offered");
 
   // Every download must actually resolve; a 404 here is an evening lost.
-  const hrefs = all(".fio-dls-item").map(a => a.getAttribute("href"));
+  const hrefs = all(".fio-ref-prog").map(a => a.getAttribute("href"));
   const codes = await Promise.all(hrefs.map(h =>
     fetch("/" + h.replace(/^\.?\//, "")).then(r => r.status).catch(() => 0)));
   ok("every sample file actually downloads", codes.every(c => c === 200),
@@ -237,8 +237,6 @@ async function fileIO() {
      /fprintf/.test(txt()) && /fputs/.test(txt()) && /fputc/.test(txt()) &&
      /fscanf/.test(txt()) && /fgets/.test(txt()) && /fgetc/.test(txt()),
      "a function table is missing");
-  ok("the reference still indexes every program",
-     all(".fio-ref-prog").length >= 12, `found ${all(".fio-ref-prog").length}`);
   ok("the removed sections are actually gone",
      !D().getElementById("exercises") && !D().getElementById("further"),
      "a removed section is still rendered");

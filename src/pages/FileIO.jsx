@@ -15,7 +15,6 @@ import { stepsInStage, sizeOfStage, stepAt } from "./file-io/steps.jsx";
 import { resolutionById } from "./file-io/resolutions.jsx";
 import { Outcomes } from "./file-io/Outcomes.jsx";
 import { Reference } from "./file-io/Reference.jsx";
-import { Downloads } from "./file-io/Downloads.jsx";
 import { ReadMark } from "./file-io/OutcomeMarks.jsx";
 
 /* Handout 03 — File I/O.
@@ -142,7 +141,6 @@ export default function FileIO() {
           </>
         )}
         <Reference />
-        <Downloads />
       </main>
 
       <SiteFooter note="Department of Electronics and Computer Engineering" />

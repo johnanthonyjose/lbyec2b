@@ -71,8 +71,8 @@ src/
                          Reference.jsx is the ungated half: the function
                          tables, modes, paths and program index that make the
                          page usable as a reference and not only a walkthrough.
-                         Downloads.jsx lists the sample files at the foot.
-                         Both print; the walkthrough does not.
+                         Its program index is also where the sample files are
+                         downloaded from. It prints; the walkthrough does not.
   hooks/                 scroll progress, scroll spy, persistent state
 
 public/                  copied verbatim into the build
