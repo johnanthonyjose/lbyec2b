@@ -11,83 +11,7 @@
    its own container and never widens the page, and the line numbers are set in
    a fixed column so a reader can say "line 14" to a classmate and be understood. */
 
-/* ---- the readiness gate ---------------------------------------------- */
-
-.fio-before-wrap { border-bottom: 1px solid var(--border-subtle); background: var(--surface-subtle); }
-.fio-before { max-width: var(--container-lg); margin: 0 auto; padding: var(--space-12) var(--space-8); }
-.fio-before-title {
-  font-family: var(--font-display); font-size: var(--text-2xl);
-  font-weight: var(--weight-semibold); line-height: var(--leading-snug);
-  margin: var(--space-3) 0 0; color: var(--text-primary);
-}
-
-.fio-needs { list-style: none; margin: var(--space-6) 0 0; padding: 0; display: grid; gap: var(--space-3); max-width: 74ch; }
-
-.fio-need {
-  width: 100%; display: flex; gap: var(--space-3); align-items: flex-start; text-align: left;
-  cursor: pointer; font-family: var(--font-sans);
-  background: var(--surface-page); border: 1px solid var(--border-default);
-  border-radius: var(--radius-md); padding: var(--space-4) var(--space-4);
-  min-height: var(--touch-target-min);
-  transition: border-color var(--duration-fast) var(--ease-standard),
-              background-color var(--duration-fast) var(--ease-standard);
-}
-.fio-need:hover { border-color: var(--border-strong); }
-.fio-need.is-on { background: var(--green-50); border-color: var(--green-700); }
-
-.fio-need-box {
-  flex: none; width: 24px; height: 24px; margin-top: 1px;
-  border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm);
-  display: grid; place-items: center;
-  font-size: var(--text-sm); font-weight: var(--weight-bold); line-height: 1;
-  color: var(--green-800); background: var(--surface-page);
-}
-.fio-need.is-on .fio-need-box { border-color: var(--green-700); background: var(--surface-page); }
-
-.fio-need-text { display: grid; gap: var(--space-1); min-width: 0; }
-.fio-need-name {
-  font-size: var(--text-base); font-weight: var(--weight-semibold);
-  color: var(--text-primary); line-height: var(--leading-snug);
-}
-.fio-need-detail {
-  font-size: var(--text-sm); line-height: var(--leading-relaxed); color: var(--text-secondary);
-}
-
 /* ---- the download list ------------------------------------------------ */
-
-.fio-downloads {
-  margin: var(--space-8) 0 0; padding: var(--space-6) var(--space-6);
-  background: var(--surface-page); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-}
-.fio-dl-list {
-  list-style: none; margin: var(--space-4) 0 0; padding: 0;
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-2);
-}
-.fio-dl {
-  display: flex; flex-direction: column; gap: var(--space-1); min-width: 0;
-  padding: var(--space-3) var(--space-3); border-radius: var(--radius-sm); text-decoration: none;
-  border: 1px solid transparent; min-height: var(--touch-target-min);
-  transition: background-color var(--duration-fast) var(--ease-standard),
-              border-color var(--duration-fast) var(--ease-standard);
-}
-.fio-dl:hover { background: var(--surface-subtle); border-color: var(--border-default); }
-.fio-dl-name {
-  font-family: var(--font-mono); font-size: var(--text-sm);
-  font-weight: var(--weight-semibold); color: var(--text-accent);
-}
-.fio-dl-note { font-size: var(--text-xs); color: var(--text-secondary); line-height: var(--leading-snug); }
-.fio-dl-foot {
-  margin: var(--space-4) 0 0; font-size: var(--text-sm); line-height: var(--leading-relaxed);
-  color: var(--text-secondary); max-width: 68ch;
-}
-
-.fio-before-actions {
-  margin: var(--space-8) 0 0; display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap;
-}
-.fio-before-count {
-  font-size: var(--text-sm); color: var(--text-secondary);
-}
 
 /* ---- C source --------------------------------------------------------- */
 
@@ -179,13 +103,9 @@
 /* ---- phones ----------------------------------------------------------- */
 
 @media (max-width: 640px) {
-  .fio-before { padding: var(--space-10) var(--space-5); }
-  .fio-downloads { padding: var(--space-4) var(--space-4); }
-  .fio-dl-list { grid-template-columns: 1fr; }
   .fio-code-num { width: 2ch; padding-left: 10px; }
   .fio-code-line { gap: var(--space-2); }
   .fio-code-text, .fio-term-pre code { font-size: var(--text-xs); }
-  .fio-before-actions { gap: var(--space-3); }
 }
 
 /* Both scrollers are focusable so a keyboard user can reach the right-hand end
@@ -304,7 +224,7 @@
    machine; printed they are useless and enormous. So printing the page gives
    the outcomes and the reference, on as few sheets as possible. */
 @media print {
-  .aw-hero, .fio-before-wrap, .aw-map-wrap, .aw-walk,
+  .aw-hero, .aw-map-wrap, .aw-walk,
   header, footer, .dls-totop, .aw-nav { display: none !important; }
 
   .fio-ref-wrap, .fio-outcomes-wrap {
@@ -328,81 +248,53 @@
   a[href]::after { content: ""; }   /* no URL footnotes: these are local files */
 }
 
-/* ---- exercises -------------------------------------------------------- */
+/* ---- the sample files, at the foot of the page ------------------------ */
 
-.fio-ex-wrap { border-top: 1px solid var(--border-subtle); }
-.fio-ex { max-width: var(--container-md); margin: 0 auto; padding: var(--space-12) var(--space-8); }
-.fio-ex-lede {
-  margin: var(--space-3) 0 0; max-width: 70ch; font-size: var(--text-base);
-  color: var(--text-secondary); line-height: var(--leading-relaxed);
+.fio-dl-wrap { border-top: 1px solid var(--border-subtle); }
+.fio-dls { max-width: var(--container-md); margin: 0 auto; padding: var(--space-12) var(--space-8) var(--space-16); }
+.fio-dls-lede {
+  margin: var(--space-3) 0 0; max-width: 72ch;
+  font-size: var(--text-base); line-height: var(--leading-relaxed); color: var(--text-secondary);
 }
-.fio-ex-list { list-style: none; margin: var(--space-8) 0 0; padding: 0; display: grid; gap: var(--space-6); }
-.fio-ex-item {
-  border-top: 1px solid var(--border-subtle); padding-top: var(--space-5);
-}
-.fio-ex-head { display: flex; gap: var(--space-4); align-items: flex-start; }
-.fio-ex-n {
-  flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill);
-  display: grid; place-items: center;
-  border: 1px solid var(--border-gold); color: var(--text-gold);
-  font-family: var(--font-display); font-size: var(--text-base);
-  font-feature-settings: 'tnum';
-}
-.fio-ex-title {
-  margin: 0; font-family: var(--font-display); font-size: var(--text-lg);
-  font-weight: var(--weight-semibold); color: var(--text-primary);
-  line-height: var(--leading-snug);
-}
-.fio-ex-assesses {
-  margin: var(--space-1) 0 0; font-size: var(--text-2xs);
-  letter-spacing: var(--tracking-wide); text-transform: uppercase;
-  color: var(--text-secondary);
-}
-.fio-ex-body {
-  margin: var(--space-3) 0 0 calc(34px + var(--space-4));
-  font-size: var(--text-base); line-height: var(--leading-relaxed);
-  color: var(--text-secondary); max-width: 72ch;
-}
-
-/* ---- references ------------------------------------------------------- */
-
-.fio-further-wrap { border-top: 1px solid var(--border-subtle); background: var(--surface-subtle); }
-.fio-further { max-width: var(--container-md); margin: 0 auto; padding: var(--space-12) var(--space-8) var(--space-16); }
-.fio-further-lede {
-  margin: var(--space-3) 0 0; max-width: 70ch; font-size: var(--text-base);
-  color: var(--text-secondary); line-height: var(--leading-relaxed);
-}
-.fio-further-groups { margin: var(--space-8) 0 0; display: grid; gap: var(--space-8); }
-.fio-further-kind {
-  margin: 0 0 var(--space-3); font-size: var(--text-2xs);
+.fio-dls-sub {
+  margin: var(--space-8) 0 var(--space-3); font-size: var(--text-2xs);
   font-weight: var(--weight-bold); letter-spacing: var(--tracking-wider);
   text-transform: uppercase; color: var(--text-gold);
-  padding-bottom: var(--space-2); border-bottom: 1px solid var(--border-default);
 }
-.fio-further-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); }
-.fio-further-cite {
-  margin: 0; font-size: var(--text-base); color: var(--text-primary);
-  line-height: var(--leading-snug); max-width: 78ch;
+.fio-dls-list { list-style: none; margin: var(--space-6) 0 0; padding: 0; display: grid; gap: var(--space-1); }
+.fio-dls-item {
+  display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) auto;
+  gap: var(--space-4); align-items: baseline;
+  padding: var(--space-3); border-radius: var(--radius-sm);
+  border: 1px solid transparent; text-decoration: none;
+  min-height: var(--touch-target-min);
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard);
 }
-.fio-further-note {
-  margin: var(--space-2) 0 0; font-size: var(--text-sm);
-  line-height: var(--leading-relaxed); color: var(--text-secondary); max-width: 74ch;
+.fio-dls-item:hover { background: var(--surface-subtle); border-color: var(--border-default); }
+.fio-dls-name {
+  font-family: var(--font-mono); font-size: var(--text-sm);
+  font-weight: var(--weight-semibold); color: var(--text-accent);
+}
+.fio-dls-note { font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--leading-snug); }
+.fio-dls-stage {
+  font-size: var(--text-2xs); letter-spacing: var(--tracking-wide);
+  text-transform: uppercase; color: var(--text-secondary); white-space: nowrap;
+}
+.fio-dls-foot {
+  margin: var(--space-6) 0 0; font-size: var(--text-sm);
+  line-height: var(--leading-relaxed); color: var(--text-secondary); max-width: 68ch;
 }
 
 @media (max-width: 640px) {
-  .fio-ex { padding: var(--space-8) var(--space-5); }
-  .fio-further { padding: var(--space-8) var(--space-5) var(--space-10); }
-  .fio-ex-body { margin-left: 0; }
+  .fio-dls { padding: var(--space-8) var(--space-5) var(--space-10); }
+  .fio-dls-item { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+  .fio-dls-stage { display: none; }
 }
 
-/* The exercises and the reading list are carried into the laboratory, so they
-   print with the reference. The walkthrough still does not. */
 @media print {
-  .fio-ex-wrap, .fio-further-wrap { background: #fff; border: 0; }
-  .fio-ex, .fio-further { padding: 12pt 0 0; max-width: none; }
-  .fio-ex-item, .fio-further-group { break-inside: avoid; page-break-inside: avoid; }
-  .fio-ex-body, .fio-further-note, .fio-further-cite, .fio-ex-lede, .fio-further-lede {
-    font-size: 9pt; color: #000;
-  }
-  .fio-ex-title { font-size: 10pt; }
+  .fio-dl-wrap { border: 0; }
+  .fio-dls { padding: 12pt 0 0; max-width: none; }
+  .fio-dls-item { break-inside: avoid; min-height: 0; padding: 1pt 0; }
+  .fio-dls-name, .fio-dls-note, .fio-dls-lede, .fio-dls-foot { font-size: 8pt; color: #000; }
 }

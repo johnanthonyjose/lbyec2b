@@ -203,24 +203,27 @@ async function fileIO() {
   localStorage.removeItem("lbyec2b-fio");
   await load("/file-io.html");
 
-  ok("starts on the readiness gate", !D().getElementById("walk"), "walk rendered early");
+  ok("opens on the stages, with nothing in front of them",
+     !D().getElementById("before") && all(".aw-row").length === 5,
+     "a gate is still rendered");
   ok("publishes minutes, never a step count",
      /about \d+ minutes/i.test(txt()) && !/\b22\b/.test(txt()), "a step total appeared");
-  ok("offers the sample programs as downloads", all(".fio-dl").length >= 10,
-     `found ${all(".fio-dl").length} downloads`);
+  ok("the sample files are at the foot of the page",
+     !!D().getElementById("files") && all(".fio-dls-item").length >= 12,
+     `found ${all(".fio-dls-item").length} files`);
   ok("does not offer test.txt, which stage 3 writes",
-     !all(".fio-dl-name").some(n => /^test\.txt$/.test(n.textContent.trim())),
+     !all(".fio-dls-name").some(n => /^test\.txt$/.test(n.textContent.trim())),
      "test.txt was offered");
 
   // Every download must actually resolve; a 404 here is an evening lost.
-  const hrefs = all(".fio-dl").map(a => a.getAttribute("href"));
+  const hrefs = all(".fio-dls-item").map(a => a.getAttribute("href"));
   const codes = await Promise.all(hrefs.map(h =>
     fetch("/" + h.replace(/^\.?\//, "")).then(r => r.status).catch(() => 0)));
   ok("every sample file actually downloads", codes.every(c => c === 200),
      `statuses ${[...new Set(codes)].join(",")}`);
 
-  byText("button", /I have done all this before/).click(); await wait(400);
-  ok("the soft gate opens Stage 1", !!D().getElementById("walk"), "walk missing");
+  all(".aw-row-head")[0].click(); await wait(400);
+  ok("stage 1 opens on a single selection", !!D().getElementById("walk"), "walk missing");
 
   // A handout is also a reference. These assert the second half of that, which
   // the first version of this page failed: it taught the topic once and then
@@ -234,18 +237,11 @@ async function fileIO() {
      /fprintf/.test(txt()) && /fputs/.test(txt()) && /fputc/.test(txt()) &&
      /fscanf/.test(txt()) && /fgets/.test(txt()) && /fgetc/.test(txt()),
      "a function table is missing");
-  ok("the reference indexes every program",
+  ok("the reference still indexes every program",
      all(".fio-ref-prog").length >= 12, `found ${all(".fio-ref-prog").length}`);
-  ok("exercises are set at the end of the lecture",
-     !!D().getElementById("exercises") && all(".fio-ex-item").length >= 6,
-     `${all(".fio-ex-item").length} exercises`);
-  ok("nothing marks or stores the exercises",
-     !D().querySelector("#exercises button") && !D().querySelector("#exercises input"),
-     "an exercise carries a control, which implies it is assessed here");
-  ok("references are given, including the standard",
-     !!D().getElementById("further") &&
-     /kernighan/i.test(txt()) && /9899/.test(txt()) && /man 3 fopen/.test(txt()),
-     "a reference class is missing");
+  ok("the removed sections are actually gone",
+     !D().getElementById("exercises") && !D().getElementById("further"),
+     "a removed section is still rendered");
   ok("the stream model is taught, not assumed",
      /\bstream\b/i.test(txt()), "the word stream never appears");
 

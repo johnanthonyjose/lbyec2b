@@ -13,11 +13,9 @@ import {
 import { stages, stageByN, TOTAL_STAGES, TOTAL_MINUTES } from "./file-io/stages.jsx";
 import { stepsInStage, sizeOfStage, stepAt } from "./file-io/steps.jsx";
 import { resolutionById } from "./file-io/resolutions.jsx";
-import { Before, needs } from "./file-io/Before.jsx";
 import { Outcomes } from "./file-io/Outcomes.jsx";
 import { Reference } from "./file-io/Reference.jsx";
-import { Exercises } from "./file-io/Exercises.jsx";
-import { Further } from "./file-io/Further.jsx";
+import { Downloads } from "./file-io/Downloads.jsx";
 import { ReadMark } from "./file-io/OutcomeMarks.jsx";
 
 /* Handout 03 — File I/O.
@@ -43,13 +41,13 @@ export default function FileIO() {
   const w = useWalkthrough({
     storageKey: STORAGE_KEY,
     stages, stepsInStage, sizeOfStage, stepAt,
-    isGateOpen: (s) => needs.every((n) => (s.ready || {})[n.id]) || !!s.skipped,
-    // A handout is also a reference. See the note on `unlocked` in the hook.
-    unlocked: true,
-    extraInitial: {
-      ready: {},      // { compiler: true, files: true, cwd: true }
-      skipped: false  // opened the stages without confirming the three
-    }
+    // Nothing stands in front of stage 1 any more. The readiness panel that
+    // used to gate it asked the reader to confirm three things before they had
+    // been shown anything, which is an obstacle dressed as preparation; the one
+    // item on it that mattered, the working directory, now lives in S2.2 where
+    // it is actually needed. A handout is also a reference, so no later stage
+    // is gated either — see the note on `unlocked` in the hook.
+    unlocked: true
   });
 
   const { saved, save, answers, stage, step, size, current, started } = w;
@@ -59,17 +57,10 @@ export default function FileIO() {
   // step rather than on questions already answered.
   const [fix, setFix] = React.useState(0);
 
-  const ticked = saved.ready || {};
-  const tick = (id) => save({ ...saved, ready: { ...ticked, [id]: !ticked[id] } });
 
-  const restart = () => { w.restart(); setFix(0); scrollToId("before"); };
+  const restart = () => { w.restart(); setFix(0); scrollToId("walk"); };
 
   const begin = () => { w.goStage(1); setTimeout(() => scrollToId("walk"), 0); };
-  const skipGate = () => {
-    save({ ...saved, skipped: true, stage: 1, step: 1 });
-    setTimeout(() => scrollToId("walk"), 0);
-  };
-
   const continueToNext = () => {
     w.acknowledge({ stage: stage + 1, step: 1 });
     setTimeout(() => scrollToId("walk"), 0);
@@ -102,19 +93,10 @@ export default function FileIO() {
 
       <main>
         <Hero started={started} stage={stage}
-          onBegin={() => scrollToId(started ? "walk" : "before")} />
+          onBegin={begin} />
 
         <Outcomes />
 
-        <Before
-          ticked={ticked}
-          onTick={tick}
-          ready={w.gateOpen}
-          skipped={!!saved.skipped}
-          onSkip={skipGate}
-          onBegin={started ? () => scrollToId("walk") : begin}
-          started={started}
-        />
 
         <StageMap
           stages={stages}
@@ -160,8 +142,7 @@ export default function FileIO() {
           </>
         )}
         <Reference />
-        <Exercises />
-        <Further />
+        <Downloads />
       </main>
 
       <SiteFooter note="Department of Electronics and Computer Engineering" />

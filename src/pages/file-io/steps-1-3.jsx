@@ -327,7 +327,9 @@ export const steps13 = [
           <strong>working directory</strong>, an attribute of the process
           inherited from whatever launched it, and your editor may launch the
           program from the project root while the source sits in a subdirectory.
-          Paths, absolute and relative, are tabulated in the reference below.
+          In VS Code, open the folder rather than the single file and run from
+          the integrated terminal. Paths, absolute and relative, are tabulated
+          in the reference below.
         </p>
         <p className="aw-p">
           Whichever kind you write, use forward slashes. In C source a backslash
@@ -785,15 +787,12 @@ HCV-221`}
       <>
         <p className="aw-p">
           Mode <code className="aw-code">"w"</code> creates the file if it does
-          not exist, and if it does exist{" "}
-          <strong>truncates it to zero bytes</strong>. The{" "}
-          <strong>truncation</strong> is part of the open itself: it occurs
-          before a single character is written, and whether or not you go on to
-          write anything at all. A write program that fails halfway therefore
-          leaves an empty file rather than a partial one, so keep one copy of any
-          data you value outside the directory your program writes into. The null
-          check belongs here as well: opening for writing fails less often than
-          opening for reading, but it still fails.
+          not exist, and <strong>truncates</strong> it to zero bytes if it does.
+          A write program that fails halfway therefore leaves an empty file
+          rather than a partial one, so keep one copy of any data you value
+          outside the directory your program writes into. The null check belongs
+          here as well: opening for writing fails less often than opening for
+          reading, but it still fails.
         </p>
       </>
     ),
