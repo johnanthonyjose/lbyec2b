@@ -322,14 +322,10 @@ export const steps13 = [
           every mode here is a text mode.
         </p>
         <p className="aw-p">
-          A bare name such as <code className="aw-code">"test.txt"</code> does not
-          mean "beside my source file". It is resolved against the{" "}
-          <strong>working directory</strong>, an attribute of the process
-          inherited from whatever launched it, and your editor may launch the
-          program from the project root while the source sits in a subdirectory.
-          In VS Code, open the folder rather than the single file and run from
-          the integrated terminal. Paths, absolute and relative, are tabulated
-          in the reference below.
+          A bare name such as <code className="aw-code">"test.txt"</code> is
+          resolved against the directory the program runs from, not the one its
+          source sits in. Paths, absolute and relative, are tabulated in the
+          reference below.
         </p>
         <p className="aw-p">
           Whichever kind you write, use forward slashes. In C source a backslash
