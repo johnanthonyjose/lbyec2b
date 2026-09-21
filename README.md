@@ -54,7 +54,12 @@ src/
                          getDelimitedItem, BufferMachine the write buffer and
                          the syscall it saves, LoopCompare the feof fault with
                          both loops on one timeline, ModeExplorer what r, w and
-                         a do to a file that already has content.
+                         a do to a file that already has content, ByteContract
+                         one row of real bytes under both the text and the
+                         binary contract at once, EscapeResolver what the
+                         compiler hands to fopen after it resolves a path
+                         string, StreamDiagram the FILE object with stdin,
+                         stdout and stderr drawn as peers of the file you open.
                          CodeWalk.jsx is the generic one: source with the
                          executing line marked, an explainer beside it and the
                          program's output beneath. Three steps use it with

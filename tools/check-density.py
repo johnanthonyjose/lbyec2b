@@ -24,7 +24,8 @@ FILES = ["src/pages/file-io/steps-1-2.jsx", "src/pages/file-io/steps-3-4.jsx"]
 # they are text in a monospace font, and counting them would let the page pass
 # while being exactly what it was criticised for.
 FIGURES = ("<FileMachine", "<ParseWalker", "<BufferMachine", "<LoopCompare",
-           "<CodeWalk", "<ModeExplorer")
+           "<CodeWalk", "<ModeExplorer", "<ByteContract", "<StreamDiagram",
+           "<EscapeResolver")
 
 # 7,700, raised from the 7,500 first written here, and the reason is recorded
 # rather than quietly applied. The original figure was estimated before the

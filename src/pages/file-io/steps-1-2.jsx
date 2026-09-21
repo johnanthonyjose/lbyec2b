@@ -2,6 +2,9 @@ import React from "react";
 import { CodeBlock, Terminal } from "./CodeBlock.jsx";
 import { BufferMachine } from "../../components/explorable/BufferMachine.jsx";
 import { CodeWalk } from "../../components/explorable/CodeWalk.jsx";
+import { ByteContract } from "../../components/explorable/ByteContract.jsx";
+import { StreamDiagram } from "../../components/explorable/StreamDiagram.jsx";
+import { EscapeResolver } from "../../components/explorable/EscapeResolver.jsx";
 import { ModeExplorer } from "../../components/explorable/ModeExplorer.jsx";
 
 /* Stages 1 to 3 of the File I/O handout: the problem, the open, the write.
@@ -76,19 +79,12 @@ export const steps12 = [
           intended to denote characters.
         </p>
         <p className="aw-p">
-          A file is a sequence of bytes and nothing more;{" "}
-          <strong>text</strong> and <strong>binary</strong> are two contracts
-          under which a program may read that sequence. Under the text contract
-          each byte, or each short group of bytes, denotes a character, and the
-          characters are organized into <strong>lines</strong> separated by a
-          newline, which is what <strong>human-readable</strong> means. Under the
-          binary contract a byte denotes whatever the writing application decided
-          it would denote. Nothing stored inside the file records which contract
-          was intended, and a filename extension is only a{" "}
-          <strong>convention</strong> claiming one: nothing enforces it and
-          nothing checks it against the contents. Rename a text file to{" "}
-          <code className="aw-code">something.png</code> and it is still your
-          text.
+          A file is a sequence of bytes and nothing more. <strong>Text</strong>{" "}
+          and <strong>binary</strong> are two <strong>contracts</strong> under
+          which a program may read that sequence. Under the text contract each
+          byte denotes a character and the characters are organized into{" "}
+          <strong>lines</strong>; under the binary contract a byte denotes
+          whatever the writing application decided it would.
         </p>
         <p className="aw-p">
           <code className="aw-code">fopen</code> inspects neither the name nor
@@ -97,6 +93,9 @@ export const steps12 = [
           <strong>text files only</strong>.
         </p>
       </>
+    ),
+    media: (
+      <ByteContract caption="The same bytes under both contracts at once. Switch the file and the text reading collapses while the binary reading stays structured, because those bytes were never characters." />
     ),
     why: {
       label: "Then how does anything know what a file is?",
@@ -155,16 +154,13 @@ export const steps12 = [
           hands you a pointer rather than a value.
         </p>
         <p className="aw-p">
-          You have been using streams since your first program:{" "}
-          <code className="aw-code">printf(...)</code> is{" "}
-          <code className="aw-code">fprintf(stdout, ...)</code>, and the runtime
-          opens <code className="aw-code">stdin</code>,{" "}
-          <code className="aw-code">stdout</code> and{" "}
-          <code className="aw-code">stderr</code> before{" "}
-          <code className="aw-code">main</code> is entered. Your own file is a
-          fourth stream beside them.
+          You have been using streams since your first program. Step the figure
+          to the <code className="aw-code">printf</code> call to see why.
         </p>
       </>
+    ),
+    media: (
+      <StreamDiagram caption="Four streams, one mechanism. stdin, stdout and stderr are open before main is entered, and the file you open is a fourth beside them; printf reaches the same machinery as fgetc, differing only in which stream it names." />
     ),
     why: {
       label: "Why a pointer, and not a variable of type FILE?",
@@ -205,14 +201,11 @@ export const steps12 = [
           reference below.
         </p>
         <p className="aw-p">
-          Whichever kind you write, use forward slashes. In C source a backslash
+          Whichever kind you write, use forward slashes. A backslash in C source
           begins an <strong>escape sequence</strong> that the compiler resolves
-          before the program runs, so{" "}
-          <code className="aw-code">"c:\temp\data.txt"</code> is not the path it
-          appears to be: <code className="aw-code">\t</code> is one tab
-          character, and what reaches <code className="aw-code">fopen</code> is a
-          name no drive holds. Windows accepts forward slashes, and the same
-          source then runs unchanged on macOS.
+          before the program runs, so the path your program asks for is not
+          always the one you typed. Windows accepts forward slashes, and the
+          same source then runs unchanged on macOS.
         </p>
       </>
     ),
@@ -220,6 +213,9 @@ export const steps12 = [
       label: "What is wrong with \"c:\\temp\\test1.txt\"?",
       body: <>In C source a backslash introduces an <strong>escape sequence</strong>, which the compiler resolves before your program ever runs. <code className="aw-code">\t</code> is not a backslash followed by a t; it is a single tab character. What <code className="aw-code">fopen</code> receives is therefore <code className="aw-code">c:</code>, a tab, <code className="aw-code">emp</code>, another tab, and <code className="aw-code">est1.txt</code>. Forward slashes avoid the problem entirely, and doubling each backslash also works.</>
     },
+    media: (
+      <EscapeResolver caption="What the compiler hands to fopen. Two characters do not change, they disappear — and the worst of these four compiles without a word of warning, because a tab is a perfectly valid escape." />
+    ),
     difficulty: "A Windows path with backslashes silently fails",
     fix: 2,
     check: {

@@ -1,0 +1,369 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   StreamDiagram (handout 03, File I/O, step S1.2) — one stream, and the FILE
+   object behind it.
+
+   The figure is a stack, and the stack is the argument. Four bands run down
+   the page in the order the call travels them — your program, the FILE object,
+   the operating system, the device — joined by explicit links, so that "how far
+   down does this call reach" is a shape the reader can see rather than a fact
+   they have to be told. When printf arrives it travels the identical stack and
+   only the name in the middle band changes, which is the entire lesson of the
+   step and the thing two paragraphs of prose could not deliver.
+
+   Three rules govern everything below.
+
+   The four streams are peers. They are one row of four equal chips inside the
+   FILE band, in the order stdin, stdout, stderr, fp, and fp gets no extra
+   width, no separate box and no rule of its own. The moment fp is drawn apart
+   from the other three, the figure has said it is special, and the point is
+   that it is not.
+
+   No meaning is carried by color. A reached band says "reached by this call"
+   in words and carries a thick left rule; a band the call stops short of says
+   "not involved" and its incoming link is dashed rather than solid. The active
+   stream says "named by this call" where the others say their state. A field
+   that moved prints the word "changed" or "set" beside its value and shows the
+   old value with an arrow to the new one. Grayscale and print both keep all of
+   that; a tint survives neither.
+
+   And the stack never goes sideways. At 360px the bands keep their full width,
+   the four stream chips wrap two by two, and only the byte row — the one piece
+   of genuinely fixed-width content — scrolls, inside .ex-scroll and never the
+   page.
+
+   Everything here is prefixed sd-. The frame, the transport and the caption
+   come from explorable.css and are not touched.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.sd-figure { display: grid; gap: var(--space-5); min-width: 0; }
+
+/* The calls ---------------------------------------------------------------
+   All six stay on screen. The printf line has to sit in the same column as the
+   two fgetc lines it is being compared against, or the comparison the figure
+   is built on has to be held in the reader's memory instead of on the page. */
+.sd-calls { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.sd-call {
+  display: flex; gap: var(--space-2); align-items: baseline;
+  padding: var(--space-2);
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--text-secondary);
+}
+.sd-call.is-here {
+  border-left-color: var(--gold-500);
+  background: var(--surface-gold-tint);
+  color: var(--text-primary);
+}
+.sd-call-mark {
+  flex: none; width: 1em; color: var(--gold-700);
+  font-size: var(--text-xs); line-height: 1;
+}
+.sd-call-src {
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  line-height: var(--leading-snug); overflow-wrap: anywhere; min-width: 0;
+}
+
+/* The stack ---------------------------------------------------------------- */
+.sd-stack { display: grid; gap: 0; min-width: 0; }
+
+.sd-layer {
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-page);
+  border: 1px solid var(--border-subtle);
+  border-left: var(--border-width-thick) solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: border-color var(--ex-fade), background var(--ex-fade);
+}
+/* A band this call touches. Marked three ways: the rule thickens in color,
+   the surface tints, and the head says so in words. */
+.sd-layer.is-lit {
+  border-color: var(--border-default);
+  border-left-color: var(--green-700);
+  background: var(--surface-brand-tint);
+}
+
+.sd-layer-head {
+  display: flex; align-items: baseline; gap: var(--space-2) var(--space-3);
+  flex-wrap: wrap;
+}
+.sd-layer-title {
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider); text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.sd-layer.is-lit .sd-layer-title { color: var(--text-accent); }
+.sd-layer-meta {
+  font-size: var(--text-2xs); color: var(--text-secondary);
+  min-width: 0; overflow-wrap: anywhere;
+}
+/* The words that carry the reach when color is gone. Pushed to the end of the
+   head so the three bands answer the same question in the same place. */
+.sd-layer-reach {
+  margin-left: auto;
+  font-size: var(--text-2xs); font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+}
+.sd-layer.is-lit .sd-layer-reach { color: var(--text-accent); }
+
+/* The link between two bands. Solid and arrowed when the call passes through,
+   dashed and dotted when it stops short: the depth a call travels reads as a
+   shape before any label is read. */
+.sd-joint {
+  display: grid; place-items: center;
+  height: var(--space-6);
+  margin-left: var(--space-5);
+  border-left: 2px dashed var(--border-subtle);
+  padding-left: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--text-xs); line-height: 1;
+}
+.sd-joint.is-lit {
+  border-left-style: solid;
+  border-left-color: var(--green-700);
+  color: var(--text-accent);
+  font-weight: var(--weight-bold);
+}
+.sd-joint-mark { display: block; }
+
+/* Layer 1 — the pointer ---------------------------------------------------- */
+.sd-ptr {
+  margin: var(--space-2) 0 0;
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--text-xs); color: var(--text-secondary);
+}
+.sd-ptr-decl {
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--text-primary); font-weight: var(--weight-semibold);
+}
+.sd-ptr-arrow { color: var(--text-secondary); }
+.sd-ptr-val { min-width: 0; overflow-wrap: anywhere; }
+/* The error this step exists to prevent. Named in the text of the value
+   itself, so the warning is not resting on the underline. */
+.sd-ptr-val.is-dangling {
+  color: var(--status-danger); font-weight: var(--weight-semibold);
+  text-decoration: underline wavy; text-underline-offset: 3px;
+}
+
+/* Layer 2 — the four streams -----------------------------------------------
+   One row of four equal chips. fp is the fourth of four and is given no more
+   room than the three beside it; drawing it apart would say it is a different
+   kind of thing, and the step's whole claim is that it is not. */
+.sd-streams {
+  list-style: none; margin: var(--space-3) 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.sd-stream {
+  display: grid; gap: 1px; align-content: start; min-width: 0;
+  padding: var(--space-2);
+  background: var(--surface-page);
+  border: 1px solid var(--border-subtle);
+  border-top: 3px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--ex-fade), background var(--ex-fade);
+}
+/* The stream this call names. Three signals: a heavier top rule, a filled
+   surface, and the state line reading "named by this call" instead of the
+   stream's resting state. */
+.sd-stream.is-active {
+  border-color: var(--green-700);
+  border-top-color: var(--green-700);
+  background: var(--surface-brand-tint);
+}
+.sd-stream.is-absent { opacity: .55; border-style: dashed; }
+.sd-stream.is-released { border-top-color: var(--status-danger); }
+
+.sd-stream-name {
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  font-weight: var(--weight-bold); color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+.sd-stream.is-active .sd-stream-name { color: var(--text-accent); }
+.sd-stream-where {
+  font-size: var(--text-2xs); color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.sd-stream-state {
+  font-size: var(--text-2xs); color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.sd-stream.is-active .sd-stream-state {
+  color: var(--text-accent); font-weight: var(--weight-semibold);
+}
+.sd-stream.is-released .sd-stream-state { color: var(--status-danger); }
+
+/* The object's four fields ------------------------------------------------- */
+.sd-card {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface-page);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+}
+/* The frame that carries the lesson: the card swaps from fp to stdout without
+   anything else about the stack moving. One short slide says the table was
+   replaced rather than edited. */
+.sd-card.is-swapped { animation: sd-swap var(--ex-move) var(--ease-entrance); }
+@keyframes sd-swap {
+  /* Translate, never fade to zero: a card left invisible because a frame
+     callback never arrived would take the whole argument off screen. */
+  from { transform: translateX(var(--space-4)); }
+  to   { transform: none; }
+}
+
+.sd-card-head {
+  margin: 0 0 var(--space-2);
+  display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3);
+  align-items: baseline; justify-content: space-between;
+}
+.sd-card-title {
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider); text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.sd-card-title code {
+  font-family: var(--font-mono); text-transform: none;
+  letter-spacing: var(--tracking-normal); color: var(--text-primary);
+}
+.sd-card-note {
+  font-size: var(--text-2xs); color: var(--text-gold);
+  font-weight: var(--weight-semibold); min-width: 0;
+}
+
+.sd-fields { margin: 0; display: grid; gap: var(--space-1); }
+.sd-field {
+  display: grid;
+  grid-template-columns: minmax(0, 12em) minmax(0, 1fr);
+  gap: var(--space-1) var(--space-3);
+  align-items: baseline;
+  padding: var(--space-1) var(--space-2);
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+/* The field this call moved. The rule and the tint are the fast signal; the
+   word printed beside the value is the one that survives everything else. */
+.sd-field.is-moved {
+  border-left-color: var(--gold-500);
+  background: var(--surface-gold-tint);
+}
+.sd-field-label {
+  font-size: var(--text-2xs); color: var(--text-secondary);
+  letter-spacing: var(--tracking-wide);
+}
+.sd-field-value {
+  margin: 0;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2);
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--text-primary); font-feature-settings: 'tnum';
+  overflow-wrap: anywhere; min-width: 0;
+}
+.sd-field.is-moved .sd-field-value { font-weight: var(--weight-bold); }
+
+/* The position moving. The old value is kept beside the new one, struck
+   through, because "advances by one" is a claim about a difference and a
+   single number cannot show a difference. */
+.sd-shift { display: inline-flex; align-items: baseline; gap: var(--space-2); }
+.sd-shift-was { color: var(--text-secondary); text-decoration: line-through; }
+.sd-shift-arrow { color: var(--text-secondary); }
+.sd-shift-now { color: var(--text-primary); }
+
+.sd-chip {
+  flex: none;
+  padding: 0 var(--space-2);
+  font-family: var(--font-sans); font-size: var(--text-2xs);
+  font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background: var(--gold-200);
+  border: 1px solid var(--gold-700);
+  border-radius: var(--radius-pill);
+}
+
+/* Layer 4 — the device ----------------------------------------------------- */
+.sd-bytes {
+  display: flex; gap: 2px; padding: var(--space-1);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-2);
+  width: max-content; min-width: 100%;
+}
+.sd-byte {
+  display: grid; gap: 1px; justify-items: center;
+  min-width: 1.9em; padding: 2px;
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1px;
+}
+.sd-byte-ch {
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  line-height: var(--leading-snug); color: var(--text-primary);
+}
+.sd-byte-n {
+  font-size: var(--text-2xs); line-height: 1;
+  color: var(--text-secondary); font-feature-settings: 'tnum';
+}
+/* Bytes already consumed, the byte the position sits on, and the two bytes
+   that are neither. The current byte is marked by a heavy outline and by an
+   arrow-free change of weight, and the sentence under the row names its offset
+   in words, so the caret is never the only statement of where the position is. */
+.sd-byte.is-read { background: var(--neutral-100); opacity: .7; }
+.sd-byte.is-at {
+  border: var(--border-width-thick) solid var(--green-700);
+  background: var(--surface-brand-tint);
+}
+.sd-byte.is-at .sd-byte-ch { font-weight: var(--weight-bold); color: var(--text-accent); }
+.sd-byte.is-named .sd-byte-ch { font-size: var(--text-2xs); color: var(--text-secondary); }
+.sd-byte.is-rest { background: transparent; border-style: dashed; }
+
+.sd-caret-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-2xs); line-height: var(--leading-normal);
+  color: var(--text-secondary);
+}
+
+/* The terminal under stdout. Drawn as a screen rather than as a byte row,
+   because a terminal has no offsets and giving it any would be a lie. */
+.sd-term {
+  margin: var(--space-2) 0 0; padding: var(--space-3);
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  line-height: var(--leading-snug);
+  color: var(--text-inverse);
+  background: var(--surface-ink);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+
+/* The sentence for the current call. Inside the aria-hidden drawing, because
+   the status line under the transport already says it and would otherwise
+   announce it a second time. */
+.sd-say {
+  margin: 0; padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-base); line-height: var(--leading-relaxed);
+  color: var(--text-primary); max-width: 74ch;
+}
+
+/* Narrow screens -----------------------------------------------------------
+   The stack keeps its direction at every width: it is the reading order and
+   the call path at once. Only the four chips reflow, two by two, which keeps
+   them a set of peers rather than a list with fp at the bottom. */
+@media (max-width: 720px) {
+  .sd-streams { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sd-field { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .sd-layer-reach { margin-left: 0; flex-basis: 100%; }
+}
+
+@media (max-width: 400px) {
+  .sd-layer { padding: var(--space-3); }
+  .sd-joint { margin-left: var(--space-4); }
+}
+
+@media print {
+  /* On paper the figure is its first frame, so every band prints with its
+     rule and its words and none of the reach tinting is needed. */
+  .sd-layer { break-inside: avoid; }
+  .sd-card.is-swapped { animation: none; }
+}

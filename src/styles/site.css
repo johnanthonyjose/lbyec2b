@@ -1,5 +1,8 @@
 @import "./dlsu/index.css";
 @import "./parts/explorable.css";
+@import "./parts/byte-contract.css";
+@import "./parts/escape-resolver.css";
+@import "./parts/stream-diagram.css";
 @import "./parts/code-walk.css";
 @import "./parts/mode-explorer.css";
 @import "./parts/parse-walker.css";

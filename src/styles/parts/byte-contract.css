@@ -1,0 +1,266 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   ByteContract (handout 03, File I/O) — one row of bytes, read two ways.
+
+   The whole figure is one column grid, four lanes deep, and every design
+   decision here serves the alignment of those lanes.
+
+   The middle lane is the file: eight bits per byte, the bytes themselves,
+   unchanged by anything the reader does except choosing a different file. The
+   lane above it is the text contract's reading and the lane below it is the
+   binary contract's, drawn against the SAME columns at the SAME time. A reader
+   who can see both readings stacked on one row of bytes does not need to be
+   told that the file records no contract; they can see that there is nothing in
+   the middle lane for a contract to be recorded in.
+
+   Two consequences follow for the stylesheet.
+
+   First, the column width is a single custom property shared by every lane and
+   expressed in a token, not in em. An em would resolve against each lane's own
+   font size — the offsets are smaller than the characters — and the lanes would
+   drift apart by a few pixels per column, which at column fifteen is a whole
+   byte of misalignment and the argument is lost.
+
+   Second, the lane labels are sticky. Sixteen columns do not fit on a phone, so
+   the reader is always looking at a scrolled row; a label that scrolled away
+   with it would leave three anonymous rows of monospace.
+
+   Printability is never carried by colour. An unprintable byte is drawn with
+   the substitution mark a text editor would show, a dashed outline, and the
+   word "none" under it, and the status line says "not printable" outright.
+
+   Everything here is prefixed bc-. The frame, the transport and the caption
+   come from explorable.css and are not touched.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.bc-figure { --bc-col: var(--space-16); min-width: 0; }
+
+/* The control --------------------------------------------------------------
+   Above the drawing, because the figure only makes its argument once the
+   reader changes the file and watches one of the two readings collapse. */
+.bc-choice { display: grid; gap: var(--space-2); margin-bottom: var(--space-5); min-width: 0; }
+.bc-choice-legend {
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider); text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.bc-opts { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.bc-opt {
+  cursor: pointer; text-align: left;
+  display: grid; align-content: center; gap: var(--space-1);
+  min-height: var(--touch-target-min); min-width: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  background: var(--surface-page);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  transition: var(--transition-control);
+}
+.bc-opt:hover { border-color: var(--green-700); color: var(--text-accent); }
+/* The chosen file is marked by weight, by a filled surface and by a thicker
+   left rule, not by tint alone, and aria-checked says it outright. */
+.bc-opt.is-on {
+  border-color: var(--green-700);
+  border-left-width: var(--border-width-thick);
+  background: var(--surface-brand-tint);
+  color: var(--text-accent);
+}
+.bc-opt-label { font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.bc-opt.is-on .bc-opt-label { font-weight: var(--weight-bold); }
+.bc-opt-hint { font-size: var(--text-2xs); color: var(--text-secondary); }
+
+/* What the text contract did to this file, as a whole, before the reader
+   inspects any single byte. Stated for the file where it succeeds as well as
+   for the files where it does not, so success reads as an outcome. */
+.bc-verdict {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-base); line-height: var(--leading-relaxed);
+  color: var(--text-primary); max-width: 74ch;
+}
+
+/* The lanes ---------------------------------------------------------------- */
+
+.bc-scroll {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  padding: var(--space-3) 0 var(--space-3) var(--space-3);
+}
+
+.bc-lanes {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  width: max-content;
+}
+
+/* The label stays while the bytes scroll past it. A background of its own,
+   because sticky content sits on top of whatever is passing underneath. */
+.bc-lane-label {
+  position: sticky; left: 0; z-index: 1;
+  padding-right: var(--space-2);
+  background: var(--surface-sunken);
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider); text-transform: uppercase;
+  color: var(--text-secondary); white-space: nowrap;
+}
+/* The middle lane is the file itself and is named as such. */
+.bc-lane-label.bc-lane-bits { color: var(--text-primary); }
+
+/* Every lane on the one grid, at the one column width, so the three readings
+   of byte nine sit in a single vertical line. */
+.bc-lane {
+  display: grid;
+  grid-template-columns: repeat(var(--bc-cols), var(--bc-col));
+  gap: var(--space-1);
+}
+
+.bc-cell {
+  display: grid; justify-items: center; align-content: center; gap: 1px;
+  min-width: 0; padding: var(--space-1) 0;
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  font-feature-settings: 'tnum';
+}
+
+/* The byte under the cursor. Marked in all four lanes at once, by a ring and a
+   surface rather than by tint alone, and the caret in the offset lane names
+   the column for anyone who cannot see the ring. */
+.bc-cell.is-here {
+  border-color: var(--gold-700);
+  background: var(--surface-gold-tint);
+}
+
+.bc-offset {
+  font-size: var(--text-2xs); color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+.bc-offset.is-here { color: var(--text-primary); font-weight: var(--weight-bold); }
+.bc-caret {
+  display: block; height: 1em; line-height: 1;
+  font-size: var(--text-2xs); color: var(--gold-700);
+}
+
+/* The file. Monospace and deliberately plain: this lane is the constant the
+   whole figure is built around, and nothing in it changes when the reading
+   changes. */
+.bc-bits {
+  font-family: var(--font-mono); font-size: var(--text-2xs);
+  color: var(--text-primary); letter-spacing: var(--tracking-tight);
+  background: var(--surface-page);
+  border-color: var(--border-subtle);
+}
+.bc-bits.is-here { border-color: var(--gold-700); background: var(--surface-gold-tint); }
+
+/* Reading one — the text contract. */
+.bc-char { min-height: 2.6em; }
+.bc-glyph {
+  font-family: var(--font-mono); font-size: var(--text-lg);
+  line-height: var(--leading-tight); color: var(--text-primary);
+}
+.bc-tag {
+  font-size: var(--text-2xs); line-height: 1;
+  color: var(--text-secondary); min-height: 1em;
+}
+/* A byte the contract assigns no character. Three marks, none of them a tint:
+   the substitution glyph, the dashed outline, and the word under it. */
+.bc-char.is-unprintable {
+  border-style: dashed; border-color: var(--border-strong);
+}
+.bc-char.is-unprintable .bc-glyph { color: var(--text-muted); }
+.bc-char.is-unprintable.is-here { border-style: dashed; border-color: var(--gold-700); }
+
+/* Reading two — the binary contract. The same bytes as the values they are,
+   hexadecimal over decimal, the way every tool that reads a binary file
+   prints them. */
+.bc-value { font-family: var(--font-mono); }
+.bc-hex {
+  font-size: var(--text-sm); font-weight: var(--weight-bold);
+  color: var(--text-primary); line-height: var(--leading-tight);
+}
+.bc-dec { font-size: var(--text-2xs); color: var(--text-secondary); line-height: 1; }
+
+/* The magic number. Bracketed across the four bytes it is made of and named
+   underneath, because a magic number is one object that happens to be four
+   bytes wide, and four separately tinted cells would read as four facts. */
+.bc-magic { display: grid; gap: 2px; justify-items: start; min-width: 0; }
+.bc-magic-brace {
+  display: block; width: 100%; height: var(--space-2);
+  border: var(--border-width-thick) solid var(--green-700);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+.bc-magic-name {
+  font-size: var(--text-xs); font-weight: var(--weight-semibold);
+  color: var(--text-accent); white-space: nowrap;
+}
+
+/* The byte under the cursor, spelled out ------------------------------------
+   The lanes show the whole row shallowly; this shows one position of it
+   completely, which is where the four variables the step names — decimal,
+   hexadecimal, the assigned character, and printability — are stated in
+   words rather than in glyphs. */
+.bc-detail {
+  margin: var(--space-4) 0 0; display: grid; gap: var(--space-2);
+}
+.bc-detail-row {
+  display: grid; grid-template-columns: minmax(0, 13em) minmax(0, 1fr);
+  gap: var(--space-1) var(--space-4); align-items: baseline;
+}
+.bc-detail dt {
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider); text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.bc-detail dd {
+  margin: 0; font-size: var(--text-sm); line-height: var(--leading-normal);
+  color: var(--text-primary); overflow-wrap: anywhere;
+}
+
+/* The verdict on one byte, as a word. The flag is the reason the figure
+   survives greyscale: it says printable or not printable in letters. */
+.bc-flag {
+  display: inline-block; margin-left: var(--space-2);
+  padding: 0 var(--space-2);
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide); text-transform: uppercase;
+  border: 1px solid var(--border-default); border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+}
+.bc-flag.is-yes { border-color: var(--green-700); color: var(--text-accent); }
+.bc-flag.is-no { border-style: dashed; border-color: var(--border-strong); }
+.bc-flag.is-magic { border-color: var(--green-700); color: var(--text-accent); }
+
+/* The claim ----------------------------------------------------------------
+   Permanently visible, and outside the aria-hidden drawing. This is the
+   sentence the step states as its first learning outcome, and it stays on
+   screen whichever file is chosen and whichever byte is under the cursor. */
+.bc-claim {
+  margin: var(--space-5) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: var(--rule-width-brand) solid var(--gold-500);
+  background: var(--surface-gold-tint);
+  font-size: var(--text-sm); line-height: var(--leading-relaxed);
+  color: var(--text-primary); max-width: 66ch;
+}
+
+/* Narrow screens -----------------------------------------------------------
+   Nothing reflows: the lanes must stay one row of bytes at every width, and
+   the row scrolls inside .ex-scroll instead. Only the label column narrows,
+   to give the bytes more of a 360px viewport. */
+@media (max-width: 640px) {
+  /* The column width does not shrink: eight bits at the smallest type still
+     need their width, and a column that clipped them would break the one lane
+     the figure cannot afford to have doubted. The row scrolls instead. */
+  .bc-lanes { gap: var(--space-1) var(--space-2); }
+  .bc-detail-row { grid-template-columns: minmax(0, 1fr); }
+  .bc-opt { flex: 1 1 100%; }
+}
+
+@media print {
+  /* On paper the figure prints at byte zero with its verdict, its claim and
+     as much of the row as the page holds. */
+  .bc-scroll { overflow: visible; }
+  .bc-lanes { width: auto; }
+}
