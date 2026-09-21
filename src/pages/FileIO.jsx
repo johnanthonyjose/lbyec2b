@@ -107,7 +107,7 @@ export default function FileIO() {
           isOpen={w.isOpen}
           onGoStage={w.goStage}
           onGoStep={w.goStep}
-          eyebrow="The five stages"
+          eyebrow="The four stages"
           intro="One step is shown at a time, and each stage leaves a file on your disk that the next one reads. Work through them in order the first time. After that, open any stage you want — nothing is locked. Your place is kept on this device only, and nothing here is submitted or graded."
         />
 
@@ -163,7 +163,7 @@ export default function FileIO() {
           onLater={() => w.acknowledge()}
           onRestart={restart}
           finale={{
-            eyebrow: "All five stages complete",
+            eyebrow: "All four stages complete",
             title: "Your program reads a data file",
             have: "You have written a file, read it back byte by byte, and turned a comma-delimited data file into a formatted table. That last program is the same shape as the pipeline you build in MATLAB in Week 7 and defend as a team in Week 13 — you have now written it once, by hand, in C."
           }}
@@ -223,7 +223,7 @@ function Hero({ started, stage, onBegin }) {
           <dl className="aw-hero-meta">
             <div>
               <dt>Stages</dt>
-              <dd>Five, each leaving a file the next one reads</dd>
+              <dd>Four, each leaving a file the next one reads</dd>
             </div>
             <div>
               <dt>Time</dt>

@@ -66,8 +66,9 @@ src/
     course-overview/     one file per section of the course page
     github-account/      handout 01's step and resolution content
     assignment-workflow/ handout 02's stages, steps, resolutions and UI
-    file-io/             handout 03's stages, steps (split at the stage-4
-                         boundary for size), resolutions and page chrome.
+    file-io/             handout 03's four stages, steps (split across two
+                         files for size, at the boundary between producing a
+                         file and consuming one), resolutions and page chrome.
                          Reference.jsx is the ungated half: the function
                          tables, modes, paths and program index that make the
                          page usable as a reference and not only a walkthrough.

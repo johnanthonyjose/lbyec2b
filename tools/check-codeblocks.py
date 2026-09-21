@@ -13,7 +13,7 @@ import pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "public/assets/file-io"
-FILES = ["src/pages/file-io/steps-1-3.jsx", "src/pages/file-io/steps-4-5.jsx"]
+FILES = ["src/pages/file-io/steps-1-2.jsx", "src/pages/file-io/steps-3-4.jsx"]
 
 def unescape(js):
     out, i = [], 0

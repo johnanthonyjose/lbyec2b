@@ -24,11 +24,11 @@ import { CodeWalk } from "../../components/explorable/CodeWalk.jsx";
    reader to treat the position as something the programmer maintains by hand
    rather than as a field the library advances on every successful read.
 
-   Four further steps carry an explorable rather than a trace. S4.3 runs both
-   read loops side by side under LoopCompare, and S5.3 walks getDelimitedItem
-   character by character under ParseWalker. S5.4 and S5.6 then use the
-   generalised CodeWalk: S5.4 follows main's loop over cars.csv, which is the
-   sequel to S5.3 in that four calls there assemble one record here, and S5.6
+   Four further steps carry an explorable rather than a trace. S3.3 runs both
+   read loops side by side under LoopCompare, and S4.3 walks getDelimitedItem
+   character by character under ParseWalker. S4.4 and S4.6 then use the
+   generalised CodeWalk: S4.4 follows main's loop over cars.csv, which is the
+   sequel to S4.3 in that four calls there assemble one record here, and S4.6
    follows the call nesting of 09-modular.c, which is the one thing a set of
    static excerpts of three functions cannot show. In every case the figure is
    the explanation and the prose around it was deleted rather than shortened:
@@ -47,7 +47,7 @@ import { CodeWalk } from "../../components/explorable/CodeWalk.jsx";
    twice and has been removed; anything its caption carried that the animation
    does not was folded into the figure's caption.
 
-   Stage 5 has no resolutions attached. By that point the reader has a working
+   Stage 4 has no resolutions attached. By that point the reader has a working
    picture of the position and of EOF, and the remaining failures are ordinary
    ones — a field in the wrong column, a year that is not a number — which the
    step's own checkpoint can carry. */
@@ -61,13 +61,13 @@ const TEST_TXT = {
   content: "hello no. 1\nwhere is no. 2?\nHow about no. 3?"
 };
 
-export const steps45 = [
+export const steps34 = [
   /* ─────────────────────────────────────────────────────────────────────────
-     Stage 4 — Reading it back
+     Stage 3 — Reading it back
      ───────────────────────────────────────────────────────────────────────── */
   {
-    id: "S4.1",
-    stage: 4, n: 1,
+    id: "S3.1",
+    stage: 3, n: 1,
     title: "Read one character at a time",
     action: <>Download <code className="aw-code">04-readchar.c</code>, put it beside your <code className="aw-code">test.txt</code>, compile it and run it.</>,
     body: (
@@ -109,7 +109,7 @@ export const steps45 = [
             "        putchar(c);",
             "    }"
           ]}
-          caption="The read is performed inside the loop condition. Step S4.3 shows why."
+          caption="The read is performed inside the loop condition. Step S3.3 shows why."
         />
         <FileMachine
           file={TEST_TXT}
@@ -156,8 +156,8 @@ How about no. 3?`}</Terminal>
     }
   },
   {
-    id: "S4.2",
-    stage: 4, n: 2,
+    id: "S3.2",
+    stage: 3, n: 2,
     title: "The newline is a byte",
     action: <>Run <code className="aw-code">05-readascii.c</code> against the same <code className="aw-code">test.txt</code> and compare its output with the one above.</>,
     body: (
@@ -236,8 +236,8 @@ How about no. 3?`}</Terminal>
     }
   },
   {
-    id: "S4.3",
-    stage: 4, n: 3,
+    id: "S3.3",
+    stage: 3, n: 3,
     title: "Loop on the read, not on feof",
     action: <>Review every read loop you have written so far and confirm that the read itself, rather than <code className="aw-code">feof</code>, supplies the condition.</>,
     body: (
@@ -320,8 +320,8 @@ How about no. 3?`}</Terminal>
     }
   },
   {
-    id: "S4.4",
-    stage: 4, n: 4,
+    id: "S3.4",
+    stage: 3, n: 4,
     title: "Read a line at a time with fgets",
     action: <>Run <code className="aw-code">06-readline.c</code>, then step through the trace below before reading the output.</>,
     body: (
@@ -416,8 +416,8 @@ How about no. 3?`}</Terminal>
     }
   },
   {
-    id: "S4.5",
-    stage: 4, n: 5,
+    id: "S3.5",
+    stage: 3, n: 5,
     title: "Why the handout stops using fscanf",
     action: <>Read this step before you reach for <code className="aw-code">fscanf</code> in your machine problem, since it explains why the remaining programs avoid it.</>,
     body: (
@@ -479,11 +479,11 @@ How about no. 3?`}</Terminal>
   },
 
   /* ─────────────────────────────────────────────────────────────────────────
-     Stage 5 — Data worth reading
+     Stage 4 — Data worth reading
      ───────────────────────────────────────────────────────────────────────── */
   {
-    id: "S5.1",
-    stage: 5, n: 1,
+    id: "S4.1",
+    stage: 4, n: 1,
     title: "What a delimiter is",
     action: <>Download <code className="aw-code">cars.txt</code> and <code className="aw-code">cars.csv</code> and open both in a text editor.</>,
     body: (
@@ -545,8 +545,8 @@ Toyota,Corolla,1995,TVX-111`}</Terminal>
     }
   },
   {
-    id: "S5.2",
-    stage: 5, n: 2,
+    id: "S4.2",
+    stage: 4, n: 2,
     title: "End-of-line as the delimiter",
     action: <>Compile and run <code className="aw-code">07-fields.c</code> in the folder that holds <code className="aw-code">cars.txt</code>.</>,
     body: (
@@ -572,7 +572,7 @@ Toyota,Corolla,1995,TVX-111`}</Terminal>
             "           fgets(year,  40, fp) != NULL &&",
             "           fgets(plate, 40, fp) != NULL) {"
           ]}
-          caption="Four reads for one record, applying the condition of step S4.3 four times over."
+          caption="Four reads for one record, applying the condition of step S3.3 four times over."
         />
         <CodeBlock
           file="07-fields.c"
@@ -606,7 +606,7 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
         <p className="aw-p">
           <code className="aw-code">Montero Sport</code> is the value of an
           explicit delimiter: the space falls inside a field and the field
-          arrives intact. The year is still a string of digits; step S5.4
+          arrives intact. The year is still a string of digits; step S4.4
           converts it.
         </p>
       </>
@@ -635,8 +635,8 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
     }
   },
   {
-    id: "S5.3",
-    stage: 5, n: 3,
+    id: "S4.3",
+    stage: 4, n: 3,
     title: "Splitting a line on commas",
     action: <>Open <code className="aw-code">08-csv.c</code> and read <code className="aw-code">getDelimitedItem</code> line by line alongside this step.</>,
     body: (
@@ -693,8 +693,8 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
     }
   },
   {
-    id: "S5.4",
-    stage: 5, n: 4,
+    id: "S4.4",
+    stage: 4, n: 4,
     title: "One record per pass, and a year that is really a number",
     action: <>Compile and run <code className="aw-code">08-csv.c</code> in the folder that holds <code className="aw-code">cars.csv</code>.</>,
     body: (
@@ -710,7 +710,7 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
         <CodeWalk
           title="One pass of the loop, and then the next"
           notice="Watch line 82: the value that call returns is what decides whether there is a record at all."
-          caption="Step S5.3 followed one call to getDelimitedItem producing one field; here four of them assemble a record and one row is printed. sscanf applies the directive matching of fscanf to a string already in memory and likewise returns the number of items assigned, so that count, not the value left in y, reports whether the field was numeric. The year prints under %6i rather than %-6s because by then it is an int, right-aligned as numeric columns conventionally are."
+          caption="Step S4.3 followed one call to getDelimitedItem producing one field; here four of them assemble a record and one row is printed. sscanf applies the directive matching of fscanf to a string already in memory and likewise returns the number of items assigned, so that count, not the value left in y, reports whether the field was numeric. The year prints under %6i rather than %-6s because by then it is an int, right-aligned as numeric columns conventionally are."
           file="08-csv.c"
           source={[
             { n: 55, src: "    char make[40], model[40], year[40], plate[40];" },
@@ -1016,8 +1016,8 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
     }
   },
   {
-    id: "S5.5",
-    stage: 5, n: 5,
+    id: "S4.5",
+    stage: 4, n: 5,
     title: "Add a car of your own",
     action: <>Open <code className="aw-code">cars.csv</code>, add a fifth record in the same form as the four already there, save the file and run <code className="aw-code">08-csv.c</code> again.</>,
     body: (
@@ -1040,7 +1040,7 @@ Mitsubishi   Montero Sport      2018 JJT-001
 Honda        Civic              2021 HCV-221   `}</Terminal>
         <p className="aw-p">
           Then leave a blank line at the end and confirm that no extra row
-          appears: that is the field of length 0 from step S5.3 being stepped
+          appears: that is the field of length 0 from step S4.3 being stepped
           over. A file on disk, a delimiter fixed by convention, records read
           one at a time, a checked conversion, aligned output — that is the
           structure of essentially every data task ahead of you.
@@ -1061,10 +1061,10 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
     }
   },
   {
-    id: "S5.6",
-    stage: 5, n: 6,
+    id: "S4.6",
+    stage: 4, n: 6,
     title: "Separate reading, record assembly and presentation",
-    action: <>Compile and run <code className="aw-code">09-modular.c</code> beside <code className="aw-code">cars.txt</code>, then compare its output with the one from step S5.2.</>,
+    action: <>Compile and run <code className="aw-code">09-modular.c</code> beside <code className="aw-code">cars.txt</code>, then compare its output with the one from step S4.2.</>,
     body: (
       <p className="aw-p">
         <code className="aw-code">09-modular.c</code> performs the task of{" "}
@@ -1291,7 +1291,7 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
                 },
                 {
                   lines: [52],
-                  explain: "The condition is false and the loop ends, leaving the table 07-fields.c printed in step S5.2.",
+                  explain: "The condition is false and the loop ends, leaving the table 07-fields.c printed in step S4.2.",
                   vars: { stack: "main" },
                   note: "Three functions instead of one, three levels of call instead of none, and not one byte of output changed.",
                   out: [

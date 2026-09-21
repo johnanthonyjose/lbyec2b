@@ -1,5 +1,5 @@
-import { steps13 } from "./steps-1-3.jsx";
-import { steps45 } from "./steps-4-5.jsx";
+import { steps12 } from "./steps-1-2.jsx";
+import { steps34 } from "./steps-3-4.jsx";
 
 /* The procedure, one action per step.
 
@@ -29,7 +29,7 @@ import { steps45 } from "./steps-4-5.jsx";
    Prose is JSX rather than strings because nearly every line carries emphasis,
    a code span or a link. */
 
-export const steps = [...steps13, ...steps45];
+export const steps = [...steps12, ...steps34];
 
 export const stepsInStage = (n) => steps.filter((s) => s.stage === n);
 

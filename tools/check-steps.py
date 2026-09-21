@@ -11,7 +11,7 @@ from the compiled programs rather than an invented one.
 import pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-FILES = ["src/pages/file-io/steps-1-3.jsx", "src/pages/file-io/steps-4-5.jsx"]
+FILES = ["src/pages/file-io/steps-1-2.jsx", "src/pages/file-io/steps-3-4.jsx"]
 
 # Offsets that actually occur, measured with ftell() against the compiled
 # programs and independently re-verified: fgetc walks 0..44 one byte at a time,
@@ -86,7 +86,7 @@ for stage in sorted(by_stage):
         problems.append(f"stage {stage}: step numbers are {ns}, expected 1..{len(ns)}")
 
 # the six resolutions must each be reachable from the step they name
-EXPECT = {1: "S2.3", 2: "S2.2", 3: "S2.4", 4: "S3.4", 5: "S4.3", 6: "S4.5"}
+EXPECT = {1: "S1.4", 2: "S1.3", 3: "S1.5", 4: "S2.4", 5: "S3.3", 6: "S3.5"}
 found = {}
 for sid, stage, n, f, ch in steps:
     m = re.search(r'\bfix:\s*(\d+)', ch)

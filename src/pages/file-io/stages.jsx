@@ -1,7 +1,7 @@
 import React from "react";
-import { ForgetMark, OpenMark, WriteMark, ReadMark, TableMark } from "./OutcomeMarks.jsx";
+import { OpenMark, WriteMark, ReadMark, TableMark } from "./OutcomeMarks.jsx";
 
-/* The five stages of the File I/O handout.
+/* The four stages of the File I/O handout.
 
    The source document was organised the way a reference is organised: by
    language feature. Five numbered headings — which library, how to reference,
@@ -15,11 +15,13 @@ import { ForgetMark, OpenMark, WriteMark, ReadMark, TableMark } from "./OutcomeM
    chapter. Stage 3 writes test.txt; stage 4 reads the very bytes stage 3 wrote;
    stage 5 does the same thing to data worth reading.
 
-   Stage 1 is the exception and is deliberately the shortest. It produces no
-   file. It exists because the source document asserted that memory is lost
-   when the computer is turned off and then moved on, and an assertion is not
-   a reason to learn anything. A reader who has watched a program forget
-   something they typed has a reason.
+   There were five. The first produced no file: it had the reader watch a
+   program forget a number, then explained process address spaces. It was cut
+   because the motivation it manufactured is already supplied by the machine
+   problem the reader arrived with, and because its one load-bearing idea — that
+   text and binary are two contracts for reading the same bytes — belongs
+   immediately before opening a file rather than a stage earlier. That idea is
+   now the first step of stage 1.
 
    As on the assignment workflow, minutes are published and step counts are
    not. The figure that makes a reader close the tab is the one this page
@@ -28,35 +30,17 @@ import { ForgetMark, OpenMark, WriteMark, ReadMark, TableMark } from "./OutcomeM
 export const stages = [
   {
     n: 1,
-    title: "Why a program forgets",
-    goal: "Watch a program lose what you gave it, and name the two kinds of file that could have kept it.",
-    minutes: 6,
-    outcome: {
-      name: "The problem, seen",
-      mark: ForgetMark,
-      have: (
-        <>
-          A clear account of why everything your programs have done so far
-          vanished the moment they ended, and the difference between a{" "}
-          <strong>text file</strong>, which you can open in Notepad and read,
-          and a <strong>binary file</strong>, which you cannot. Everything after
-          this stage is about text files.
-        </>
-      )
-    }
-  },
-  {
-    n: 2,
     title: "Opening a file",
-    goal: "Get a FILE pointer, and make your program say so out loud when it cannot.",
-    minutes: 12,
+    goal: "Tell a text file from a binary one, get a FILE pointer, and make your program say so out loud when it cannot.",
+    minutes: 14,
     outcome: {
       name: "An honest open",
       mark: OpenMark,
       have: (
         <>
-          A program that opens a file and, when it cannot, tells you exactly why
-          instead of ending in silence — and that can hold an input and an
+          The distinction between a text file and a binary one, and a program
+          that opens a file and, when it cannot, tells you exactly why instead
+          of ending in silence — and that can hold an input and an
           output open at once, which is what nearly every real program does.
           Checking the open is the single habit that saves the most time this
           week: an unchecked{" "}
@@ -67,7 +51,7 @@ export const stages = [
     }
   },
   {
-    n: 3,
+    n: 2,
     title: "Writing to a file",
     goal: "Put text on disk with fprintf, fputs and fputc, and understand why fclose is not optional.",
     minutes: 10,
@@ -85,7 +69,7 @@ export const stages = [
     }
   },
   {
-    n: 4,
+    n: 3,
     title: "Reading it back",
     goal: "Read the file a character, then a line at a time, and keep track of where the cursor is.",
     minutes: 12,
@@ -103,7 +87,7 @@ export const stages = [
     }
   },
   {
-    n: 5,
+    n: 4,
     title: "Data worth reading",
     goal: "Use a delimiter to store several fields per record, and turn a CSV file into a formatted table.",
     minutes: 16,

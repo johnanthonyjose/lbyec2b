@@ -4,13 +4,15 @@ import React from "react";
    workflow handout: gold and white line work on the deep green ground, ruled
    border, no fill.
 
+   There were five. The mark for the stage that produced no file went with the
+   stage itself.
+
    The rule they follow is the same one, and it is worth restating because it
    is what keeps them from becoming badges. Each mark depicts the thing the
    stage actually produced, so what a reader accumulates is a picture of what
-   they now hold rather than a score. The first is the only one that depicts a
-   loss, because the first stage produces an understanding rather than an
-   artefact: a program ends and what it knew is gone. Everything after it is a
-   file that exists on the reader's own disk. */
+   they now hold rather than a score. Every one of them is now a file that exists
+   on the reader's own disk; the one that depicted a loss went with the stage
+   that produced no file. */
 
 function Mark({ children, label, size = 120 }) {
   return (
@@ -34,27 +36,7 @@ const gold = {
   strokeLinecap: "round", strokeLinejoin: "round"
 };
 
-/* Stage 1 — memory, and what leaves it. A chip whose contents are dispersing:
-   the three marks above it are drawn dashed and rising, because the point of
-   the stage is that the data was never written anywhere. */
-export function ForgetMark(props) {
-  return (
-    <Mark label="Mark: the problem that files solve" {...props}>
-      <g {...white}>
-        <rect x="62" y="104" width="76" height="60" rx="4" />
-        <path d="M78 104V92M100 104V92M122 104V92" />
-      </g>
-      <g {...gold} strokeDasharray="7 9" strokeWidth="3">
-        <path d="M74 78V50M100 72V38M126 78V50" />
-      </g>
-      <g {...gold}>
-        <path d="M84 126h32M84 142h20" />
-      </g>
-    </Mark>
-  );
-}
-
-/* Stage 2 — a file opened. A document with a key, because the stage is about
+/* Stage 1 — a file opened. A document with a key, because the stage is about
    fopen returning a handle and, just as importantly, about it refusing to. */
 export function OpenMark(props) {
   return (
@@ -71,7 +53,7 @@ export function OpenMark(props) {
   );
 }
 
-/* Stage 3 — a file written. The same document, now bearing lines of text and
+/* Stage 2 — a file written. The same document, now bearing lines of text and
    a nib, with the last line still gold: the buffer, not yet flushed. */
 export function WriteMark(props) {
   return (
@@ -90,7 +72,7 @@ export function WriteMark(props) {
   );
 }
 
-/* Stage 4 — a file read. Lines of text with a caret part way along the second
+/* Stage 3 — a file read. Lines of text with a caret part way along the second
    one: the stream position, which is the whole subject of the stage. */
 export function ReadMark(props) {
   return (
@@ -108,7 +90,7 @@ export function ReadMark(props) {
   );
 }
 
-/* Stage 5 — delimited data become a table. A grid, with the gold rule standing
+/* Stage 4 — delimited data become a table. A grid, with the gold rule standing
    in for the delimiter that made the columns possible. */
 export function TableMark(props) {
   return (

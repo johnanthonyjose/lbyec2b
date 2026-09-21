@@ -204,7 +204,7 @@ async function fileIO() {
   await load("/file-io.html");
 
   ok("opens on the stages, with nothing in front of them",
-     !D().getElementById("before") && all(".aw-row").length === 5,
+     !D().getElementById("before") && all(".aw-row").length === 4,
      "a gate is still rendered");
   ok("publishes minutes, never a step count",
      /about \d+ minutes/i.test(txt()) && !/\b22\b/.test(txt()), "a step total appeared");
@@ -244,7 +244,7 @@ async function fileIO() {
      /\bstream\b/i.test(txt()), "the word stream never appears");
 
   ok("the stage map is visible before starting",
-     all(".aw-row").length === 5, `found ${all(".aw-row").length} rows`);
+     all(".aw-row").length === 4, `found ${all(".aw-row").length} rows`);
   ok("no stage is locked",
      all(".aw-row-lock").length === 0 &&
      all(".aw-row-head").every(b => !b.disabled),
@@ -252,14 +252,14 @@ async function fileIO() {
 
   // The real test of unlocking: jump straight to the last stage from a page
   // where nothing has been answered, the way a student revising would.
-  all(".aw-row-head")[4].click(); await wait(400);
+  all(".aw-row-head")[3].click(); await wait(400);
   ok("a reader can open the last stage without finishing the others",
-     !!D().getElementById("walk") && /Stage 5 of 5/i.test(txt()),
+     !!D().getElementById("walk") && /Stage 4 of 4/i.test(txt()),
      "could not reach stage 5");
   ok("and reach the delimiter code once there",
      /delimit/i.test(txt()) || /comma/i.test(txt()), "stage 5 content missing");
   all(".aw-row-head")[0].click(); await wait(400);
-  ok("and go back to the beginning", /Stage 1 of 5/i.test(txt()), "did not return");
+  ok("and go back to the beginning", /Stage 1 of 4/i.test(txt()), "did not return");
 
 
   // Accessibility properties that a build cannot check and that were all
@@ -267,13 +267,8 @@ async function fileIO() {
   const cs = (el) => D().defaultView.getComputedStyle(el);
   const tall = (el) => el ? Math.round(parseFloat(cs(el).minHeight) || el.getBoundingClientRect().height) : 0;
 
-  ok("the copy button meets the 44px touch target",
-     tall(D().querySelector(".fio-copy")) >= 44, `${tall(D().querySelector(".fio-copy"))}px`);
   ok("step chips have a 44px hit area",
      tall(D().querySelector(".aw-steps li")) >= 44, `${tall(D().querySelector(".aw-steps li"))}px`);
-  ok("code blocks are reachable by keyboard when they scroll",
-     all(".fio-code-scroll").length > 0 && all(".fio-code-scroll").every(e => e.tabIndex === 0),
-     "a scroll container was not focusable");
   ok("the step title sits under the stage title, not beside it",
      D().querySelector(".aw-step-title")?.tagName === "H3",
      `step title is ${D().querySelector(".aw-step-title")?.tagName}`);
@@ -309,9 +304,9 @@ async function fileIO() {
   // Stage sizes are read off the page rather than hard-coded: steps get added
   // to this handout, and a stale constant here would silently stop walking a
   // stage half way and still report a pass.
-  let maxDen = 0, rowCounts = new Set(), unsolved = 0, sawConsumedCue = false, exDriven = 0;
+  let maxDen = 0, rowCounts = new Set(), unsolved = 0, sawConsumedCue = false, sawCodeCue = false, exDriven = 0;
 
-  for (let stage = 1; stage <= 5; stage++) {
+  for (let stage = 1; stage <= 4; stage++) {
     const size = all(".aw-row.is-current .aw-stepchip").length;
     ok(`stage ${stage} reports its own size`, size > 0, "no step chips rendered");
     for (let step = 1; step <= size; step++) {
@@ -341,6 +336,16 @@ async function fileIO() {
           ok(`the figure on stage ${stage} step ${step} responds to its timeline`,
              after !== before && after.length > 0, "status did not change when scrubbed");
         }
+      }
+
+      if (!sawCodeCue && D().querySelector(".fio-copy")) {
+        sawCodeCue = true;
+        ok("the copy button meets the 44px touch target",
+           tall(D().querySelector(".fio-copy")) >= 44,
+           `${tall(D().querySelector(".fio-copy"))}px`);
+        ok("code blocks are reachable by keyboard when they scroll",
+           all(".fio-code-scroll").every(e => e.tabIndex === 0),
+           "a scroll container was not focusable");
       }
 
       const consumed = D().querySelector(".fm-b.is-consumed");
@@ -373,11 +378,11 @@ async function fileIO() {
     ok(`stage ${stage} completion panel is visible, not just present`,
        opacity(D().querySelector(".aw-done")) === 1, `opacity ${opacity(D().querySelector(".aw-done"))}`);
 
-    if (stage < 5) {
+    if (stage < 4) {
       byText("button", new RegExp(`Begin Stage ${stage + 1}`)).click(); await wait(400);
     } else {
-      ok("the final panel shows all five outcomes",
-         dlg.querySelectorAll(".aw-done-marks li").length === 5, "not five marks");
+      ok("the final panel shows all four outcomes",
+         dlg.querySelectorAll(".aw-done-marks li").length === 4, "not four marks");
       ok("the finale names what the reader ends up with",
          /formatted table|reads a data file/i.test(dlg.innerText), "no closing artefact named");
       byText("button", /^Close$/).click(); await wait(300);
@@ -387,8 +392,8 @@ async function fileIO() {
   ok("every prediction has a reachable correct answer", unsolved === 0, `${unsolved} never solved`);
   ok("at least five explorable figures were driven", exDriven >= 5, `drove ${exDriven}`);
 
-  ok("the stage map always shows exactly five rows",
-     rowCounts.size === 1 && rowCounts.has(5), `row counts seen: ${[...rowCounts]}`);
+  ok("the stage map always shows exactly four rows",
+     rowCounts.size === 1 && rowCounts.has(4), `row counts seen: ${[...rowCounts]}`);
   // The rule is not a particular number, it is that a reader never sees a big
   // one. Stages grow; "of 6" is fine, "of 24" would mean the stage structure
   // had stopped doing its job. Eight is the same bound handout 01 works to.

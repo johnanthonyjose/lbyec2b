@@ -18,7 +18,7 @@
 import pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-FILES = ["src/pages/file-io/steps-1-3.jsx", "src/pages/file-io/steps-4-5.jsx"]
+FILES = ["src/pages/file-io/steps-1-2.jsx", "src/pages/file-io/steps-3-4.jsx"]
 
 # Anything a reader can manipulate. Code and terminal output are not figures:
 # they are text in a monospace font, and counting them would let the page pass

@@ -23,7 +23,7 @@ import { ModeExplorer } from "../../components/explorable/ModeExplorer.jsx";
    step opens two files at once, because a program with an input and an output
    is the ordinary case and every later program on this page is one.
 
-   Stage 2 is also where the stream model is taught, because S2.1 is where the
+   Stage 2 is also where the stream model is taught, because S1.2 is where the
    reader first meets FILE. A stream is an ordered byte sequence plus the state
    required to traverse it; FILE is the object holding that state; fopen
    constructs it and its layout is implementation-defined, which is why the
@@ -32,7 +32,7 @@ import { ModeExplorer } from "../../components/explorable/ModeExplorer.jsx";
    reader has been calling fprintf and fscanf since week one without being told.
 
    Stage 3 is built around buffering, which is the one thing in these three
-   stages that cannot be seen in the source at all. S3.4 therefore hands the
+   stages that cannot be seen in the source at all. S2.4 therefore hands the
    mechanism to BufferMachine, which animates the bytes accumulating while the
    file stays empty, the flush at fclose, the system-call count in both modes,
    and what an abnormal termination leaves behind. The prose beside it no longer
@@ -59,117 +59,15 @@ import { ModeExplorer } from "../../components/explorable/ModeExplorer.jsx";
    below is transcribed from the verified program set. Nothing here was
    calculated by hand. */
 
-export const steps13 = [
+export const steps12 = [
   /* ─────────────────────────────────────────────────────────────────────────
-     Stage 1 — Why a program forgets
+     Stage 1 — Opening a file
      ───────────────────────────────────────────────────────────────────────── */
   {
     id: "S1.1",
     stage: 1, n: 1,
-    title: "Watch a program lose the value you gave it",
-    action: <>Type the short program below into a file called <code className="aw-code">forget.c</code>, compile it, and run it twice.</>,
-    body: (
-      <p className="aw-p">
-        The program reads an integer, prints it back, and returns from{" "}
-        <code className="aw-code">main</code>. Nothing in it records anything
-        outside the memory the running program was given.
-      </p>
-    ),
-    media: (
-      <CodeBlock
-        file="forget.c"
-        from={1}
-        lines={[
-          "#include <stdio.h>",
-          "",
-          "int main(void) {",
-          "",
-          "    //One variable. It lives in memory for exactly as",
-          "    //long as main does, and not one instruction longer.",
-          "    int n;",
-          "",
-          '    printf("Give me a number: ");',
-          '    scanf("%i", &n);',
-          "",
-          '    printf("You gave me %i.\\n", n);',
-          "",
-          "    //Nothing here writes anything anywhere. When main",
-          "    //returns there is no record of n outside this run.",
-          "    return 0;",
-          "}"
-        ]}
-        focus={[6]}
-        caption="The complete program. Compile it with: gcc -Wall -o forget forget.c"
-      />
-    ),
-    check: {
-      kind: "predict",
-      question: "Run it once and give it a number. Now run it a second time. What will the second run print?",
-      options: [
-        {
-          id: "remembers",
-          label: "The number from the first run",
-          note: "It is tempting to assume the program still holds it. No statement in forget.c places that integer anywhere outside the run that read it."
-        },
-        {
-          id: "asks-again",
-          label: "It asks for a number again, and knows nothing about the first run",
-          correct: true,
-          note: "Correct. The second run is a distinct process with an address space of its own, and the first run's value is not reachable from it at all."
-        },
-        {
-          id: "zero",
-          label: "Zero, because n is reset",
-          note: "The right answer for the wrong reason. An uninitialized local variable holds whatever bytes already occupied its storage. The point is not that the value became zero, but that no value survived the process."
-        }
-      ]
-    }
-  },
-  {
-    id: "S1.2",
-    stage: 1, n: 2,
-    title: "Name the mechanism",
-    action: <>Read the paragraphs below, then state the reason for what you observed in one sentence of your own.</>,
-    body: (
-      <>
-        <p className="aw-p">
-          The variable <code className="aw-code">n</code> lived in main memory,
-          part of the <strong>address space</strong> of the{" "}
-          <strong>process</strong>, which is your program as the operating system
-          runs it. When <code className="aw-code">main</code> returned the process
-          terminated, and the operating system reclaimed that address space.
-        </p>
-        <p className="aw-p">
-          What a program must keep therefore goes outside the process, into a{" "}
-          <strong>file</strong>: a named sequence of bytes held on{" "}
-          <strong>secondary storage</strong>, which is far larger than main
-          memory, slower to reach by orders of magnitude, and retains its
-          contents when power is removed.
-        </p>
-      </>
-    ),
-    why: {
-      label: "Where does the number actually go?",
-      body: <>The memory is not erased. The operating system marks those pages as available, and the next process to request memory receives them, along with whatever your run happened to leave there. Nothing ever reads that residue back, because nothing knows it is present. A file, by contrast, carries a name, and a name is precisely what allows something to ask for the bytes later.</>
-    },
-    check: {
-      kind: "self",
-      question: "Without looking back, can you say in one sentence why the second run lost your number?",
-      ok: {
-        label: "Yes — the process terminated and its address space went with it",
-        note: "That is the sentence, and the four stages that follow are all methods of placing bytes somewhere that sentence does not apply to."
-      },
-      alt: {
-        label: "Not quite yet",
-        note: <>Read the second paragraph again, then look at the program beside it. No statement in <code className="aw-code">forget.c</code> names a location outside the process. Storage that carries no name cannot be asked for later, and memory belonging to a process that has terminated cannot be asked for at all.</>
-      }
-    }
-  },
-  {
-    id: "S1.3",
-    stage: 1, n: 3,
-    title: "Open a compiled program in a text editor",
-    action: <>Open a compiled program in Notepad, TextEdit or VS Code. Do not run it. Examine what the editor displays.</>,
+    title: "Text files and binary files",
+    action: <>Open a compiled program — any <code className="aw-code">.exe</code>, or one of your own from a previous week — in Notepad, TextEdit or VS Code. Do not run it, and do not save it. Examine what the editor displays.</>,
     body: (
       <>
         <p className="aw-p">
@@ -186,10 +84,24 @@ export const steps13 = [
           newline, which is what <strong>human-readable</strong> means. Under the
           binary contract a byte denotes whatever the writing application decided
           it would denote. Nothing stored inside the file records which contract
-          was intended.
+          was intended, and a filename extension is only a{" "}
+          <strong>convention</strong> claiming one: nothing enforces it and
+          nothing checks it against the contents. Rename a text file to{" "}
+          <code className="aw-code">something.png</code> and it is still your
+          text.
+        </p>
+        <p className="aw-p">
+          <code className="aw-code">fopen</code> inspects neither the name nor
+          the contents, so reading a file under the wrong contract reports no
+          error. Everything from here onward concerns{" "}
+          <strong>text files only</strong>.
         </p>
       </>
     ),
+    why: {
+      label: "Then how does anything know what a file is?",
+      body: <>Principally by inspecting the contents. Many formats begin with a short fixed byte sequence called a <em>magic number</em>: a PNG opens with 0x89 followed by the letters PNG, and a PDF opens with %PDF. Editors read those bytes and treat the extension as no more than a hint.</>
+    },
     check: {
       kind: "predict",
       question: "You save that mess from Notepad, then try to run the program again. What happens?",
@@ -213,48 +125,13 @@ export const steps13 = [
       ]
     }
   },
-  {
-    id: "S1.4",
-    stage: 1, n: 4,
-    title: "Stop trusting the extension",
-    action: <>Rename a copy of any text file you have to <code className="aw-code">something.png</code>, then open it in Notepad again.</>,
-    body: (
-      <>
-        <p className="aw-p">
-          It is still your text. A filename extension is a{" "}
-          <strong>convention</strong>: a claim about the contract under which the
-          bytes are meant to be read, which nothing enforces and nothing verifies
-          against the contents. <code className="aw-code">fopen</code> inspects
-          neither the name nor the contents either, so reading a file under the
-          wrong contract reports no error. Everything from this point onward
-          concerns <strong>text files only</strong>.
-        </p>
-      </>
-    ),
-    why: {
-      label: "Then how does anything know what a file is?",
-      body: <>Principally by inspecting the contents. Many formats begin with a short fixed byte sequence called a <em>magic number</em>: a PNG opens with 0x89 followed by the letters PNG, and a PDF opens with %PDF. Editors read those bytes and treat the extension as no more than a hint.</>
-    },
-    check: {
-      kind: "self",
-      question: "Could you explain to a classmate what a file is, and how text differs from binary?",
-      ok: {
-        label: "Yes — a named sequence of bytes, read under one contract or the other",
-        note: "That is stage 1. You have the problem and you have the vocabulary for it. Stage 2 opens a file."
-      },
-      alt: {
-        label: "I could name them but not explain the difference",
-        note: <>Return to what Notepad did with the executable. It carried out exactly one operation: display the character that each byte denotes. That operation is the text contract, and a binary file is one for which it yields nonsense.</>
-      }
-    }
-  },
 
   /* ─────────────────────────────────────────────────────────────────────────
-     Stage 2 — Opening a file
+     (continued)
      ───────────────────────────────────────────────────────────────────────── */
   {
-    id: "S2.1",
-    stage: 2, n: 1,
+    id: "S1.2",
+    stage: 1, n: 2,
     title: "Streams, and the FILE object behind them",
     action: <>Start a new file called <code className="aw-code">01-open.c</code> with <code className="aw-code">#include &lt;stdio.h&gt;</code>, <code className="aw-code">int main(void)</code>, and the declaration <code className="aw-code">FILE *fp;</code> inside it.</>,
     body: (
@@ -307,8 +184,8 @@ export const steps13 = [
     }
   },
   {
-    id: "S2.2",
-    stage: 2, n: 2,
+    id: "S1.3",
+    stage: 1, n: 3,
     title: "Name the file you want",
     action: <>Add the <code className="aw-code">fopen</code> call, using the bare name <code className="aw-code">"test.txt"</code> with no path in front of it.</>,
     body: (
@@ -369,8 +246,8 @@ export const steps13 = [
     }
   },
   {
-    id: "S2.3",
-    stage: 2, n: 3,
+    id: "S1.4",
+    stage: 1, n: 4,
     title: "Check for NULL, and report the reason",
     action: <>Add the NULL check with <code className="aw-code">perror</code> immediately after the <code className="aw-code">fopen</code>. Never leave a gap between them.</>,
     body: (
@@ -523,8 +400,8 @@ export const steps13 = [
     }
   },
   {
-    id: "S2.4",
-    stage: 2, n: 4,
+    id: "S1.5",
+    stage: 1, n: 5,
     title: "Close the stream, and run it twice",
     action: <>Add <code className="aw-code">fclose(fp)</code> and <code className="aw-code">return 0</code>, compile, and run the program now — before <code className="aw-code">test.txt</code> exists.</>,
     body: (
@@ -570,8 +447,8 @@ export const steps13 = [
     }
   },
   {
-    id: "S2.5",
-    stage: 2, n: 5,
+    id: "S1.6",
+    stage: 1, n: 6,
     title: "Open two streams at once",
     action: <>Step through <code className="aw-code">10-twofiles.c</code> in the figure below rather than running it.</>,
     body: (
@@ -772,11 +649,11 @@ HCV-221`}
   },
 
   /* ─────────────────────────────────────────────────────────────────────────
-     Stage 3 — Writing to a file
+     Stage 2 — Writing to a file
      ───────────────────────────────────────────────────────────────────────── */
   {
-    id: "S3.1",
-    stage: 3, n: 1,
+    id: "S2.1",
+    stage: 2, n: 1,
     title: "Open for writing, and know what that destroys",
     action: <>Start <code className="aw-code">02-write.c</code> with the same shape as before, but with mode <code className="aw-code">"w"</code>.</>,
     body: (
@@ -819,8 +696,8 @@ HCV-221`}
     }
   },
   {
-    id: "S3.2",
-    stage: 3, n: 2,
+    id: "S2.2",
+    stage: 2, n: 2,
     title: "Write with fprintf, fputs and fputc",
     action: <>Add the three write calls below, in this order.</>,
     body: (
@@ -907,8 +784,8 @@ HCV-221`}
     }
   },
   {
-    id: "S3.3",
-    stage: 3, n: 3,
+    id: "S2.3",
+    stage: 2, n: 3,
     title: "Append instead of overwrite",
     action: <>Write <code className="aw-code">03-append.c</code> as a copy of <code className="aw-code">02-write.c</code> with mode <code className="aw-code">"a"</code> and a single <code className="aw-code">fputs</code>.</>,
     body: (
@@ -968,8 +845,8 @@ Appended a third line to test.txt.`}
     }
   },
   {
-    id: "S3.4",
-    stage: 3, n: 4,
+    id: "S2.4",
+    stage: 2, n: 4,
     title: "Buffering, and why fclose is not optional",
     action: <>Step through <code className="aw-code">02-write.c</code> in the figure below, then run it again with each of the other two controls changed.</>,
     body: (

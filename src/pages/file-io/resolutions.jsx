@@ -24,7 +24,7 @@ import React from "react";
 export const resolutions = [
   {
     id: 1,
-    returnTo: { stage: 2, step: 3 },
+    returnTo: { stage: 1, step: 4 },
     title: "fopen returned NULL",
     cause:
       "A NULL return means the file was not opened, and nothing you do with that FILE* afterwards will work. It is not one fault but four, and they need different repairs: the file does not exist and the mode was \"r\"; the name you passed is not the name on disk; the program is looking in a different folder from the one you are looking at; or the file is locked or read-only because another program holds it open.",
@@ -39,7 +39,7 @@ export const resolutions = [
   },
   {
     id: 2,
-    returnTo: { stage: 2, step: 2 },
+    returnTo: { stage: 1, step: 3 },
     title: "A Windows path with backslashes silently fails",
     cause:
       "In C source, a backslash inside a string begins an escape sequence. Written as \"c:\\temp\\test1.txt\", neither backslash survives: both are \\t, which is one tab character, so the path handed to fopen is c: TAB emp TAB est1.txt — fifteen characters, nothing like the path on your screen. The trap is that \\t is a perfectly valid escape, so the compiler has nothing to complain about and says nothing. fopen returns NULL, and with no NULL check the program does nothing and exits normally.",
@@ -54,7 +54,7 @@ export const resolutions = [
   },
   {
     id: 3,
-    returnTo: { stage: 2, step: 4 },
+    returnTo: { stage: 1, step: 5 },
     title: "The program runs, prints nothing, and exits normally",
     cause:
       "An exit status of zero means the program did what you told it to do. Silence means what you told it to do produced no output. File I/O is unusual among the things you have written so far in that almost every one of its failures looks like this rather than like a crash, so the first task is to narrow down where the silence begins.",
@@ -68,7 +68,7 @@ export const resolutions = [
   },
   {
     id: 4,
-    returnTo: { stage: 3, step: 4 },
+    returnTo: { stage: 2, step: 4 },
     title: "The file is empty, or my data has vanished",
     cause:
       "Two different faults produce an empty file, and they look identical from outside. Mode \"w\" truncates the file to zero length the moment it is opened, before a single character is written, so re-running a write program destroys whatever the previous run produced. Separately, everything you write goes first into a buffer in memory. Returning normally from main flushes that buffer for you, so a missing fclose alone usually does no harm — but a program that crashes, hangs or is stopped before it gets there loses whatever the buffer was holding, and the file stays empty even though every write succeeded.",
@@ -83,7 +83,7 @@ export const resolutions = [
   },
   {
     id: 5,
-    returnTo: { stage: 4, step: 3 },
+    returnTo: { stage: 3, step: 3 },
     title: "The read loop runs one time too many",
     cause:
       "The last record appears twice, or a line of rubbish follows the real output. This is the signature of looping on feof. The end-of-file flag is not a look-ahead: it is set only after a read has already been attempted and failed. So the loop tests the flag, finds it clear, enters the body and reads — and on the final pass that read fails, leaving the previous values still in your variables, which the body then processes for a second time.",
@@ -97,7 +97,7 @@ export const resolutions = [
   },
   {
     id: 6,
-    returnTo: { stage: 4, step: 5 },
+    returnTo: { stage: 3, step: 5 },
     title: "fscanf stopped in the middle of a line, or read nothing",
     cause:
       "fscanf reads by conversion, not by line, and it leaves the stream wherever the last conversion stopped. A %s stops at the first whitespace and does not consume it, so the rest of the line, including the newline, is still waiting for the next call. A %i that meets a character which cannot begin a number consumes nothing at all and stops immediately, and because it returns a count of successful conversions rather than crashing, an unchecked return value hides the whole event.",
@@ -107,7 +107,7 @@ export const resolutions = [
       <>When a conversion fails, understand that the offending characters are still in the stream. The next call meets the same characters and fails in the same way, which is why one bad line can turn into an endless loop of failures rather than one error.</>,
       <>Print what you read immediately after reading it, before using it. Seeing <code className="aw-code">Toyota</code> where you expected <code className="aw-code">Toyota Vios</code> identifies the fault in one run.</>,
       <>Read a whole line with <code className="aw-code">fgets</code> and then pick it apart with <code className="aw-code">sscanf</code>. The stream then advances exactly one line per read whatever the line contains, and a malformed line costs you that line rather than the rest of the file.</>,
-      <>This is the reason the handout stops using bare <code className="aw-code">fscanf</code> after this stage. Real data files are delimited — the fields in <code className="aw-code">cars.csv</code> are separated by commas and contain spaces — and whitespace-delimited conversion cannot describe them. Stage 5 reads a line at a time and splits on the delimiter instead.</>
+      <>This is the reason the handout stops using bare <code className="aw-code">fscanf</code> after this stage. Real data files are delimited — the fields in <code className="aw-code">cars.csv</code> are separated by commas and contain spaces — and whitespace-delimited conversion cannot describe them. Stage 4 reads a line at a time and splits on the delimiter instead.</>
     ]
   }
 ];

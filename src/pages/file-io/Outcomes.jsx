@@ -21,11 +21,11 @@ export const outcomes = [
   },
   {
     text: "Explain what file input and output is.",
-    stages: "Stages 1 and 2"
+    stages: "Stage 1"
   },
   {
     text: "Identify and use the C file I/O facilities to save data to a text file and read it back.",
-    stages: "Stages 2 to 5"
+    stages: "Stages 1 to 4"
   }
 ];
 

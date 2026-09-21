@@ -1,81 +1,64 @@
 {
  "code": [
-  "S1.1|#include <stdio.h>",
-  "S1.1|",
-  "S1.1|int main(void) {",
-  "S1.1|",
-  "S1.1|    //One variable. It lives in memory for exactly as",
-  "S1.1|    //long as main does, and not one instruction longer.",
-  "S1.1|    int n;",
-  "S1.1|",
-  "S1.1|    printf(\"Give me a number: \");",
-  "S1.1|    scanf(\"%i\", &n);",
-  "S1.1|",
-  "S1.1|    printf(\"You gave me %i.\\\\n\", n);",
-  "S1.1|",
-  "S1.1|    //Nothing here writes anything anywhere. When main",
-  "S1.1|    //returns there is no record of n outside this run.",
-  "S1.1|    return 0;",
-  "S1.1|}",
-  "S3.2|    //fprintf is printf with a file as its first argument.",
-  "S3.2|    //It is the one to use when a value has to be formatted.",
-  "S3.2|    //The \\\\n here is what makes this a complete first line.",
-  "S3.2|    fprintf(fp, \"hello no. %i\\\\n\", 1);",
-  "S3.2|    //fputs writes a string exactly as given. Note the argument",
-  "S3.2|    //order: the string first, the file second. It adds no \\\\n",
-  "S3.2|    //of its own, so the next write continues on the same line.",
-  "S3.2|    fputs(\"where is no. 2\", fp);",
-  "S3.2|    //fputc writes one single character. Single quotes, not",
-  "S3.2|    //double quotes: '?' is a character, \\\"?\\\" is a string.",
-  "S3.2|    fputc('?', fp);",
-  "S3.3|    //\\\"a\\\" is append. The write position starts at the END of the",
-  "S3.3|    //existing file, so nothing already stored is lost. Compare",
-  "S3.3|    //with \\\"w\\\" in 02-write.c, which would empty the file first.",
-  "S3.3|    fp = fopen(\"test.txt\", \"a\");",
-  "S3.3|    //02-write.c left the file ending in '?' with no line break.",
-  "S3.3|    //This leading \\\\n therefore finishes line 2 before line 3",
-  "S3.3|    //begins. Without it the two lines would run together.",
-  "S3.3|    fputs(\"\\\\nHow about no. 3?\", fp);",
-  "S4.1|    //c MUST be an int, never a char. fgetc returns every one of",
-  "S4.1|    //the 256 possible byte values plus a 257th value, EOF, which",
-  "S4.1|    //is negative. A char has no room left for that extra value,",
-  "S4.1|    //so a char loop either never ends or ends on real data.",
-  "S4.1|    int c;",
-  "S4.1|    while ((c = fgetc(fp)) != EOF) {",
-  "S4.1|        putchar(c);",
-  "S4.1|    }",
-  "S4.2|    while ((c = fgetc(fp)) != EOF) {",
-  "S4.2|        printf(\\\"%i \\\", c);",
-  "S4.2|        if (c == '\\\\n') {",
-  "S4.2|            printf(\\\"\\\\n\\\");",
-  "S4.2|        }",
-  "S4.3|    while (fgets(line, 100, fp) != NULL) {",
-  "S4.3|        printf(\\\"[%i] %s\\\", (int) strlen(line), line);",
-  "S4.3|    }",
-  "S4.3|while (!feof(fp)) {",
-  "S4.3|    fgets(line, 100, fp);",
-  "S4.3|    printf(\\\"[%i] %s\\\", (int) strlen(line), line);",
-  "S4.3|}",
-  "S4.4|    //fgets stops at the \\\\n and KEEPS it in the buffer, so the",
-  "S4.4|    //length below counts it. It returns NULL when there is no",
-  "S4.4|    //line left, which is what ends the loop.",
-  "S4.4|    while (fgets(line, 100, fp) != NULL) {",
-  "S4.4|        printf(\\\"[%i] %s\\\", (int) strlen(line), line);",
-  "S4.4|    }",
-  "S5.2|    while (fgets(make,  40, fp) != NULL &&",
-  "S5.2|           fgets(model, 40, fp) != NULL &&",
-  "S5.2|           fgets(year,  40, fp) != NULL &&",
-  "S5.2|           fgets(plate, 40, fp) != NULL) {",
-  "S5.2|        stripNewline(make);",
-  "S5.2|        stripNewline(model);",
-  "S5.2|        stripNewline(year);",
-  "S5.2|        stripNewline(plate);",
-  "S5.2|void stripNewline(char *s) {",
-  "S5.2|    int n = (int) strlen(s);",
-  "S5.2|    if (n > 0 && s[n - 1] == '\\\\n') {",
-  "S5.2|        s[n - 1] = '\\\\0';",
-  "S5.2|    }",
-  "S5.2|}"
+  "S2.2|    //fprintf is printf with a file as its first argument.",
+  "S2.2|    //It is the one to use when a value has to be formatted.",
+  "S2.2|    //The \\\\n here is what makes this a complete first line.",
+  "S2.2|    fprintf(fp, \"hello no. %i\\\\n\", 1);",
+  "S2.2|    //fputs writes a string exactly as given. Note the argument",
+  "S2.2|    //order: the string first, the file second. It adds no \\\\n",
+  "S2.2|    //of its own, so the next write continues on the same line.",
+  "S2.2|    fputs(\"where is no. 2\", fp);",
+  "S2.2|    //fputc writes one single character. Single quotes, not",
+  "S2.2|    //double quotes: '?' is a character, \\\"?\\\" is a string.",
+  "S2.2|    fputc('?', fp);",
+  "S2.3|    //\\\"a\\\" is append. The write position starts at the END of the",
+  "S2.3|    //existing file, so nothing already stored is lost. Compare",
+  "S2.3|    //with \\\"w\\\" in 02-write.c, which would empty the file first.",
+  "S2.3|    fp = fopen(\"test.txt\", \"a\");",
+  "S2.3|    //02-write.c left the file ending in '?' with no line break.",
+  "S2.3|    //This leading \\\\n therefore finishes line 2 before line 3",
+  "S2.3|    //begins. Without it the two lines would run together.",
+  "S2.3|    fputs(\"\\\\nHow about no. 3?\", fp);",
+  "S3.1|    //c MUST be an int, never a char. fgetc returns every one of",
+  "S3.1|    //the 256 possible byte values plus a 257th value, EOF, which",
+  "S3.1|    //is negative. A char has no room left for that extra value,",
+  "S3.1|    //so a char loop either never ends or ends on real data.",
+  "S3.1|    int c;",
+  "S3.1|    while ((c = fgetc(fp)) != EOF) {",
+  "S3.1|        putchar(c);",
+  "S3.1|    }",
+  "S3.2|    while ((c = fgetc(fp)) != EOF) {",
+  "S3.2|        printf(\\\"%i \\\", c);",
+  "S3.2|        if (c == '\\\\n') {",
+  "S3.2|            printf(\\\"\\\\n\\\");",
+  "S3.2|        }",
+  "S3.3|    while (fgets(line, 100, fp) != NULL) {",
+  "S3.3|        printf(\\\"[%i] %s\\\", (int) strlen(line), line);",
+  "S3.3|    }",
+  "S3.3|while (!feof(fp)) {",
+  "S3.3|    fgets(line, 100, fp);",
+  "S3.3|    printf(\\\"[%i] %s\\\", (int) strlen(line), line);",
+  "S3.3|}",
+  "S3.4|    //fgets stops at the \\\\n and KEEPS it in the buffer, so the",
+  "S3.4|    //length below counts it. It returns NULL when there is no",
+  "S3.4|    //line left, which is what ends the loop.",
+  "S3.4|    while (fgets(line, 100, fp) != NULL) {",
+  "S3.4|        printf(\\\"[%i] %s\\\", (int) strlen(line), line);",
+  "S3.4|    }",
+  "S4.2|    while (fgets(make,  40, fp) != NULL &&",
+  "S4.2|           fgets(model, 40, fp) != NULL &&",
+  "S4.2|           fgets(year,  40, fp) != NULL &&",
+  "S4.2|           fgets(plate, 40, fp) != NULL) {",
+  "S4.2|        stripNewline(make);",
+  "S4.2|        stripNewline(model);",
+  "S4.2|        stripNewline(year);",
+  "S4.2|        stripNewline(plate);",
+  "S4.2|void stripNewline(char *s) {",
+  "S4.2|    int n = (int) strlen(s);",
+  "S4.2|    if (n > 0 && s[n - 1] == '\\\\n') {",
+  "S4.2|        s[n - 1] = '\\\\0';",
+  "S4.2|    }",
+  "S4.2|}"
  ],
  "terminals": [
   "Could not open test.txt: No such file or directory",
@@ -131,6 +114,16 @@
    "4"
   ],
   [
+   "S1.5",
+   "1",
+   "5"
+  ],
+  [
+   "S1.6",
+   "1",
+   "6"
+  ],
+  [
    "S2.1",
    "2",
    "1"
@@ -151,9 +144,20 @@
    "4"
   ],
   [
-   "S2.5",
-   "2",
-   "5"
+   "fix",
+   "2"
+  ],
+  [
+   "fix",
+   "1"
+  ],
+  [
+   "fix",
+   "3"
+  ],
+  [
+   "fix",
+   "4"
   ],
   [
    "S3.1",
@@ -176,20 +180,9 @@
    "4"
   ],
   [
-   "fix",
-   "2"
-  ],
-  [
-   "fix",
-   "1"
-  ],
-  [
-   "fix",
-   "3"
-  ],
-  [
-   "fix",
-   "4"
+   "S3.5",
+   "3",
+   "5"
   ],
   [
    "S4.1",
@@ -217,33 +210,8 @@
    "5"
   ],
   [
-   "S5.1",
-   "5",
-   "1"
-  ],
-  [
-   "S5.2",
-   "5",
-   "2"
-  ],
-  [
-   "S5.3",
-   "5",
-   "3"
-  ],
-  [
-   "S5.4",
-   "5",
-   "4"
-  ],
-  [
-   "S5.5",
-   "5",
-   "5"
-  ],
-  [
-   "S5.6",
-   "5",
+   "S4.6",
+   "4",
    "6"
   ],
   [
@@ -256,7 +224,6 @@
   ]
  ],
  "correct": [
-  "asks-again",
   "broken",
   "fourteen",
   "perror-line",
