@@ -53,7 +53,13 @@ src/
                          play rather than making it fast. ParseWalker animates
                          getDelimitedItem, BufferMachine the write buffer and
                          the syscall it saves, LoopCompare the feof fault with
-                         both loops on one timeline.
+                         both loops on one timeline, ModeExplorer what r, w and
+                         a do to a file that already has content.
+                         CodeWalk.jsx is the generic one: source with the
+                         executing line marked, an explainer beside it and the
+                         program's output beneath. Three steps use it with
+                         nothing but data, which is why there are not three
+                         more bespoke figures.
     Section.jsx          the section shell and heading
     Brand.jsx            the wordmark and course mark
   pages/

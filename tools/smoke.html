@@ -321,7 +321,12 @@ async function fileIO() {
     const size = all(".aw-row.is-current .aw-stepchip").length;
     ok(`stage ${stage} reports its own size`, size > 0, "no step chips rendered");
     for (let step = 1; step <= size; step++) {
-      [...txt().matchAll(/step \d+ of (\d+)/gi)].forEach(m => { maxDen = Math.max(maxDen, +m[1]); });
+      // Scoped to the step counter itself. Scanning all page text also caught
+      // the figures' own frame counters, which are not step denominators.
+      all(".aw-step-count, .aw-nav-count").forEach(el => {
+        const m = /(\d+) of (\d+)/.exec(el.textContent || "");
+        if (m) maxDen = Math.max(maxDen, +m[2]);
+      });
       rowCounts.add(all(".aw-row").length);
 
       // Drive the FileMachine wherever one appears.

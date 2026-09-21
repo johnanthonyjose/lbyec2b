@@ -3,6 +3,7 @@ import { CodeBlock, Terminal } from "./CodeBlock.jsx";
 import { FileMachine } from "../../components/FileMachine.jsx";
 import { LoopCompare } from "../../components/explorable/LoopCompare.jsx";
 import { ParseWalker } from "../../components/explorable/ParseWalker.jsx";
+import { CodeWalk } from "../../components/explorable/CodeWalk.jsx";
 
 /* Stages 4 and 5 of the File I/O handout.
 
@@ -23,11 +24,15 @@ import { ParseWalker } from "../../components/explorable/ParseWalker.jsx";
    reader to treat the position as something the programmer maintains by hand
    rather than as a field the library advances on every successful read.
 
-   Two further steps carry an explorable rather than a trace. S4.3 runs both
+   Four further steps carry an explorable rather than a trace. S4.3 runs both
    read loops side by side under LoopCompare, and S5.3 walks getDelimitedItem
-   character by character under ParseWalker. In both cases the figure is the
-   explanation and the prose around it was deleted rather than shortened: what
-   remains is only what a figure cannot show, which is why the library is
+   character by character under ParseWalker. S5.4 and S5.6 then use the
+   generalised CodeWalk: S5.4 follows main's loop over cars.csv, which is the
+   sequel to S5.3 in that four calls there assemble one record here, and S5.6
+   follows the call nesting of 09-modular.c, which is the one thing a set of
+   static excerpts of three functions cannot show. In every case the figure is
+   the explanation and the prose around it was deleted rather than shortened:
+   what remains is only what a figure cannot show, which is why the library is
    shaped the way it is and what the standard does and does not guarantee.
 
    Every `pos` below is transcribed from the ftell() tables in PROGRAMS.md. No
@@ -37,9 +42,10 @@ import { ParseWalker } from "../../components/explorable/ParseWalker.jsx";
    The programs of stage 4 run to thirty lines and more, and no two consecutive
    excerpts of one program are contiguous in its source, so nothing here is
    shown whole and nothing here can be merged: a merged block would number its
-   own lines wrongly. The six blocks of getDelimitedItem in S5.3 are split for
-   that reason and stand on their own captions; the prose that once joined them
-   narrated the behavior ParseWalker now animates, and it is gone.
+   own lines wrongly. Where a CodeWalk now renders those same lines with the
+   executing statement marked, the standalone excerpt was the same code printed
+   twice and has been removed; anything its caption carried that the animation
+   does not was folded into the figure's caption.
 
    Stage 5 has no resolutions attached. By that point the reader has a working
    picture of the position and of EOF, and the remaining failures are ordinary
@@ -568,10 +574,6 @@ Toyota,Corolla,1995,TVX-111`}</Terminal>
           ]}
           caption="Four reads for one record, applying the condition of step S4.3 four times over."
         />
-        <p className="aw-p">
-          All four buffers end in a newline, so each is passed through{" "}
-          <code className="aw-code">stripNewline</code> before it is printed.
-        </p>
         <CodeBlock
           file="07-fields.c"
           from={41}
@@ -697,86 +699,291 @@ Honda        Civic            2021   HCV-221   `}</Terminal>
     action: <>Compile and run <code className="aw-code">08-csv.c</code> in the folder that holds <code className="aw-code">cars.csv</code>.</>,
     body: (
       <p className="aw-p">
-        The header line is consumed first and discarded, so the loop that
-        follows encounters records only. If that read returns{" "}
-        <code className="aw-code">NULL</code> the file held nothing at all,
-        which is worth reporting rather than presenting as a table of zero
-        cars.
+        The header line is read before the loop and discarded, and that read is
+        checked: if it returns <code className="aw-code">NULL</code> the file
+        held nothing at all, which is worth reporting rather than presenting as
+        a table of zero cars.
       </p>
     ),
     media: (
       <>
-        <CodeBlock
+        <CodeWalk
+          title="One pass of the loop, and then the next"
+          notice="Watch line 82: the value that call returns is what decides whether there is a record at all."
+          caption="Step S5.3 followed one call to getDelimitedItem producing one field; here four of them assemble a record and one row is printed. sscanf applies the directive matching of fscanf to a string already in memory and likewise returns the number of items assigned, so that count, not the value left in y, reports whether the field was numeric. The year prints under %6i rather than %-6s because by then it is an int, right-aligned as numeric columns conventionally are."
           file="08-csv.c"
-          from={69}
-          focus={[0]}
-          lines={[
-            "    if (fgets(header, 120, fp) == NULL) {",
-            "        printf(\"cars.csv is empty.\\n\");",
-            "        fclose(fp);",
-            "        return 1;",
-            "    }"
+          source={[
+            { n: 55, src: "    char make[40], model[40], year[40], plate[40];" },
+            { n: 56, src: "    char header[120];" },
+            { n: 57, src: "    int n;      //length of the first item of the record" },
+            { n: 58, src: "    int y;" },
+            { n: 69, src: "    if (fgets(header, 120, fp) == NULL) {" },
+            { n: 70, src: "        printf(\"cars.csv is empty.\\n\");" },
+            { n: 71, src: "        fclose(fp);" },
+            { n: 72, src: "        return 1;" },
+            { n: 73, src: "    }" },
+            { n: 75, src: "    printf(\"%-12s %-16s %6s %-10s\\n\"," },
+            { n: 76, src: "           \"MAKE\", \"MODEL\", \"YEAR\", \"PLATE\");" },
+            { n: 82, src: "    while ((n = getDelimitedItem(fp, make, 40)) >= 0) {" },
+            { n: 87, src: "        if (n == 0) {" },
+            { n: 88, src: "            continue;" },
+            { n: 89, src: "        }" },
+            { n: 91, src: "        getDelimitedItem(fp, model, 40);" },
+            { n: 92, src: "        getDelimitedItem(fp, year, 40);" },
+            { n: 93, src: "        getDelimitedItem(fp, plate, 40);" },
+            { n: 101, src: "        if (sscanf(year, \"%i\", &y) != 1) {" },
+            { n: 102, src: "            printf(\"Skipping %s %s: year '%s' is not a number\\n\"," },
+            { n: 103, src: "                   make, model, year);" },
+            { n: 104, src: "            continue;" },
+            { n: 105, src: "        }" },
+            { n: 107, src: "        printf(\"%-12s %-16s %6i %-10s\\n\"," },
+            { n: 108, src: "               make, model, y, plate);" },
+            { n: 109, src: "    }" }
           ]}
-        />
-        <CodeBlock
-          file="08-csv.c"
-          from={82}
-          focus={[0]}
-          lines={[
-            "    while ((n = getDelimitedItem(fp, make, 40)) >= 0) {"
+          tracks={[
+            {
+              id: "clean",
+              label: "cars.csv as supplied",
+              frames: [
+                {
+                  lines: [69],
+                  explain: "fgets copied the header line into header and returned a non-null pointer, so the empty-file branch is skipped.",
+                  vars: { header: "\"make,model,year,plate\\n\"" },
+                  note: "The column names are read only so that the loop below never meets them.",
+                  out: []
+                },
+                {
+                  lines: [75, 76],
+                  explain: "The column headings are printed once, before any record has been read.",
+                  out: ["MAKE         MODEL              YEAR PLATE     "]
+                },
+                {
+                  lines: [82],
+                  explain: "The first call filled make and returned 6, the number of characters stored, so the condition holds and a record begins.",
+                  vars: { n: "6", make: "\"Toyota\"" },
+                  note: "This one return value decides whether there is a record at all. The other three calls are not attempted unless it is at least 0.",
+                  out: ["MAKE         MODEL              YEAR PLATE     "]
+                },
+                {
+                  lines: [87],
+                  explain: "n is 6 rather than 0, so a character was stored and this is a car rather than a blank line.",
+                  vars: { n: "6" },
+                  out: ["MAKE         MODEL              YEAR PLATE     "]
+                },
+                {
+                  lines: [91, 92, 93],
+                  explain: "Three further calls complete the record, each resuming at the position the previous call left.",
+                  vars: { model: "\"Corolla\"", year: "\"1995\"", plate: "\"TVX-111\"" },
+                  note: "year holds four digit characters, not a number. Nothing so far has converted it.",
+                  out: ["MAKE         MODEL              YEAR PLATE     "]
+                },
+                {
+                  lines: [101],
+                  explain: "sscanf converted one item out of year, so the count equals 1 and the diagnostic branch is skipped.",
+                  vars: { year: "\"1995\"", sscanf: "returns 1", y: "1995" },
+                  note: "The return value, not the value in y, is what reports success: a failed conversion assigns nothing and leaves y as it was.",
+                  out: ["MAKE         MODEL              YEAR PLATE     "]
+                },
+                {
+                  lines: [107, 108],
+                  explain: "printf emits the first row, with y under %6i and the three text fields left-aligned.",
+                  vars: { y: "1995" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   "
+                  ]
+                },
+                {
+                  lines: [82],
+                  explain: "The loop goes round. The next call returned 6 again, this time holding the second record's make.",
+                  vars: { n: "6", make: "\"Toyota\"" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   "
+                  ]
+                },
+                {
+                  lines: [87],
+                  explain: "Again not a blank line, so the remaining three fields of the second record are read.",
+                  vars: { n: "6" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   "
+                  ]
+                },
+                {
+                  lines: [91, 92, 93],
+                  explain: "The file position carried over from the previous call, so these three fields are the rest of the third line of the file.",
+                  vars: { model: "\"Vios\"", year: "\"2014\"", plate: "\"TJJ-100\"" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   "
+                  ]
+                },
+                {
+                  lines: [101],
+                  explain: "One item converted again, so the check against 1 passes and y holds the second year.",
+                  vars: { sscanf: "returns 1", y: "2014" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   "
+                  ]
+                },
+                {
+                  lines: [107, 108],
+                  explain: "The second row is printed, and the loop returns to line 82 for a third time.",
+                  vars: { y: "2014" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   ",
+                    "Toyota       Vios               2014 TJJ-100   "
+                  ]
+                },
+                {
+                  lines: [82],
+                  explain: "Third pass. make now holds ten characters, and the statements between here and the printf run exactly as before.",
+                  vars: { n: "10", make: "\"Mitsubishi\"" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   ",
+                    "Toyota       Vios               2014 TJJ-100   "
+                  ]
+                },
+                {
+                  lines: [107, 108],
+                  explain: "The third row is printed. Montero Sport keeps its space, because only a comma ends a field here.",
+                  vars: { model: "\"Montero Sport\"", y: "2018" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   ",
+                    "Toyota       Vios               2014 TJJ-100   ",
+                    "Mitsubishi   Montero Sport      2018 JJT-001   "
+                  ]
+                },
+                {
+                  lines: [82],
+                  explain: "Fourth pass, and nothing in the loop knows how many records are left to read.",
+                  vars: { n: "5", make: "\"Honda\"" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   ",
+                    "Toyota       Vios               2014 TJJ-100   ",
+                    "Mitsubishi   Montero Sport      2018 JJT-001   "
+                  ]
+                },
+                {
+                  lines: [107, 108],
+                  explain: "The fourth row is printed, and the file position indicator now stands at the end of cars.csv.",
+                  vars: { y: "2021" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   ",
+                    "Toyota       Vios               2014 TJJ-100   ",
+                    "Mitsubishi   Montero Sport      2018 JJT-001   ",
+                    "Honda        Civic              2021 HCV-221   "
+                  ]
+                },
+                {
+                  lines: [82],
+                  explain: "The fifth call found nothing left to read and returned -1, so the condition is false and the loop ends.",
+                  vars: { n: "-1", make: "\"\"" },
+                  note: "A field of length 0 would have been a blank line and would have gone round again. Only -1 ends the loop.",
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Toyota       Corolla            1995 TVX-111   ",
+                    "Toyota       Vios               2014 TJJ-100   ",
+                    "Mitsubishi   Montero Sport      2018 JJT-001   ",
+                    "Honda        Civic              2021 HCV-221   "
+                  ]
+                }
+              ]
+            },
+            {
+              id: "typo",
+              label: "A year typed as nineteen",
+              frames: [
+                {
+                  lines: [75, 76],
+                  explain: "The headings are printed before any record is read, so they appear whatever the data turns out to hold.",
+                  out: ["MAKE         MODEL              YEAR PLATE     "]
+                },
+                {
+                  lines: [91, 92, 93],
+                  explain: "The first record is assembled as before, but year now holds the word typed where the digits belong.",
+                  vars: { make: "\"Toyota\"", model: "\"Corolla\"", year: "\"nineteen\"", plate: "\"TVX-111\"" },
+                  out: ["MAKE         MODEL              YEAR PLATE     "]
+                },
+                {
+                  lines: [101],
+                  explain: "The %i directive matched nothing, so sscanf assigned nothing, returned 0, and the check against 1 fails.",
+                  vars: { year: "\"nineteen\"", sscanf: "returns 0", y: "never assigned" },
+                  note: "Printing y here would print whatever the storage happened to hold, which is the defect the check exists to prevent.",
+                  out: ["MAKE         MODEL              YEAR PLATE     "]
+                },
+                {
+                  lines: [102, 103],
+                  explain: "The record is named in a diagnostic rather than printed as a row, so the reader knows which line to repair.",
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Skipping Toyota Corolla: year 'nineteen' is not a number"
+                  ]
+                },
+                {
+                  lines: [104],
+                  explain: "continue abandons the rest of the iteration, and the loop reads the next record from where this one ended.",
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Skipping Toyota Corolla: year 'nineteen' is not a number"
+                  ]
+                },
+                {
+                  lines: [107, 108],
+                  explain: "The second record's year converted, so it prints normally. One malformed line cost exactly one line of output.",
+                  vars: { make: "\"Toyota\"", model: "\"Vios\"", y: "2014" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Skipping Toyota Corolla: year 'nineteen' is not a number",
+                    "Toyota       Vios               2014 TJJ-100   "
+                  ]
+                },
+                {
+                  lines: [107, 108],
+                  explain: "The third record is unaffected by the typo in the first, because each pass converts its own year.",
+                  vars: { make: "\"Mitsubishi\"", y: "2018" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Skipping Toyota Corolla: year 'nineteen' is not a number",
+                    "Toyota       Vios               2014 TJJ-100   ",
+                    "Mitsubishi   Montero Sport      2018 JJT-001   "
+                  ]
+                },
+                {
+                  lines: [107, 108],
+                  explain: "The fourth row is printed, leaving a table of three cars and one named refusal.",
+                  vars: { make: "\"Honda\"", y: "2021" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Skipping Toyota Corolla: year 'nineteen' is not a number",
+                    "Toyota       Vios               2014 TJJ-100   ",
+                    "Mitsubishi   Montero Sport      2018 JJT-001   ",
+                    "Honda        Civic              2021 HCV-221   "
+                  ]
+                },
+                {
+                  lines: [82],
+                  explain: "The next call returned -1 and the loop ends, exactly as it does on a file with no typo in it.",
+                  vars: { n: "-1" },
+                  out: [
+                    "MAKE         MODEL              YEAR PLATE     ",
+                    "Skipping Toyota Corolla: year 'nineteen' is not a number",
+                    "Toyota       Vios               2014 TJJ-100   ",
+                    "Mitsubishi   Montero Sport      2018 JJT-001   ",
+                    "Honda        Civic              2021 HCV-221   "
+                  ]
+                }
+              ]
+            }
           ]}
-          caption="One iteration assembles one record, and the first call decides whether a record is present at all."
-        />
-        <CodeBlock
-          file="08-csv.c"
-          from={87}
-          lines={[
-            "        if (n == 0) {",
-            "            continue;",
-            "        }"
-          ]}
-          caption="An empty first field means a blank line rather than a record, so the iteration is abandoned."
-        />
-        <CodeBlock
-          file="08-csv.c"
-          from={91}
-          lines={[
-            "        getDelimitedItem(fp, model, 40);",
-            "        getDelimitedItem(fp, year, 40);",
-            "        getDelimitedItem(fp, plate, 40);"
-          ]}
-        />
-        <p className="aw-p">
-          All four fields are text, because everything read from a text stream
-          arrives as characters. <code className="aw-code">sscanf</code> applies
-          the directive matching of <code className="aw-code">fscanf</code> to a
-          string already in memory and likewise returns the number of items
-          assigned. That count, not the value in{" "}
-          <code className="aw-code">y</code>, tells you whether the field was
-          numeric.
-        </p>
-        <CodeBlock
-          file="08-csv.c"
-          from={101}
-          focus={[0]}
-          lines={[
-            "        if (sscanf(year, \"%i\", &y) != 1) {",
-            "            printf(\"Skipping %s %s: year '%s' is not a number\\n\",",
-            "                   make, model, year);",
-            "            continue;",
-            "        }"
-          ]}
-          caption="Comparing the return value against 1 is what stops a typographical error in the data file from printing an indeterminate value."
-        />
-        <CodeBlock
-          file="08-csv.c"
-          from={107}
-          focus={[0]}
-          lines={[
-            "        printf(\"%-12s %-16s %6i %-10s\\n\",",
-            "               make, model, y, plate);"
-          ]}
-          caption="%6i rather than %-6s: the year is now an int, right-aligned as numeric columns conventionally are."
         />
         <Terminal>{`MAKE         MODEL              YEAR PLATE     
 Toyota       Corolla            1995 TVX-111   
@@ -828,6 +1035,8 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
         </p>
         <Terminal label="A year that is not a number">{`MAKE         MODEL              YEAR PLATE     
 Skipping Toyota Corolla: year 'nineteen' is not a number
+Toyota       Vios               2014 TJJ-100   
+Mitsubishi   Montero Sport      2018 JJT-001   
 Honda        Civic              2021 HCV-221   `}</Terminal>
         <p className="aw-p">
           Then leave a blank line at the end and confirm that no extra row
@@ -870,73 +1079,232 @@ Honda        Civic              2021 HCV-221   `}</Terminal>
     ),
     media: (
       <>
-        <CodeBlock
+        <CodeWalk
+          title="Who calls whom, and what each one is for"
+          notice="Watch the stack: main asks for a record, readCar asks for four fields, and control returns back up."
+          caption="readField carries the first responsibility and nothing else, returning 1 when a field was obtained and 0 once the stream is exhausted: the four NULL tests of 07-fields.c expressed once, with the body of stripNewline inside the only function that needs it. readCar carries the second, and its early return on line 26 is the part worth carrying forward, since a file may end part-way through a record: the fields that arrived are genuine data, but the record they would form is not."
           file="09-modular.c"
-          from={6}
-          focus={[3]}
-          lines={[
-            "int readField(FILE *fp, char *out, int size) {",
-            "",
-            "    if (fgets(out, size, fp) == NULL) {",
-            "        return 0;               //nothing left to read",
-            "    }"
+          outputLabel="Output, byte for byte the output of 07-fields.c"
+          source={[
+            { n: 6, src: "int readField(FILE *fp, char *out, int size) {" },
+            { n: 8, src: "    if (fgets(out, size, fp) == NULL) {" },
+            { n: 9, src: "        return 0;               //nothing left to read" },
+            { n: 10, src: "    }" },
+            { n: 12, src: "    int n = (int) strlen(out);" },
+            { n: 13, src: "    if (n > 0 && out[n - 1] == '\\n') {" },
+            { n: 14, src: "        out[n - 1] = '\\0';" },
+            { n: 15, src: "    }" },
+            { n: 17, src: "    return 1;" },
+            { n: 18, src: "}" },
+            { n: 23, src: "int readCar(FILE *fp, char *make, char *model," },
+            { n: 24, src: "            char *year, char *plate) {" },
+            { n: 26, src: "    if (!readField(fp, make, 40))  return 0;" },
+            { n: 27, src: "    if (!readField(fp, model, 40)) return 0;" },
+            { n: 28, src: "    if (!readField(fp, year, 40))  return 0;" },
+            { n: 29, src: "    if (!readField(fp, plate, 40)) return 0;" },
+            { n: 31, src: "    return 1;" },
+            { n: 32, src: "}" },
+            { n: 46, src: "    printf(\"%-12s %-16s %-6s %-10s\\n\"," },
+            { n: 47, src: "           \"MAKE\", \"MODEL\", \"YEAR\", \"PLATE\");" },
+            { n: 52, src: "    while (readCar(fp, make, model, year, plate)) {" },
+            { n: 53, src: "        printf(\"%-12s %-16s %-6s %-10s\\n\"," },
+            { n: 54, src: "               make, model, year, plate);" },
+            { n: 55, src: "    }" }
           ]}
-          caption="The first responsibility and nothing else: 1 when a field was obtained, 0 once the stream is exhausted. The four NULL tests of 07-fields.c, expressed once."
-        />
-        <CodeBlock
-          file="09-modular.c"
-          from={12}
-          focus={[2]}
-          lines={[
-            "    int n = (int) strlen(out);",
-            "    if (n > 0 && out[n - 1] == '\\n') {",
-            "        out[n - 1] = '\\0';",
-            "    }",
-            "",
-            "    return 1;"
+          tracks={[
+            {
+              id: "cars",
+              label: "cars.txt, sixteen lines",
+              frames: [
+                {
+                  lines: [46, 47],
+                  explain: "main prints the column headings once, before any record has been requested.",
+                  vars: { stack: "main" },
+                  note: "Presentation is main's responsibility, and after the refactoring it is the only one main keeps.",
+                  out: ["MAKE         MODEL            YEAR   PLATE     "]
+                },
+                {
+                  lines: [52],
+                  explain: "The loop condition is a call: main asks readCar whether one more complete record was available.",
+                  vars: { stack: "main to readCar" },
+                  note: "main now says what happens once per car. How a record is read is no longer its business.",
+                  out: ["MAKE         MODEL            YEAR   PLATE     "]
+                },
+                {
+                  lines: [26],
+                  explain: "readCar begins the record by calling readField for the first of its four fields.",
+                  vars: { stack: "main to readCar to readField", field: "make" },
+                  note: "Record assembly is readCar's responsibility: four fields, in order, and nothing else.",
+                  out: ["MAKE         MODEL            YEAR   PLATE     "]
+                },
+                {
+                  lines: [8],
+                  explain: "fgets stored one line and returned non-null, so readField does not take its early exit.",
+                  vars: { stack: "main to readCar to readField", out: "\"Toyota\\n\"" },
+                  note: "Line 8 is readField's responsibility: obtaining one line, and reporting whether there was one.",
+                  out: ["MAKE         MODEL            YEAR   PLATE     "]
+                },
+                {
+                  lines: [12, 13, 14],
+                  explain: "strlen found seven characters and the last of them a newline, so it is overwritten with the terminator.",
+                  vars: { stack: "main to readCar to readField", n: "7", out: "\"Toyota\"" },
+                  out: ["MAKE         MODEL            YEAR   PLATE     "]
+                },
+                {
+                  lines: [17],
+                  explain: "readField returns 1, and control goes back up to line 26, which finds the field present.",
+                  vars: { stack: "main to readCar", make: "\"Toyota\"" },
+                  out: ["MAKE         MODEL            YEAR   PLATE     "]
+                },
+                {
+                  lines: [27, 28, 29],
+                  explain: "The same descent runs three more times, so model, year and plate are filled by three further calls.",
+                  vars: { stack: "main to readCar", model: "\"Corolla\"", year: "\"1995\"", plate: "\"TVX-111\"" },
+                  out: ["MAKE         MODEL            YEAR   PLATE     "]
+                },
+                {
+                  lines: [31],
+                  explain: "All four fields were present, so readCar returns 1 and control returns to the condition on line 52.",
+                  vars: { stack: "main" },
+                  out: ["MAKE         MODEL            YEAR   PLATE     "]
+                },
+                {
+                  lines: [53, 54],
+                  explain: "main prints the row. It has opened no buffer of its own, tested no stream and stripped no newline.",
+                  vars: { stack: "main" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   "
+                  ]
+                },
+                {
+                  lines: [52],
+                  explain: "The condition is evaluated again, and the same five calls run beneath it for the second record.",
+                  vars: { stack: "main to readCar" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   "
+                  ]
+                },
+                {
+                  lines: [53, 54],
+                  explain: "The second row is printed from the four buffers readCar has just refilled.",
+                  vars: { stack: "main", make: "\"Toyota\"", model: "\"Vios\"" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   "
+                  ]
+                },
+                {
+                  lines: [52],
+                  explain: "Third record. The nesting beneath this line is identical every time, and only the contents of the buffers differ.",
+                  vars: { stack: "main to readCar" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   "
+                  ]
+                },
+                {
+                  lines: [53, 54],
+                  explain: "Montero Sport arrives whole: the delimiter here is the line terminator, so a space is ordinary data.",
+                  vars: { stack: "main", model: "\"Montero Sport\"" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   ",
+                    "Mitsubishi   Montero Sport    2018   JJT-001   "
+                  ]
+                },
+                {
+                  lines: [52],
+                  explain: "Fourth record, read by the same four calls into the same four buffers.",
+                  vars: { stack: "main to readCar" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   ",
+                    "Mitsubishi   Montero Sport    2018   JJT-001   "
+                  ]
+                },
+                {
+                  lines: [53, 54],
+                  explain: "The fourth row is printed, and all sixteen lines of cars.txt have now been consumed.",
+                  vars: { stack: "main", make: "\"Honda\"", model: "\"Civic\"" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   ",
+                    "Mitsubishi   Montero Sport    2018   JJT-001   ",
+                    "Honda        Civic            2021   HCV-221   "
+                  ]
+                },
+                {
+                  lines: [26],
+                  explain: "A fifth record is attempted, so readCar descends once more and asks readField for a make.",
+                  vars: { stack: "main to readCar to readField", field: "make" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   ",
+                    "Mitsubishi   Montero Sport    2018   JJT-001   ",
+                    "Honda        Civic            2021   HCV-221   "
+                  ]
+                },
+                {
+                  lines: [8],
+                  explain: "fgets found nothing left to read and returned NULL, which is the one failure readField has to report.",
+                  vars: { stack: "main to readCar to readField" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   ",
+                    "Mitsubishi   Montero Sport    2018   JJT-001   ",
+                    "Honda        Civic            2021   HCV-221   "
+                  ]
+                },
+                {
+                  lines: [9],
+                  explain: "readField returns 0 and control rises one level, back into the guard on line 26.",
+                  vars: { stack: "main to readCar" },
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   ",
+                    "Mitsubishi   Montero Sport    2018   JJT-001   ",
+                    "Honda        Civic            2021   HCV-221   "
+                  ]
+                },
+                {
+                  lines: [26],
+                  explain: "The first guard fails, so readCar returns 0 without attempting model, year or plate.",
+                  vars: { stack: "main" },
+                  note: "Half a record never reaches main, because readCar is the level that knows what a whole record is.",
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   ",
+                    "Mitsubishi   Montero Sport    2018   JJT-001   ",
+                    "Honda        Civic            2021   HCV-221   "
+                  ]
+                },
+                {
+                  lines: [52],
+                  explain: "The condition is false and the loop ends, leaving the table 07-fields.c printed in step S5.2.",
+                  vars: { stack: "main" },
+                  note: "Three functions instead of one, three levels of call instead of none, and not one byte of output changed.",
+                  out: [
+                    "MAKE         MODEL            YEAR   PLATE     ",
+                    "Toyota       Corolla          1995   TVX-111   ",
+                    "Toyota       Vios             2014   TJJ-100   ",
+                    "Mitsubishi   Montero Sport    2018   JJT-001   ",
+                    "Honda        Civic            2021   HCV-221   "
+                  ]
+                }
+              ]
+            }
           ]}
-          caption="The body of stripNewline from step S5.2, inside the only function that needs it."
-        />
-        <CodeBlock
-          file="09-modular.c"
-          from={23}
-          lines={[
-            "int readCar(FILE *fp, char *make, char *model,",
-            "            char *year, char *plate) {"
-          ]}
-          caption="The second responsibility, record assembly: 1 only when all four fields were present."
-        />
-        <CodeBlock
-          file="09-modular.c"
-          from={26}
-          focus={[0]}
-          lines={[
-            "    if (!readField(fp, make, 40))  return 0;",
-            "    if (!readField(fp, model, 40)) return 0;",
-            "    if (!readField(fp, year, 40))  return 0;",
-            "    if (!readField(fp, plate, 40)) return 0;",
-            "",
-            "    return 1;"
-          ]}
-          caption="An early return the moment any one field proves to be absent."
-        />
-        <p className="aw-p">
-          That guard is the part worth carrying forward. A file may end
-          part-way through a record: the fields that arrived are genuine data,
-          but the record they would form is not, and returning 0 keeps it from
-          the caller.
-        </p>
-        <CodeBlock
-          file="09-modular.c"
-          from={52}
-          focus={[0]}
-          lines={[
-            "    while (readCar(fp, make, model, year, plate)) {",
-            "        printf(\"%-12s %-16s %-6s %-10s\\n\",",
-            "               make, model, year, plate);",
-            "    }"
-          ]}
-          caption="Presentation is all that remains in main: was a further complete record available?"
         />
         <Terminal label="09-modular.c — identical to the output of 07-fields.c">{`MAKE         MODEL            YEAR   PLATE     
 Toyota       Corolla          1995   TVX-111   

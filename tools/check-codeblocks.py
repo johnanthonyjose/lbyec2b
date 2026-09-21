@@ -27,7 +27,7 @@ def unescape(js):
             out.append(c); i += 1
     return "".join(out)
 
-problems = checked = 0
+problems = checked = walked = 0
 typed = set()
 for f in FILES:
     src = (ROOT / f).read_text()
@@ -61,7 +61,38 @@ for f in FILES:
                 print(f"     source: {want!r}")
                 problems += 1
 
-print(f"\n{checked} code blocks checked against public/assets/file-io/")
+
+# CodeWalk renders its own source listing from a `source={[{ n, src }]}` prop.
+# That is now the primary way code reaches the reader on this page — more lines
+# than the remaining CodeBlocks carry — and it was going unchecked, which is
+# exactly the gap that let an off-by-one `from` ship the first time.
+for f in FILES:
+    src = (ROOT / f).read_text()
+    for m in re.finditer(r'<CodeWalk\b([\s\S]*?)source=\{\[([\s\S]*?)\]\}', src):
+        fm = re.search(r'file="([^"]+)"', m.group(1))
+        if not fm:
+            print(f"  ?? {f}: a CodeWalk has a source listing but no file= prop")
+            problems += 1; continue
+        name = fm.group(1)
+        target = ASSETS / name
+        if not target.exists():
+            typed.add(name); continue
+        real = target.read_text().split("\n")
+        rows = re.findall(
+            r'\{\s*n:\s*(\d+)\s*,\s*src:\s*(?:"((?:[^"\\]|\\.)*)"|\'((?:[^\'\\]|\\.)*)\')\s*\}',
+            m.group(2))
+        walked += 1
+        for num, a, b in rows:
+            line = unescape(a or b)
+            i = int(num)
+            want = real[i - 1] if 0 < i <= len(real) else "<past end of file>"
+            if line != want:
+                print(f"  !! {f}: CodeWalk over {name}, line {i}")
+                print(f"     page:   {line!r}")
+                print(f"     source: {want!r}")
+                problems += 1
+
+print(f"\n{checked} code blocks and {walked} CodeWalk listings checked against public/assets/file-io/")
 if typed: print(f"not checked (typed by the reader, not shipped): {', '.join(sorted(typed))}")
 print("All code blocks match their source." if not problems else f"{problems} MISMATCH(ES)")
 sys.exit(1 if problems else 0)

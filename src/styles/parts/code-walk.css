@@ -1,0 +1,132 @@
+/* The generic source walk: code left, explanation right, output beneath.
+
+   Everything here is layout and emphasis. The component draws only what a step
+   hands it, so this stylesheet has to work for a six-line excerpt and for a
+   forty-line function, on a phone and on a laptop, without either looking like
+   a mistake. */
+
+.cw { display: grid; gap: var(--space-4); min-width: 0; }
+
+.cw-label {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider); text-transform: uppercase;
+  color: var(--text-secondary); margin-bottom: var(--space-2);
+}
+.cw-label-meta {
+  font-weight: var(--weight-semibold); letter-spacing: var(--tracking-wide);
+  text-transform: none; color: var(--text-gold); font-feature-settings: 'tnum';
+}
+
+/* ---- which run ---------------------------------------------------------- */
+
+.cw-tracks { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.cw-track {
+  cursor: pointer; font-family: var(--font-sans); font-size: var(--text-xs);
+  min-height: var(--touch-target-min); padding: 0 var(--space-4);
+  color: var(--text-secondary); background: var(--surface-page);
+  border: 1px solid var(--border-default); border-left: 3px solid transparent;
+  border-radius: var(--radius-md);
+  transition: var(--transition-control);
+}
+.cw-track:hover { border-color: var(--border-strong); }
+/* Selection is weight, surface and a rule, never colour alone. */
+.cw-track.is-on {
+  color: var(--text-primary); font-weight: var(--weight-semibold);
+  background: var(--surface-subtle); border-left-color: var(--green-700);
+}
+
+/* ---- code and explanation ---------------------------------------------- */
+
+.cw-grid {
+  display: grid; gap: var(--space-4);
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.cw-code-wrap, .cw-side, .cw-out-wrap { min-width: 0; }
+
+.cw-scroll { border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); }
+.cw-code { margin: 0; padding: var(--space-3) 0; background: var(--surface-sunken); }
+.cw-code code { display: block; width: max-content; min-width: 100%; }
+
+.cw-line {
+  display: flex; align-items: baseline; gap: var(--space-2);
+  padding: 1px var(--space-3) 1px 0;
+  transition: background-color var(--ex-fade);
+}
+.cw-gutter {
+  flex: none; width: 1.1em; text-align: center;
+  color: var(--green-700); font-size: var(--text-xs);
+}
+.cw-n {
+  flex: none; width: 2.5ch; text-align: right;
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--text-secondary); font-feature-settings: 'tnum'; user-select: none;
+}
+.cw-src {
+  font-family: var(--font-mono); font-size: var(--text-sm);
+  line-height: var(--leading-relaxed); color: var(--text-primary);
+  white-space: pre; tab-size: 4;
+}
+
+/* The executing statement. Marked three ways — a caret in the gutter, a rule,
+   and a tint — because the caret is what survives greyscale and the tint is
+   what the eye finds first. */
+.cw-line.is-on { background: var(--green-50); box-shadow: inset 3px 0 0 var(--green-700); }
+.cw-line.is-on .cw-n { color: var(--green-800); font-weight: var(--weight-bold); }
+
+.cw-side {
+  background: var(--surface-subtle); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm); padding: var(--space-4);
+}
+.cw-explain {
+  margin: 0; font-size: var(--text-sm); line-height: var(--leading-relaxed);
+  color: var(--text-primary);
+}
+.cw-vars {
+  margin: var(--space-4) 0 0; padding-top: var(--space-3);
+  border-top: 1px solid var(--border-default);
+  display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+}
+.cw-vars dt { font-size: var(--text-xs); color: var(--text-secondary); }
+.cw-vars dd { margin: 0; min-width: 0; font-size: var(--text-xs); color: var(--text-primary); }
+.cw-vars code { font-family: var(--font-mono); overflow-wrap: anywhere; }
+.cw-note {
+  margin: var(--space-3) 0 0; padding-top: var(--space-3);
+  border-top: 1px dashed var(--border-default);
+  font-size: var(--text-xs); line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+}
+
+/* ---- the program's output ---------------------------------------------- */
+
+.cw-out { margin: 0; padding: var(--space-3) var(--space-4); background: var(--surface-ink); }
+.cw-out code { display: block; width: max-content; min-width: 100%; }
+.cw-out-line {
+  display: block; font-family: var(--font-mono); font-size: var(--text-xs);
+  line-height: var(--leading-relaxed); color: var(--neutral-100); white-space: pre;
+}
+/* The newest line, so a reader scrubbing quickly can see which one just
+   arrived without re-reading the whole panel. */
+.cw-out-line.is-new { color: var(--gold-300); }
+.cw-out-empty {
+  font-family: var(--font-sans); font-size: var(--text-xs);
+  color: var(--neutral-400); font-style: italic;
+}
+
+@media (max-width: 720px) {
+  /* Code above explanation, never two squeezed columns: a wrapped line of C
+     is harder to read than a scrolled one. */
+  .cw-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media print {
+  .cw-tracks { display: none; }
+  .cw-grid { grid-template-columns: minmax(0, 1fr); }
+  .cw-out { background: #fff; }
+  .cw-out-line { color: #000; }
+  .cw-line.is-on { box-shadow: none; outline: 1pt solid #000; }
+}

@@ -1,6 +1,8 @@
 import React from "react";
 import { CodeBlock, Terminal } from "./CodeBlock.jsx";
 import { BufferMachine } from "../../components/explorable/BufferMachine.jsx";
+import { CodeWalk } from "../../components/explorable/CodeWalk.jsx";
+import { ModeExplorer } from "../../components/explorable/ModeExplorer.jsx";
 
 /* Stages 1 to 3 of the File I/O handout: the problem, the open, the write.
 
@@ -254,7 +256,7 @@ export const steps13 = [
     id: "S2.1",
     stage: 2, n: 1,
     title: "Streams, and the FILE object behind them",
-    action: <>Start a new file called <code className="aw-code">01-open.c</code> with the include and the declaration below.</>,
+    action: <>Start a new file called <code className="aw-code">01-open.c</code> with <code className="aw-code">#include &lt;stdio.h&gt;</code>, <code className="aw-code">int main(void)</code>, and the declaration <code className="aw-code">FILE *fp;</code> inside it.</>,
     body: (
       <>
         <p className="aw-p">
@@ -286,20 +288,6 @@ export const steps13 = [
           fourth stream beside them.
         </p>
       </>
-    ),
-    media: (
-      <CodeBlock
-        file="01-open.c"
-        from={1}
-        lines={[
-          "#include <stdio.h>",
-          "",
-          "int main(void) {",
-          "",
-          "    //A FILE pointer is the handle the program holds on to.",
-          "    //It does not contain the file. It refers to the file."
-        ]}
-      />
     ),
     why: {
       label: "Why a pointer, and not a variable of type FILE?",
@@ -339,26 +327,19 @@ export const steps13 = [
           <strong>working directory</strong>, an attribute of the process
           inherited from whatever launched it, and your editor may launch the
           program from the project root while the source sits in a subdirectory.
-          Paths, absolute and relative, are tabulated in the reference below. Use
-          forward slashes in either kind: Windows accepts them, and the same
+          Paths, absolute and relative, are tabulated in the reference below.
+        </p>
+        <p className="aw-p">
+          Whichever kind you write, use forward slashes. In C source a backslash
+          begins an <strong>escape sequence</strong> that the compiler resolves
+          before the program runs, so{" "}
+          <code className="aw-code">"c:\temp\data.txt"</code> is not the path it
+          appears to be: <code className="aw-code">\t</code> is one tab
+          character, and what reaches <code className="aw-code">fopen</code> is a
+          name no drive holds. Windows accepts forward slashes, and the same
           source then runs unchanged on macOS.
         </p>
       </>
-    ),
-    media: (
-      <CodeBlock
-        file="01-open.c"
-        from={7}
-        lines={[
-          "    FILE *fp;",
-          "",
-          "    //\"r\" means read-only. fopen returns NULL if it fails,",
-          "    //most often because test.txt is not in the folder the",
-          "    //program was launched from. Run 02-write.c first.",
-          '    fp = fopen("test.txt", "r");'
-        ]}
-        focus={[5]}
-      />
     ),
     why: {
       label: "What is wrong with \"c:\\temp\\test1.txt\"?",
@@ -416,21 +397,106 @@ export const steps13 = [
       </>
     ),
     media: (
-      <CodeBlock
+      <CodeWalk
+        title="One call, two outcomes"
+        notice="Line 12 is identical in both runs. Watch what fp holds on line 17."
+        caption={<>The whole of <code className="aw-code">01-open.c</code>, assembled across steps 1 to 4 of this stage and run twice from a real terminal: once in a directory with no <code className="aw-code">test.txt</code>, and once after stage 3 has written it. Comment lines are omitted from the source window; the line numbers are the file's own. Nothing at the call site distinguishes the two runs, which is precisely why the value in <code className="aw-code">fp</code> has to be tested rather than assumed.</>}
         file="01-open.c"
-        from={14}
-        lines={[
-          "    //Never skip this check. A NULL fp used later is a crash.",
-          "    //perror prints our message plus the real reason from",
-          "    //the operating system, e.g. \"No such file or directory\".",
-          "    if (fp == NULL) {",
-          '        perror("Could not open test.txt");',
-          "        return 1;   //non-zero tells the shell the run failed",
-          "    }",
-          "",
-          '    printf("test.txt opened for reading.\\n");'
+        source={[
+          { n: 1, src: "#include <stdio.h>" },
+          { n: 2, src: "" },
+          { n: 3, src: "int main(void) {" },
+          { n: 4, src: "" },
+          { n: 7, src: "    FILE *fp;" },
+          { n: 8, src: "" },
+          { n: 12, src: '    fp = fopen("test.txt", "r");' },
+          { n: 13, src: "" },
+          { n: 17, src: "    if (fp == NULL) {" },
+          { n: 18, src: '        perror("Could not open test.txt");' },
+          { n: 19, src: "        return 1;   //non-zero tells the shell the run failed" },
+          { n: 20, src: "    }" },
+          { n: 21, src: "" },
+          { n: 22, src: '    printf("test.txt opened for reading.\\n");' },
+          { n: 23, src: "" },
+          { n: 25, src: "    fclose(fp);" },
+          { n: 26, src: "" },
+          { n: 27, src: "    return 0;" },
+          { n: 28, src: "}" }
         ]}
-        focus={[3, 4]}
+        tracks={[
+          {
+            id: "missing",
+            label: "The file is missing",
+            frames: [
+              {
+                lines: [7],
+                explain: "The declaration reserves a handle. It refers to no stream yet, and its value is indeterminate.",
+                vars: { fp: "indeterminate" }
+              },
+              {
+                lines: [12],
+                explain: "fopen found no test.txt in the working directory, so it returned a null pointer and set errno.",
+                vars: { fp: "NULL", errno: "ENOENT" }
+              },
+              {
+                lines: [17],
+                explain: "The comparison is true, so control enters the block. This line is the only thing separating the two runs.",
+                vars: { fp: "NULL", errno: "ENOENT" }
+              },
+              {
+                lines: [18],
+                explain: "perror writes the message, a colon, and the library's text for the current errno to the standard error stream.",
+                vars: { fp: "NULL", errno: "ENOENT" },
+                out: ["Could not open test.txt: No such file or directory"]
+              },
+              {
+                lines: [19],
+                explain: "main returns 1, so the shell records exit status 1 and no fclose is reached, there being no stream to close.",
+                vars: { fp: "NULL" },
+                note: "Delete lines 17 to 20 and this run would carry the null pointer into fclose. That is undefined behavior, not a diagnosed error: the standard imposes no requirement on what follows, so the failure may be a crash, silence, or anything else.",
+                out: ["Could not open test.txt: No such file or directory"]
+              }
+            ]
+          },
+          {
+            id: "present",
+            label: "The file is there",
+            frames: [
+              {
+                lines: [7],
+                explain: "The same declaration, reserving the same handle. Nothing yet distinguishes this run from the other.",
+                vars: { fp: "indeterminate" }
+              },
+              {
+                lines: [12],
+                explain: "The same call, with the same arguments. This time the file exists, so fopen constructed a FILE object and returned a pointer to it.",
+                vars: { fp: "a FILE object" }
+              },
+              {
+                lines: [17],
+                explain: "The comparison is false, so the block is skipped. The value in fp, not the code, chose the branch.",
+                vars: { fp: "a FILE object" }
+              },
+              {
+                lines: [22],
+                explain: "Execution resumes after the block and the message reaches the standard output stream.",
+                vars: { fp: "a FILE object" },
+                out: ["test.txt opened for reading."]
+              },
+              {
+                lines: [25],
+                explain: "fclose releases the FILE object and the resources beneath it, after which the pointer may no longer be used.",
+                vars: { fp: "no longer usable" },
+                out: ["test.txt opened for reading."]
+              },
+              {
+                lines: [27],
+                explain: "main returns 0, so the shell records exit status 0 and the run reports success.",
+                out: ["test.txt opened for reading."]
+              }
+            ]
+          }
+        ]}
       />
     ),
     difficulty: "fopen returned NULL",
@@ -478,17 +544,6 @@ export const steps13 = [
     ),
     media: (
       <>
-        <CodeBlock
-          file="01-open.c"
-          from={24}
-          lines={[
-            "    //Every successful fopen needs a matching fclose.",
-            "    fclose(fp);",
-            "",
-            "    return 0;",
-            "}"
-          ]}
-        />
         <Terminal label="Run in a directory with no test.txt — exit status 1">
 {`Could not open test.txt: No such file or directory`}
         </Terminal>
@@ -520,73 +575,164 @@ export const steps13 = [
     id: "S2.5",
     stage: 2, n: 5,
     title: "Open two streams at once",
-    action: <>Read <code className="aw-code">10-twofiles.c</code> below rather than running it. Count the pointers, the checks and the closes.</>,
+    action: <>Step through <code className="aw-code">10-twofiles.c</code> in the figure below rather than running it.</>,
     body: (
       <>
         <p className="aw-p">
           Almost every useful program has an input and an output, which means two
           streams open at once. Each <code className="aw-code">fopen</code>{" "}
           constructs a separate <code className="aw-code">FILE</code> object with
-          its own position, buffer and indicators, so advancing through one
-          stream moves nothing in the other.
-        </p>
-        <p className="aw-p">
-          The loop in the middle of{" "}
-          <code className="aw-code">10-twofiles.c</code> uses stage 4's reading
-          calls, so attend only to the pointers, the checks and the closes — and
-          to what the second check does before it returns, since one open that
-          failed is no reason to abandon one that succeeded.
+          its own position, buffer and indicators, and the figure below is where
+          that separateness becomes visible rather than asserted. The loop uses
+          stage 4's reading calls, which arrive later.
         </p>
       </>
     ),
     media: (
       <>
-        <CodeBlock
+        <CodeWalk
+          title="Two streams, two positions"
+          notice="Two positions are shown side by side. Watch how rarely they move together."
           file="10-twofiles.c"
-          from={9}
-          lines={[
-            "    FILE *fpIn, *fpOut;",
-            "    char line[120];",
-            "    int cars = 0;"
+          caption={<>A real run of <code className="aw-code">10-twofiles.c</code> over the sixteen lines of <code className="aw-code">cars.txt</code>. The positions are the values <code className="aw-code">ftell</code> reported on each stream after every iteration, not estimates; comment lines are omitted from the source window and the line numbers are the file's own. Count the pointers, the checks and the closes as you go, and note what the second check does before it returns, since one open that failed is no reason to abandon one that succeeded.</>}
+          source={[
+            { n: 1, src: "#include <stdio.h>" },
+            { n: 2, src: "#include <string.h>" },
+            { n: 3, src: "" },
+            { n: 7, src: "int main(void) {" },
+            { n: 8, src: "" },
+            { n: 9, src: "    FILE *fpIn, *fpOut;" },
+            { n: 10, src: "    char line[120];" },
+            { n: 11, src: "    int cars = 0;" },
+            { n: 12, src: "" },
+            { n: 15, src: '    fpIn = fopen("cars.txt", "r");' },
+            { n: 16, src: "" },
+            { n: 17, src: "    if (fpIn == NULL) {" },
+            { n: 18, src: '        perror("Could not open cars.txt for reading");' },
+            { n: 19, src: "        return 1;" },
+            { n: 20, src: "    }" },
+            { n: 21, src: "" },
+            { n: 22, src: '    fpOut = fopen("plates.txt", "w");' },
+            { n: 23, src: "" },
+            { n: 24, src: "    if (fpOut == NULL) {" },
+            { n: 25, src: '        perror("Could not open plates.txt for writing");' },
+            { n: 26, src: "        fclose(fpIn);           //the input is open; close it" },
+            { n: 27, src: "        return 1;" },
+            { n: 28, src: "    }" },
+            { n: 29, src: "" },
+            { n: 31, src: "    while (fgets(line, 120, fpIn) != NULL) {" },
+            { n: 32, src: "" },
+            { n: 33, src: "        int n = (int) strlen(line);" },
+            { n: 34, src: "        if (n > 0 && line[n - 1] == '\\n') {" },
+            { n: 35, src: "            line[n - 1] = '\\0';" },
+            { n: 36, src: "        }" },
+            { n: 37, src: "" },
+            { n: 38, src: "        cars = cars + 1;" },
+            { n: 39, src: "" },
+            { n: 40, src: "        if (cars % 4 == 0) {" },
+            { n: 41, src: '            fprintf(fpOut, "%s\\n", line);' },
+            { n: 42, src: "        }" },
+            { n: 43, src: "    }" },
+            { n: 44, src: "" },
+            { n: 46, src: "    fclose(fpIn);" },
+            { n: 47, src: "    fclose(fpOut);" },
+            { n: 48, src: "" },
+            { n: 49, src: '    printf("Wrote %i plates to plates.txt\\n", cars / 4);' },
+            { n: 50, src: "" },
+            { n: 51, src: "    return 0;" },
+            { n: 52, src: "}" }
           ]}
-          focus={[0]}
-        />
-        <CodeBlock
-          file="10-twofiles.c"
-          from={15}
-          lines={[
-            '    fpIn = fopen("cars.txt", "r");',
-            "",
-            "    if (fpIn == NULL) {",
-            '        perror("Could not open cars.txt for reading");',
-            "        return 1;",
-            "    }"
+          tracks={[
+            {
+              id: "run",
+              label: "A run with both files available",
+              frames: [
+                {
+                  lines: [15],
+                  explain: "The first fopen constructed a FILE object for cars.txt. Its position starts at the beginning of the file.",
+                  vars: { fpIn: "cars.txt, position 0", fpOut: "not yet opened", cars: 0 }
+                },
+                {
+                  lines: [17],
+                  explain: "The input opened, so the comparison is false and the block is skipped. Each open needs its own check.",
+                  vars: { fpIn: "cars.txt, position 0", fpOut: "not yet opened", cars: 0 }
+                },
+                {
+                  lines: [22],
+                  explain: "The second fopen constructed a second FILE object. Mode w created plates.txt, or truncated it to nothing.",
+                  vars: { fpIn: "cars.txt, position 0", fpOut: "plates.txt, position 0", cars: 0 }
+                },
+                {
+                  lines: [24],
+                  explain: "The output opened too, so this block is skipped as well and both handles are now valid.",
+                  vars: { fpIn: "cars.txt, position 0", fpOut: "plates.txt, position 0", cars: 0 },
+                  note: "Had this check failed, line 26 would close fpIn before returning. The input is already open at that point, and a function that gives up still owes the resources it acquired."
+                },
+                {
+                  lines: [31],
+                  explain: "The first fgets consumed the seven bytes of Toyota and its newline, advancing the input by exactly that much.",
+                  vars: { fpIn: "cars.txt, position 7", fpOut: "plates.txt, position 0", cars: 0 }
+                },
+                {
+                  lines: [38],
+                  explain: "The counter records one line read. Neither position changed, because counting is not an operation on a stream.",
+                  vars: { fpIn: "cars.txt, position 7", fpOut: "plates.txt, position 0", cars: 1 }
+                },
+                {
+                  lines: [40],
+                  explain: "One is not a multiple of four, so nothing is written and the output position stays where the open left it.",
+                  vars: { fpIn: "cars.txt, position 7", fpOut: "plates.txt, position 0", cars: 1 }
+                },
+                {
+                  lines: [31, 38],
+                  explain: "Two more iterations read Corolla and 1995. The input has advanced three times; the output has not moved once.",
+                  vars: { fpIn: "cars.txt, position 20", fpOut: "plates.txt, position 0", cars: 3 }
+                },
+                {
+                  lines: [31],
+                  explain: "The fourth fgets read the plate number TVX-111, advancing the input to byte 28 of 116.",
+                  vars: { fpIn: "cars.txt, position 28", fpOut: "plates.txt, position 0", cars: 3 }
+                },
+                {
+                  lines: [38, 40],
+                  explain: "The counter reaches four, so this time the remainder is zero and the write below is taken.",
+                  vars: { fpIn: "cars.txt, position 28", fpOut: "plates.txt, position 0", cars: 4 }
+                },
+                {
+                  lines: [41],
+                  explain: "fprintf issued eight bytes to the output, so its position moved to 8 while the input stayed at 28.",
+                  vars: { fpIn: "cars.txt, position 28", fpOut: "plates.txt, position 8", cars: 4 }
+                },
+                {
+                  lines: [41],
+                  explain: "Twelve iterations later the last plate has been written, at the sixteenth line read and the fourth line written.",
+                  vars: { fpIn: "cars.txt, position 116", fpOut: "plates.txt, position 32", cars: 16 }
+                },
+                {
+                  lines: [31],
+                  explain: "The next fgets found no bytes left and returned NULL, so the loop ended with the input at end of file.",
+                  vars: { fpIn: "cars.txt, position 116", fpOut: "plates.txt, position 32", cars: 16 }
+                },
+                {
+                  lines: [46],
+                  explain: "The input is released. The output is untouched by this call, still open and still holding its own position.",
+                  vars: { fpIn: "closed", fpOut: "plates.txt, position 32", cars: 16 }
+                },
+                {
+                  lines: [47],
+                  explain: "The output is flushed and released, leaving plates.txt on disk at the 32 bytes its position records.",
+                  vars: { fpIn: "closed", fpOut: "closed", cars: 16 }
+                },
+                {
+                  lines: [49],
+                  explain: "Sixteen lines divided by four gives the count printed, after both streams have already been closed.",
+                  vars: { cars: 16 },
+                  out: ["Wrote 4 plates to plates.txt"],
+                  note: "main then returns 0. Two opens, two checks and two closes, and no call on either stream ever affected the other."
+                }
+              ]
+            }
           ]}
-          focus={[0]}
-        />
-        <CodeBlock
-          file="10-twofiles.c"
-          from={22}
-          lines={[
-            '    fpOut = fopen("plates.txt", "w");',
-            "",
-            "    if (fpOut == NULL) {",
-            '        perror("Could not open plates.txt for writing");',
-            "        fclose(fpIn);           //the input is open; close it",
-            "        return 1;",
-            "    }"
-          ]}
-          focus={[4]}
-        />
-        <CodeBlock
-          file="10-twofiles.c"
-          from={45}
-          lines={[
-            "    //Two files open means two files to close.",
-            "    fclose(fpIn);",
-            "    fclose(fpOut);"
-          ]}
-          focus={[1, 2]}
         />
         <Terminal label="Run once cars.txt exists — exit status 0">
 {`Wrote 4 plates to plates.txt`}
@@ -652,19 +798,7 @@ HCV-221`}
       </>
     ),
     media: (
-      <CodeBlock
-        file="02-write.c"
-        from={5}
-        lines={[
-          "    FILE *fp;",
-          "",
-          "    //\"w\" creates test.txt if it is missing, and TRUNCATES it",
-          "    //to zero bytes if it already exists. Anything that was in",
-          "    //the file before this line is gone. Use \"a\" to keep it.",
-          '    fp = fopen("test.txt", "w");'
-        ]}
-        focus={[5]}
-      />
+      <ModeExplorer caption="The same file, opened three ways. The mode is not only a permission, it also decides where the position starts and whether anything already in the file survives. Mode &quot;w&quot; is the destructive one, and it destroys at the open rather than at the first write." />
     ),
     check: {
       kind: "predict",

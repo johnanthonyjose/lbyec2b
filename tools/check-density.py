@@ -24,7 +24,7 @@ FILES = ["src/pages/file-io/steps-1-3.jsx", "src/pages/file-io/steps-4-5.jsx"]
 # they are text in a monospace font, and counting them would let the page pass
 # while being exactly what it was criticised for.
 FIGURES = ("<FileMachine", "<ParseWalker", "<BufferMachine", "<LoopCompare",
-           "<StreamDiagram", "<ModeExplorer", "<ByteContract", "<RecordAssembler")
+           "<CodeWalk", "<ModeExplorer")
 
 # 7,700, raised from the 7,500 first written here, and the reason is recorded
 # rather than quietly applied. The original figure was estimated before the
@@ -42,6 +42,42 @@ FIGURES = ("<FileMachine", "<ParseWalker", "<BufferMachine", "<LoopCompare",
 TOTAL_WORDS_MAX = 7700
 LONE_STEP_WORDS = 500       # a step this long with no figure has reverted to prose
 
+
+def strip_prop(text, name):
+    """Remove a whole `name={[ ... ]}` prop, matching brackets.
+
+       A non-greedy regex stops at the first `]}`, which inside a nested frame
+       array is nowhere near the end. These props run to hundreds of lines, so
+       getting this wrong silently leaves most of the data in the word count.
+    """
+    out, i = [], 0
+    needle = name + "={"
+    while True:
+        j = text.find(needle, i)
+        if j < 0:
+            out.append(text[i:]); break
+        out.append(text[i:j])
+        k = j + len(needle) - 1          # at the opening brace
+        depth, quote = 0, None
+        while k < len(text):
+            ch = text[k]
+            # Skip over string literals. The arrays being matched are full of
+            # C source, and a line like "    while (x) {" or "    }" would
+            # otherwise move the depth counter and send this past the end of
+            # the prop, silently eating the prose that follows it.
+            if quote:
+                if ch == "\\": k += 2; continue
+                if ch == quote: quote = None
+            elif ch in "\"'`":
+                quote = ch
+            elif ch in "{[": depth += 1
+            elif ch in "}]":
+                depth -= 1
+                if depth == 0: break
+            k += 1
+        i = k + 1
+    return "".join(out)
+
 def measure():
     rows = []
     for f in FILES:
@@ -56,7 +92,15 @@ def measure():
             # words and would have had me cutting real prose to compensate.
             prose = re.sub(r'/\*[\s\S]*?\*/', ' ', chunk)
             prose = re.sub(r'^\s*//.*$', ' ', prose, flags=re.M)
-            prose = re.sub(r'lines=\{\[[\s\S]*?\]\}', ' ', prose)
+            prose = strip_prop(prose, "lines")     # CodeBlock source
+            # A figure's authored frames are data, not page prose. The reader
+            # sees one `explain` at a time as a glance beside the drawing, and
+            # never sees the `source` rows as running text at all. Counting
+            # them put two steps at over 1,200 words apiece and would have had
+            # me deleting real prose to compensate.
+            prose = strip_prop(prose, "source")    # CodeWalk listing
+            prose = strip_prop(prose, "tracks")    # CodeWalk frames
+            prose = strip_prop(prose, "trace")     # FileMachine frames
             prose = re.sub(r'<Terminal[\s\S]*?</Terminal>', ' ', prose)
             prose = re.sub(r'<[^>]+>', ' ', prose)
             words = len(re.findall(r"[A-Za-z][A-Za-z'-]+", prose))
